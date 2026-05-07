@@ -178,28 +178,62 @@ Librerie:
 - scikit-learn;
 - PyTorch.
 
-## Organizzazione possibile della directory
+## Organizzazione attuale della directory
 
 ```text
-project/
-├── data/
-│   └── synthetic_options.csv
-├── notebooks/
-│   └── exploratory_analysis.ipynb
+nn-option-pricing/
+├── docs/
+│   ├── README.md
+│   └── source/
+│       ├── api/
+│       ├── conf.py
+│       ├── experiment_pipeline.rst
+│       ├── experiments.rst
+│       ├── index.rst
+│       ├── methodology.rst
+│       └── overview.rst
+├── presentation/
+│   ├── README.md
+│   ├── main.pdf
+│   └── main.tex
+├── report/
+│   ├── README.md
+│   ├── main.pdf
+│   ├── main.tex
+│   ├── references.bib
+│   └── sections/
+├── scripts/
+│   └── run_experiment.py
 ├── src/
-│   ├── black_scholes.py
-│   ├── monte_carlo.py
-│   ├── dataset.py
-│   ├── model.py
-│   ├── train.py
-│   ├── evaluate.py
-│   └── plots.py
-├── outputs/
-│   ├── figures/
-│   └── metrics/
+│   └── nn_option_pricing/
+│       ├── __init__.py
+│       ├── black_scholes.py
+│       ├── config.py
+│       ├── dataset.py
+│       ├── evaluation.py
+│       ├── model.py
+│       ├── monte_carlo.py
+│       ├── pipeline.py
+│       ├── plots.py
+│       └── training.py
+├── tests/
+│   └── test_black_scholes.py
+├── ISTRUZIONI.md
+├── README.md
+├── pyproject.toml
+├── requirements-docs.txt
 ├── requirements.txt
-└── README.md
+└── .gitignore
 ```
+
+Le directory generate durante gli esperimenti non devono necessariamente essere tracciate da Git.
+In particolare:
+
+- `data/` puo' contenere dataset sintetici generati;
+- `outputs/` puo' contenere metriche, figure, modelli e scaler salvati;
+- `docs/build/` contiene la documentazione HTML generata da Sphinx.
+
+Questi artefatti sono generalmente esclusi da Git, salvo file finali esplicitamente utili alla consegna, come `report/main.pdf` e `presentation/main.pdf`.
 
 ## Implementazione minimale funzionante
 
@@ -215,7 +249,129 @@ La prima versione del progetto dovrebbe includere:
 
 Solo dopo questa prima versione conviene aggiungere miglioramenti progressivi.
 
+## Deliverable finali previsti
 
-#### Note implementative
+Alla fine del progetto, i principali deliverable dovrebbero essere:
+
+1. codice Python modulare e riproducibile;
+2. implementazione della formula Black-Scholes;
+3. implementazione del benchmark Monte Carlo;
+4. generazione del dataset sintetico;
+5. training e valutazione della neural network;
+6. metriche finali e figure sperimentali;
+7. test automatici per le componenti principali;
+8. documentazione tecnica Sphinx;
+9. relazione finale in LaTeX, con PDF tracciato;
+10. presentazione Beamer, con PDF tracciato.
+
+La consegna finale dovrebbe permettere a un lettore di:
+
+- capire il framework matematico;
+- riprodurre gli esperimenti principali;
+- consultare il codice tramite documentazione;
+- leggere una discussione critica dei risultati;
+- seguire una presentazione sintetica del lavoro svolto.
+
+### Note implementative
 
 Questo progetto deve avere una architettura professionale e deve essere computazionalmente e algoritmicamente efficiente.
+
+## Roadmap operativa
+
+Questa sezione serve come promemoria delle parti ancora da completare dopo la prima impostazione del progetto.
+
+### 1. Rafforzare i test
+
+Prima di lanciare esperimenti lunghi o modificare ulteriormente la pipeline, e' opportuno aumentare la copertura dei test.
+
+Test da aggiungere:
+
+- dataset:
+  - colonne corrette;
+  - numero di righe corretto;
+  - range rispettati per `S0`, `K`, `T`, `r`, `sigma`;
+  - prezzi non negativi;
+  - riproducibilita' con random seed.
+- Monte Carlo:
+  - output positivo;
+  - forma corretta dell'output;
+  - convergenza approssimata verso Black-Scholes aumentando il numero di simulazioni;
+  - riproducibilita' con random seed.
+- pipeline:
+  - smoke test piccolo con poche osservazioni e poche epoche;
+  - verifica che il run termini senza errori;
+  - verifica che metriche e figure principali vengano prodotte.
+
+Questa fase e' prioritaria per proteggere il progetto mentre il codice cresce.
+
+### 2. Eseguire un esperimento serio
+
+Dopo aver rafforzato i test, bisogna eseguire una run sperimentale piu' rappresentativa.
+
+Elementi da includere:
+
+- dataset piu' grande, ad esempio `100_000` osservazioni o piu';
+- training piu' lungo, ad esempio 100-300 epoche con early stopping;
+- test set separato;
+- salvataggio di:
+  - modello addestrato;
+  - scaler;
+  - metriche finali;
+  - figure definitive;
+  - configurazione dell'esperimento.
+
+Questa fase produrra' i risultati quantitativi principali del progetto.
+
+### 3. Analisi degli errori
+
+Non basta valutare solo metriche aggregate come MAE o RMSE. Bisogna capire dove la rete commette errori maggiori.
+
+Analisi da produrre:
+
+- errore rispetto alla moneyness `S0 / K`;
+- errore rispetto alla maturity `T`;
+- errore rispetto alla volatilita' `sigma`;
+- distribuzione degli errori;
+- confronto tra regioni deep in-the-money, at-the-money e out-of-the-money;
+- attenzione ai prezzi molto piccoli, dove l'errore relativo puo' diventare instabile.
+
+Questa fase e' importante per rendere il progetto scientificamente interessante e non limitarlo a un semplice training di rete neurale.
+
+### 4. Aggiornare relazione e presentazione
+
+Una volta disponibili metriche e figure definitive, bisogna aggiornare la relazione in `report/` e le slide in `presentation/`.
+
+Parti da completare nella relazione:
+
+- metodologia sperimentale;
+- dettagli implementativi;
+- risultati quantitativi;
+- figure generate;
+- discussione degli errori rispetto a moneyness, maturity e volatilita';
+- limiti del lavoro;
+- conclusioni e sviluppi futuri.
+
+Parti da completare nella presentazione:
+
+- risultati principali;
+- analisi degli errori;
+- confronto con Monte Carlo;
+- conclusioni finali.
+
+La relazione e le slide devono seguire i risultati sperimentali, non anticiparli troppo.
+
+### 5. Aggiungere CI GitHub Actions
+
+La continuous integration e' opzionale, ma rende il progetto piu' professionale.
+
+Workflow minimo consigliato:
+
+- esecuzione di `pytest`;
+- build della documentazione Sphinx con warning trattati come errori.
+
+Possibile estensione:
+
+- build automatica della relazione LaTeX;
+- build automatica delle slide Beamer.
+
+La build LaTeX puo' essere piu' fragile perche' dipende dai pacchetti TeX installati nell'ambiente CI, quindi puo' essere aggiunta solo in una fase successiva.
