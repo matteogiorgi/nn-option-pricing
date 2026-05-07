@@ -1,6 +1,8 @@
-\chapter{Preliminary Results}
+\chapter{Results}
 
-In the first intermediate experiment, the neural network obtained the following metrics on the test set:
+\section{Neural Network Approximation}
+
+The final neural network results on the held-out test set are reported in Table~\ref{tab:nn-final-metrics}.
 
 \begin{table}[H]
     \centering
@@ -8,60 +10,78 @@ In the first intermediate experiment, the neural network obtained the following 
         \toprule
         Metric & Value \\
         \midrule
-        MAE & 0.6952 \\
-        RMSE & 0.9114 \\
-        $R^2$ & 0.9985 \\
-        MAPE, prices $> 1$ & 10.0137\% \\
+        MAE & 0.06198 \\
+        RMSE & 0.08219 \\
+        $R^2$ & 0.999987 \\
+        MAPE, prices $> 1$ & 0.6746\% \\
         \bottomrule
     \end{tabular}
-    \caption{Preliminary neural network metrics against Black-Scholes prices.}
+    \caption{Final neural network metrics against analytical Black-Scholes prices.}
+    \label{tab:nn-final-metrics}
 \end{table}
 
-The high $R^2$ value suggests that the neural network can already approximate the Black-Scholes pricing function very accurately.
-The average absolute errors remain limited relative to the overall range of option prices.
-MAPE is more delicate to interpret, because the prices of far out-of-the-money options may be close to zero; for this reason, it is computed only on prices greater than 1.
+The results show that the feed-forward neural network approximates the Black-Scholes pricing function with very high accuracy on the sampled parameter domain.
+The coefficient of determination is close to one, while MAE and RMSE are small in absolute price units.
+This supports the main research question: in this controlled setting, a neural network can learn the Black-Scholes pricing map effectively and can be interpreted as a fast pricing surrogate after training.
 
 \begin{figure}[H]
     \centering
-    \maybeincludegraphics[width=0.72\linewidth]{../outputs/figures/loss.png}
-    \caption{Training loss and validation loss.}
+    \maybeincludegraphics[width=0.72\linewidth]{../results/final/figures/loss.png}
+    \caption{Training loss and validation loss for the final experiment.}
+    \label{fig:final-loss}
 \end{figure}
+
+Figure~\ref{fig:final-loss} shows that the optimization process remains stable.
+The validation curve follows the training curve closely, suggesting that the model does not simply memorize the training set.
 
 \begin{figure}[H]
     \centering
-    \maybeincludegraphics[width=0.62\linewidth]{../outputs/figures/true_vs_predicted.png}
-    \caption{Black-Scholes prices against neural network predictions.}
+    \maybeincludegraphics[width=0.62\linewidth]{../results/final/figures/true_vs_predicted.png}
+    \caption{Analytical Black-Scholes prices against neural network predictions.}
+    \label{fig:final-true-vs-predicted}
 \end{figure}
+
+Figure~\ref{fig:final-true-vs-predicted} confirms that predicted prices are tightly aligned with analytical prices across the observed price range.
+
+\section{Error Diagnostics}
 
 \begin{figure}[H]
     \centering
-    \maybeincludegraphics[width=0.72\linewidth]{../outputs/figures/error_distribution.png}
-    \caption{Distribution of prediction errors.}
+    \maybeincludegraphics[width=0.72\linewidth]{../results/final/figures/error_distribution.png}
+    \caption{Distribution of neural network prediction errors.}
+    \label{fig:final-error-distribution}
 \end{figure}
+
+The error distribution in Figure~\ref{fig:final-error-distribution} is concentrated near zero, which is consistent with the low MAE and RMSE values reported in Table~\ref{tab:nn-final-metrics}.
 
 \begin{figure}[H]
     \centering
     \begin{subfigure}{0.32\linewidth}
         \centering
-        \maybeincludegraphics[width=\linewidth]{../outputs/figures/error_vs_moneyness.png}
+        \maybeincludegraphics[width=\linewidth]{../results/final/figures/error_vs_moneyness.png}
         \caption{Moneyness}
     \end{subfigure}
     \begin{subfigure}{0.32\linewidth}
         \centering
-        \maybeincludegraphics[width=\linewidth]{../outputs/figures/error_vs_maturity.png}
+        \maybeincludegraphics[width=\linewidth]{../results/final/figures/error_vs_maturity.png}
         \caption{Maturity}
     \end{subfigure}
     \begin{subfigure}{0.32\linewidth}
         \centering
-        \maybeincludegraphics[width=\linewidth]{../outputs/figures/error_vs_volatility.png}
+        \maybeincludegraphics[width=\linewidth]{../results/final/figures/error_vs_volatility.png}
         \caption{Volatility}
     \end{subfigure}
-    \caption{Absolute error against selected financial features.}
+    \caption{Absolute neural network error against selected financial features.}
+    \label{fig:final-error-diagnostics}
 \end{figure}
 
-\section{Monte Carlo Comparison}
+Figure~\ref{fig:final-error-diagnostics} is used to inspect whether the approximation error changes systematically across the parameter space.
+This is important because aggregate metrics alone may hide localized weaknesses, especially around different moneyness regimes, short maturities, or high-volatility regions.
 
-On the subset used for the Monte Carlo benchmark, the numerical simulation obtained:
+\section{Monte Carlo Benchmark}
+
+The Monte Carlo benchmark is evaluated against the analytical Black-Scholes price on 512 deterministic test options.
+The results are shown in Table~\ref{tab:mc-final-metrics}.
 
 \begin{table}[H]
     \centering
@@ -69,13 +89,26 @@ On the subset used for the Monte Carlo benchmark, the numerical simulation obtai
         \toprule
         Metric & Value \\
         \midrule
-        MAE & 0.3100 \\
-        RMSE & 0.5201 \\
-        $R^2$ & 0.9996 \\
-        MAPE, prices $> 1$ & 2.2139\% \\
+        MAE & 0.08882 \\
+        RMSE & 0.15790 \\
+        $R^2$ & 0.999951 \\
+        MAPE, prices $> 1$ & 0.6483\% \\
         \bottomrule
     \end{tabular}
-    \caption{Preliminary Monte Carlo metrics against Black-Scholes prices.}
+    \caption{Final Monte Carlo metrics against analytical Black-Scholes prices.}
+    \label{tab:mc-final-metrics}
 \end{table}
 
-The comparison with Monte Carlo is useful because it highlights the difference between a simulation-based numerical method and a supervised model that, once trained, can produce predictions very quickly.
+The Monte Carlo benchmark also achieves high accuracy, as expected when the number of simulated paths is large.
+However, it remains a simulation-based estimator and therefore has sampling error.
+The neural network, in contrast, produces deterministic forward-pass predictions once trained.
+This highlights the main computational role of the network: it does not replace the analytical Black-Scholes formula in this setting, but it demonstrates how a learned surrogate can approximate a pricing map efficiently.
+
+\section{Discussion}
+
+The final results indicate that the neural network performs slightly better than the Monte Carlo benchmark in terms of MAE and RMSE on the reported experiment, while Monte Carlo obtains a slightly lower MAPE on prices greater than 1.
+This comparison should be interpreted carefully because the two methods are evaluated differently: the neural network is evaluated on the full held-out test set, whereas Monte Carlo is evaluated on a deterministic subset due to computational cost.
+
+The most important conclusion is qualitative rather than competitive.
+In a controlled Black-Scholes environment, a feed-forward network can learn the mapping from option and market parameters to theoretical prices with high accuracy.
+This validates the use of the Black-Scholes setting as a clean benchmark for studying neural-network pricing surrogates before moving to more complex models.

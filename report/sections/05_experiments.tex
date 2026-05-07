@@ -1,25 +1,55 @@
 \chapter{Experiments}
 
-\section{Preliminary Experiment}
+\section{Final Experiment Design}
 
-A first intermediate experiment was run to verify that the pipeline was correct and that the neural network was able to learn the pricing function.
-The command used was:
+The final experiment was designed to evaluate the neural network as a supervised surrogate of the Black-Scholes European call pricing function on a sufficiently large synthetic dataset.
+The analytical Black-Scholes formula is used as the reference target, while Monte Carlo simulation is used as a numerical benchmark on a deterministic subset of the test set.
 
-\begin{lstlisting}[style=pythonstyle, caption={Command for a preliminary experiment.}]
-python scripts/run_experiment.py \
-  --n-samples 10000 \
-  --max-epochs 40 \
+The final run used 100,000 synthetic option contracts sampled from the parameter ranges defined in the methodology.
+The neural network was trained for up to 200 epochs with early stopping, using mini-batches of size 1024.
+The Monte Carlo benchmark used 50,000 simulated paths on 512 test options.
+
+\begin{lstlisting}[style=pythonstyle, caption={Command used for the final experiment.}]
+.venv/bin/python scripts/run_experiment.py \
+  --n-samples 100000 \
+  --max-epochs 200 \
   --batch-size 1024 \
-  --mc-n-paths 5000 \
-  --mc-evaluation-samples 128
+  --mc-n-paths 50000 \
+  --mc-evaluation-samples 512 \
+  --data-dir data/final \
+  --output-dir outputs/final
 \end{lstlisting}
 
-This run does not necessarily represent the final experiment of the project; rather, it is an initial correctness check of the implementation.
-Final experiments may use more observations, more training epochs, and a larger number of Monte Carlo paths.
+\section{Reproducible Artifacts}
 
-\section{Planned Visualizations}
+The complete generated dataset, trained model checkpoint, and fitted scalers are stored under \texttt{data/final/} and \texttt{outputs/final/}.
+These directories are ignored by Git because they can be reproduced from the code and experiment configuration.
 
-The main visualizations are:
+The selected final artifacts used in the report are tracked in \texttt{results/final/}.
+This directory contains:
+
+\begin{itemize}
+    \item the experiment configuration snapshot;
+    \item neural network metrics;
+    \item Monte Carlo benchmark metrics;
+    \item diagnostic figures;
+    \item a short verification note reporting the final test and documentation checks.
+\end{itemize}
+
+\section{Evaluation Protocol}
+
+The neural network is evaluated on a held-out test set that is not used during training or validation.
+The target prices are analytical Black-Scholes prices, so the reported errors measure how accurately the network approximates the known pricing function.
+
+The Monte Carlo benchmark is evaluated against the same analytical Black-Scholes reference, but only on a deterministic subset of 512 test options.
+This restriction keeps the numerical benchmark computationally bounded while still providing a useful comparison with a classical simulation-based method.
+
+The main metrics are mean absolute error, root mean squared error, coefficient of determination, and MAPE computed only on prices greater than 1.
+The MAPE restriction avoids unstable percentage errors for options whose theoretical price is close to zero.
+
+\section{Diagnostic Visualizations}
+
+The experiment produces the following diagnostic plots:
 
 \begin{itemize}
     \item training loss and validation loss;

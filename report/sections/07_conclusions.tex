@@ -1,17 +1,30 @@
 \chapter{Conclusions and Next Steps}
 
-The first implementation confirms that a feed-forward neural network can approximate the Black-Scholes pricing function for European call options with high accuracy in a controlled synthetic environment.
-The project is therefore consistent with the initial research question and provides a solid basis for further experiments.
+The final experiment confirms that a feed-forward neural network can approximate the Black-Scholes pricing function for European call options with high accuracy in a controlled synthetic environment.
+With 100,000 synthetic contracts, the network achieves an MAE of 0.06198, an RMSE of 0.08219, and an $R^2$ of 0.999987 on the held-out test set.
+These results answer the research question positively within the assumptions and parameter ranges considered in the project.
 
-The next steps are:
+The comparison with Monte Carlo also clarifies the role of the neural network.
+Monte Carlo is a classical numerical estimator and remains useful as a benchmark, while the trained neural network acts as a deterministic pricing surrogate.
+The purpose of the network is therefore not to replace the analytical Black-Scholes formula, but to demonstrate that a supervised model can accurately learn a well-defined pricing map.
+
+The main limitations are:
 
 \begin{itemize}
-    \item increase the size of the synthetic dataset;
-    \item run longer training experiments and compare different architectures;
-    \item study the error in specific regions of the parameter space, for instance deep in-the-money or out-of-the-money options;
-    \item compare evaluation times across the analytical formula, Monte Carlo simulation, and the neural network;
-    \item improve the theoretical discussion of the limitations of a pricing surrogate trained on synthetic data.
+    \item the data are synthetic and generated under Black-Scholes assumptions;
+    \item only European call options are considered;
+    \item the target pricing function is known analytically;
+    \item generalization outside the sampled parameter ranges is not guaranteed.
 \end{itemize}
 
-As future developments, one could consider stochastic volatility models, more complex options, or more advanced neural methods.
-These extensions are outside the scope of the first version of the project, but they represent natural directions for generalizing the approach.
+Natural next steps are:
+
+\begin{itemize}
+    \item compare different neural network architectures and activation functions;
+    \item study the error in specific regions of the parameter space, for instance deep in-the-money or out-of-the-money options;
+    \item compare evaluation times across the analytical formula, Monte Carlo simulation, and the neural network;
+    \item extend the framework to stochastic volatility models such as Heston;
+    \item estimate Greeks using either automatic differentiation or finite differences.
+\end{itemize}
+
+These extensions are outside the scope of the current implementation, but they represent natural directions for generalizing the approach beyond the Black-Scholes benchmark.
