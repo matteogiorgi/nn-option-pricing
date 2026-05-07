@@ -46,7 +46,6 @@ a deterministic subset of 512 test options.
 ## Included Artifacts
 
 - `experiment_config.json`
-- `verification.md`
 - `metrics/nn_metrics.json`
 - `metrics/monte_carlo_vs_black_scholes_metrics.json`
 - `figures/loss.png`
@@ -55,3 +54,40 @@ a deterministic subset of 512 test options.
 - `figures/error_vs_moneyness.png`
 - `figures/error_vs_maturity.png`
 - `figures/error_vs_volatility.png`
+
+## Final Verification
+
+The following validation checks were executed after generating the final
+experiment artifacts.
+
+Repository state:
+
+- verification commit: `0f58408`;
+- final experiment artifacts directory: `results/final/`;
+- generated but untracked reproducible artifacts:
+  - `data/final/`;
+  - `outputs/final/`.
+
+Test suite:
+
+```bash
+.venv/bin/pytest
+```
+
+Result:
+
+```text
+10 passed
+```
+
+Documentation build:
+
+```bash
+.venv/bin/sphinx-build -W -b html docs/source docs/build/html
+```
+
+Result:
+
+```text
+build succeeded
+```
