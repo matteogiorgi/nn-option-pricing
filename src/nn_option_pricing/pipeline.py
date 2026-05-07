@@ -14,21 +14,21 @@ import numpy as np
 import pandas as pd
 import torch
 
-from option_pricing_nn.config import ExperimentConfig
-from option_pricing_nn.dataset import (
+from nn_option_pricing.config import ExperimentConfig
+from nn_option_pricing.dataset import (
     FEATURE_COLUMNS,
     generate_synthetic_dataset,
     save_dataset,
 )
-from option_pricing_nn.evaluation import regression_metrics, save_metrics
-from option_pricing_nn.monte_carlo import call_price_mc
-from option_pricing_nn.plots import (
+from nn_option_pricing.evaluation import regression_metrics, save_metrics
+from nn_option_pricing.monte_carlo import call_price_mc
+from nn_option_pricing.plots import (
     plot_error_against_feature,
     plot_error_distribution,
     plot_loss,
     plot_true_vs_predicted,
 )
-from option_pricing_nn.training import predict, train_model
+from nn_option_pricing.training import predict, train_model
 
 
 def ensure_directories(config: ExperimentConfig) -> None:

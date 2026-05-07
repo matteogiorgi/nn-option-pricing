@@ -1,4 +1,4 @@
-# Neural Network-Based European Option Pricing
+# Neural Network Option Pricing
 
 Project for Machine Learning for Finance.
 
@@ -22,7 +22,7 @@ Black-Scholes prices and Monte Carlo estimates?
 ├── scripts/
 │   └── run_experiment.py
 ├── src/
-│   └── option_pricing_nn/
+│   └── nn_option_pricing/
 ├── tests/
 ├── ISTRUZIONI.md
 ├── README.md
@@ -62,3 +62,15 @@ The run generates:
 - trained model checkpoint in `outputs/`;
 - metrics in `outputs/metrics/`;
 - figures in `outputs/figures/`.
+
+## Documentation
+
+Build the Sphinx documentation:
+
+```bash
+pip install -r requirements-docs.txt
+sphinx-build -b html docs/source docs/build/html
+```
+
+Open `docs/build/html/index.html` in a browser to read the generated
+documentation.

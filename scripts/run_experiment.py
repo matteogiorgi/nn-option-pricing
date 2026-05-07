@@ -5,13 +5,13 @@ from __future__ import annotations
 import argparse
 import json
 
-from option_pricing_nn.config import (
+from nn_option_pricing.config import (
     DatasetConfig,
     ExperimentConfig,
     MonteCarloConfig,
     TrainingConfig,
 )
-from option_pricing_nn.pipeline import run_experiment
+from nn_option_pricing.pipeline import run_experiment
 
 
 def parse_args() -> argparse.Namespace:

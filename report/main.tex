@@ -1,9 +1,10 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[11pt,a4paper]{report}
 
-\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
-\usepackage{lmodern}
+\usepackage{fontspec}
+\setmainfont{Latin Modern Roman}
+\setmonofont{Cascadia Code}[Scale=0.88]
 \usepackage{geometry}
 \usepackage{microtype}
 \usepackage{amsmath, amssymb}
@@ -15,8 +16,16 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{float}
+\usepackage{titlesec}
 
 \geometry{margin=2.6cm}
+
+\titleformat{\chapter}[hang]
+    {\normalfont\huge\bfseries}
+    {\thechapter}
+    {1em}
+    {}
+\titlespacing*{\chapter}{0pt}{-0.5em}{1.8em}
 
 \hypersetup{
     colorlinks=true,
@@ -33,12 +42,17 @@
     stringstyle=\color{red!50!black},
     showstringspaces=false,
     breaklines=true,
+    columns=fullflexible,
+    keepspaces=true,
     frame=single,
     rulecolor=\color{black!20},
     backgroundcolor=\color{black!2}
 }
 
 \newcommand{\projecttitle}{Neural Network-Based European Option Pricing under Black-Scholes SDE Dynamics}
+\newenvironment{projectabstract}
+    {\chapter*{Abstract}\addcontentsline{toc}{chapter}{Abstract}}
+    {\clearpage}
 \newcommand{\placeholderfigure}[1]{%
     \fbox{%
         \begin{minipage}[c][5cm][c]{0.88\linewidth}
@@ -61,17 +75,20 @@
 
 \begin{document}
 
+\pagenumbering{roman}
 \maketitle
+\setcounter{page}{2}
 
-\begin{abstract}
+\begin{projectabstract}
     This project studies whether a feed-forward neural network can accurately approximate the Black-Scholes pricing function for European call options.
     The problem is addressed in a controlled setting: data are generated synthetically from the analytical Black-Scholes formula, while Monte Carlo simulation is used as a numerical benchmark.
     The neural network is trained in a supervised learning framework to learn the mapping from market and contract parameters to the theoretical option price.
     The goal is not to build a real trading system, but to evaluate the role of a neural network as a pricing surrogate in a mathematically well-defined financial setting.
-\end{abstract}
+\end{projectabstract}
 
 \tableofcontents
 \newpage
+\pagenumbering{arabic}
 
 \input{sections/01_introduction}
 \input{sections/02_theoretical_framework}

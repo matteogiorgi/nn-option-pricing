@@ -1,6 +1,6 @@
-\section{Theoretical Framework}
+\chapter{Theoretical Framework}
 
-\subsection{Underlying Asset Dynamics}
+\section{Underlying Asset Dynamics}
 
 In the Black-Scholes model, the price of the underlying asset follows a geometric Brownian motion under the risk-neutral measure.
 This formulation is standard in continuous-time financial market modeling \cite{shreve2004stochastic}:
@@ -18,7 +18,7 @@ The solution of the SDE is:
     \qquad Z \sim \mathcal{N}(0,1).
 \end{equation}
 
-\subsection{European Call Option}
+\section{European Call Option}
 
 A European call option with strike $K$ and maturity $T$ has payoff:
 
@@ -32,7 +32,7 @@ Under risk-neutral pricing, its value is the discounted expected payoff:
     C = e^{-rT}\mathbb{E}^{\mathbb{Q}}\left[\max(S_T - K, 0)\right].
 \end{equation}
 
-\subsection{Black-Scholes Formula}
+\section{Black-Scholes Formula}
 
 The analytical price of a European call option is:
 
@@ -49,7 +49,7 @@ where $N(\cdot)$ is the cumulative distribution function of a standard normal ra
 
 In this project, $C_{BS}$ is used both as the supervised learning target and as the reference value for evaluation.
 
-\subsection{Monte Carlo Pricing}
+\section{Monte Carlo Pricing}
 
 Monte Carlo simulation approximates the risk-neutral expectation by generating many realizations of $S_T$:
 
@@ -63,4 +63,3 @@ Monte Carlo simulation approximates the risk-neutral expectation by generating m
 
 For sufficiently large $M$, $\hat{C}_{MC}$ converges to $C_{BS}$.
 In this project, Monte Carlo is used as a numerical benchmark and as a comparison point for the neural network.
-

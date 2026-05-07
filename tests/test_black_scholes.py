@@ -1,6 +1,6 @@
 import numpy as np
 
-from option_pricing_nn.black_scholes import call_price
+from nn_option_pricing.black_scholes import call_price
 
 
 def test_black_scholes_known_atm_case():

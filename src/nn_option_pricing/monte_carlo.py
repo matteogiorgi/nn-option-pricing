@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from option_pricing_nn.black_scholes import call_payoff
+from nn_option_pricing.black_scholes import call_payoff
 
 
 def call_price_mc(

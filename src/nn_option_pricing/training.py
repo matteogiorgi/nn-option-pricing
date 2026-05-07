@@ -12,9 +12,9 @@ from sklearn.preprocessing import StandardScaler
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
-from option_pricing_nn.config import TrainingConfig
-from option_pricing_nn.dataset import FEATURE_COLUMNS, TARGET_COLUMN
-from option_pricing_nn.model import PricingMLP
+from nn_option_pricing.config import TrainingConfig
+from nn_option_pricing.dataset import FEATURE_COLUMNS, TARGET_COLUMN
+from nn_option_pricing.model import PricingMLP
 
 
 @dataclass

@@ -30,21 +30,9 @@ dist/
 data/*.csv
 outputs/
 
-# LaTeX build artifacts
-*.aux
-*.bbl
-*.bcf
-*.blg
-*.fdb_latexmk
-*.fls
-*.log
-*.out
-*.run.xml
-*.synctex.gz
-*.toc
-
 # OS/editor files
 .DS_Store
 Thumbs.db
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/

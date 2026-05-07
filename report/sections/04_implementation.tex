@@ -1,12 +1,12 @@
-\section{Implementation}
+\chapter{Implementation}
 
 The project is implemented in Python with a modular structure.
 The main libraries are NumPy, pandas, SciPy, scikit-learn, matplotlib, and PyTorch.
 
-\subsection{Code Structure}
+\section{Code Structure}
 
 \begin{lstlisting}[style=pythonstyle, caption={Main project structure.}]
-src/option_pricing_nn/
+src/nn_option_pricing/
     black_scholes.py   # analytical formula and payoff
     monte_carlo.py     # efficient Monte Carlo simulation
     dataset.py         # synthetic data generation and storage
@@ -19,7 +19,7 @@ scripts/
     run_experiment.py  # command-line entry point
 \end{lstlisting}
 
-\subsection{Computational Efficiency}
+\section{Computational Efficiency}
 
 The Black-Scholes formula and the dataset generation procedure are implemented in vectorized form with NumPy.
 The Monte Carlo method uses the exact terminal distribution of the geometric Brownian motion at time $T$, avoiding unnecessary time discretization.
@@ -28,7 +28,7 @@ Moreover, Monte Carlo simulation is batched both over options and over simulated
 The neural network training uses PyTorch \texttt{DataLoader}, mini-batch gradient descent, input standardization, and target scaling.
 These choices make the code suitable both for quick development runs and for larger experiments.
 
-\subsection{Reproducibility}
+\section{Reproducibility}
 
 To make the experiments reproducible, the project fixes the random seeds of NumPy, Python, and PyTorch.
 The artifacts produced by an experiment include:
@@ -41,4 +41,3 @@ The artifacts produced by an experiment include:
     \item metrics in JSON format;
     \item diagnostic plots.
 \end{itemize}
-

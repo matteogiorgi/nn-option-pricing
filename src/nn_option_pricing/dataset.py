@@ -13,8 +13,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from option_pricing_nn.black_scholes import call_price
-from option_pricing_nn.config import DatasetConfig
+from nn_option_pricing.black_scholes import call_price
+from nn_option_pricing.config import DatasetConfig
 
 FEATURE_COLUMNS = ["s0", "k", "t", "r", "sigma"]
 TARGET_COLUMN = "call_price"
