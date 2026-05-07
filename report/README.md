@@ -19,5 +19,6 @@ latexmk -c main.tex
 The report uses `fontspec` and Cascadia Code for monospaced code blocks, so it
 must be compiled with XeLaTeX rather than pdfLaTeX.
 
-Figures are loaded from `../outputs/figures/`.
-If the experiments have not been run yet, the PDF remains compilable and shows placeholders instead of figures.
+Final figures are loaded from `../results/final/figures/`.
+If the final results have not been generated yet, the PDF remains compilable and
+shows placeholders instead of figures.

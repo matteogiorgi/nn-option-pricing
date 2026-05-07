@@ -1,3 +1,5 @@
+"""Smoke tests for the end-to-end experiment pipeline."""
+
 import json
 
 from nn_option_pricing.config import (

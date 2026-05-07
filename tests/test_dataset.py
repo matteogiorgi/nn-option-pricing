@@ -1,3 +1,5 @@
+"""Tests for synthetic dataset generation and persistence."""
+
 import numpy as np
 import pandas as pd
 

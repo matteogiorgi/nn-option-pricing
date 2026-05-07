@@ -24,7 +24,24 @@ The project contains the following components:
 * synthetic dataset generation;
 * feed-forward neural network training with PyTorch;
 * evaluation metrics and diagnostic plots;
-* a LaTeX report for the final project submission.
+* a LaTeX report for the final project submission;
+* a Beamer presentation for the oral discussion.
+
+Final Deliverables
+------------------
+
+The final experiment results are reflected in the tracked project deliverables:
+
+* ``results/final/`` contains the selected final configuration, metrics,
+  figures, and verification notes;
+* ``report/main.pdf`` contains the final technical report generated from the
+  LaTeX sources in ``report/``;
+* ``presentation/main.pdf`` contains the final Beamer slide deck generated
+  from ``presentation/main.tex``.
+
+Generated datasets, trained model checkpoints, scalers, and full run outputs
+are kept reproducible but untracked under ``data/final/`` and
+``outputs/final/``.
 
 Repository Layout
 -----------------
@@ -45,6 +62,10 @@ Repository Layout
    report/
        main.tex
        main.pdf
+   presentation/
+       main.tex
+       main.pdf
+   results/
+       final/
    docs/
        source/
-

@@ -1,3 +1,5 @@
+"""Tests for Monte Carlo European call pricing."""
+
 import numpy as np
 
 from nn_option_pricing.black_scholes import call_price
