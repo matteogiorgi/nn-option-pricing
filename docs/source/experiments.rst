@@ -26,8 +26,40 @@ The project produces the following plots:
 * absolute error versus maturity;
 * absolute error versus volatility.
 
-Suggested Final Experiments
----------------------------
+Final Experiment
+----------------
+
+The final experiment artifacts selected for the report are stored in
+``results/final/``. This directory tracks the configuration snapshot, metrics,
+diagnostic figures, and verification notes, while generated datasets and model
+checkpoints remain reproducible but untracked in ``data/final/`` and
+``outputs/final/``.
+
+The final run uses:
+
+* 100,000 synthetic option contracts;
+* up to 200 training epochs with early stopping;
+* 50,000 Monte Carlo paths;
+* a deterministic Monte Carlo evaluation subset of 512 test options.
+
+The final neural network metrics against analytical Black-Scholes prices are:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Metric
+     - Value
+   * - MAE
+     - 0.0619787835
+   * - RMSE
+     - 0.0821850306
+   * - :math:`R^2`
+     - 0.9999874234
+   * - MAPE, price > 1
+     - 0.6746048331%
+
+Further Experiment Ideas
+------------------------
 
 For the final project report, useful experiments include:
 
@@ -36,4 +68,3 @@ For the final project report, useful experiments include:
 * comparing activation functions such as ReLU, Tanh, and LeakyReLU;
 * measuring how the error changes with moneyness, maturity, and volatility;
 * comparing inference time against Monte Carlo simulation.
-

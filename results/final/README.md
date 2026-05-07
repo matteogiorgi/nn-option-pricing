@@ -46,6 +46,7 @@ a deterministic subset of 512 test options.
 ## Included Artifacts
 
 - `experiment_config.json`
+- `verification.md`
 - `metrics/nn_metrics.json`
 - `metrics/monte_carlo_vs_black_scholes_metrics.json`
 - `figures/loss.png`
