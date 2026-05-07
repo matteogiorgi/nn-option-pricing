@@ -1,3 +1,11 @@
+"""Synthetic dataset generation for the supervised pricing task.
+
+The dataset is synthetic by design: option parameters are sampled from
+predefined ranges and labels are computed with the analytical Black-Scholes
+formula. This keeps the learning problem controlled and makes evaluation
+unambiguous.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -13,7 +21,20 @@ TARGET_COLUMN = "call_price"
 
 
 def generate_synthetic_dataset(config: DatasetConfig) -> pd.DataFrame:
-    """Generate synthetic option parameters and Black-Scholes call prices."""
+    """Generate option parameters and analytical Black-Scholes labels.
+
+    Parameters
+    ----------
+    config
+        Dataset generation settings, including sample size, random seed, and
+        parameter ranges.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing input features, the Black-Scholes target price,
+        and moneyness as an additional diagnostic column.
+    """
     rng = np.random.default_rng(config.seed)
     n = config.n_samples
 
@@ -36,10 +57,11 @@ def generate_synthetic_dataset(config: DatasetConfig) -> pd.DataFrame:
 
 
 def save_dataset(df: pd.DataFrame, path: Path) -> None:
+    """Save a dataset to CSV, creating parent directories if needed."""
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(path, index=False)
 
 
 def load_dataset(path: Path) -> pd.DataFrame:
+    """Load a dataset previously saved with :func:`save_dataset`."""
     return pd.read_csv(path)
-

@@ -1,14 +1,24 @@
+"""Command-line entry point for running the pricing experiment."""
+
 from __future__ import annotations
 
 import argparse
 import json
 
-from option_pricing_nn.config import DatasetConfig, ExperimentConfig, MonteCarloConfig, TrainingConfig
+from option_pricing_nn.config import (
+    DatasetConfig,
+    ExperimentConfig,
+    MonteCarloConfig,
+    TrainingConfig,
+)
 from option_pricing_nn.pipeline import run_experiment
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run the Black-Scholes neural pricing experiment.")
+    """Parse command-line options into experiment overrides."""
+    parser = argparse.ArgumentParser(
+        description="Run the Black-Scholes neural pricing experiment."
+    )
     parser.add_argument("--n-samples", type=int, default=100_000)
     parser.add_argument("--max-epochs", type=int, default=200)
     parser.add_argument("--batch-size", type=int, default=1024)
@@ -20,6 +30,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Build the experiment configuration, run the pipeline, and print metrics."""
     args = parse_args()
     config = ExperimentConfig(
         dataset=DatasetConfig(n_samples=args.n_samples, seed=args.seed),

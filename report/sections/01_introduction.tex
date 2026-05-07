@@ -1,0 +1,22 @@
+\section{Introduction}
+
+Derivative pricing is one of the classical problems in quantitative finance.
+For European options, the Black-Scholes model provides a closed-form price under precise assumptions on the dynamics of the underlying asset, the market, and volatility \cite{black1973pricing}.
+The availability of an analytical solution makes Black-Scholes an ideal controlled environment for evaluating the accuracy of numerical methods and machine learning models.
+
+The research question of the project is:
+
+\begin{quote}
+Can a feed-forward neural network accurately approximate the Black-Scholes pricing function for European call options?
+\end{quote}
+
+The project compares three approaches:
+\begin{itemize}
+    \item the analytical Black-Scholes formula, used as the ground truth;
+    \item Monte Carlo simulation, used as a numerical benchmark;
+    \item a feed-forward neural network, used as a supervised learning model and pricing surrogate.
+\end{itemize}
+
+The main objective is not to replace Black-Scholes in a setting where a closed-form formula is available, but to verify whether a neural network can learn a known pricing function.
+This is a useful first step for understanding neural pricing methods in more complex settings, where analytical formulas are unavailable or computationally expensive.
+

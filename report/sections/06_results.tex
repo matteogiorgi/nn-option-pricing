@@ -1,42 +1,42 @@
-\section{Risultati preliminari}
+\section{Preliminary Results}
 
-Nel primo esperimento intermedio, la rete ha ottenuto le seguenti metriche sul test set:
+In the first intermediate experiment, the neural network obtained the following metrics on the test set:
 
 \begin{table}[H]
     \centering
     \begin{tabular}{lr}
         \toprule
-        Metrica & Valore \\
+        Metric & Value \\
         \midrule
         MAE & 0.6952 \\
         RMSE & 0.9114 \\
         $R^2$ & 0.9985 \\
-        MAPE, prezzi $> 1$ & 10.0137\% \\
+        MAPE, prices $> 1$ & 10.0137\% \\
         \bottomrule
     \end{tabular}
-    \caption{Metriche preliminari della rete neurale rispetto ai prezzi Black-Scholes.}
+    \caption{Preliminary neural network metrics against Black-Scholes prices.}
 \end{table}
 
-Il valore elevato di $R^2$ suggerisce che la rete neurale riesce gia' ad approssimare molto bene la funzione di pricing Black-Scholes.
-Gli errori assoluti medi rimangono contenuti rispetto al range complessivo dei prezzi.
-Il MAPE e' piu' delicato da interpretare, perche' i prezzi di opzioni molto out-of-the-money possono essere vicini a zero; per questo viene calcolato solo su prezzi maggiori di 1.
+The high $R^2$ value suggests that the neural network can already approximate the Black-Scholes pricing function very accurately.
+The average absolute errors remain limited relative to the overall range of option prices.
+MAPE is more delicate to interpret, because the prices of far out-of-the-money options may be close to zero; for this reason, it is computed only on prices greater than 1.
 
 \begin{figure}[H]
     \centering
     \maybeincludegraphics[width=0.72\linewidth]{../outputs/figures/loss.png}
-    \caption{Training loss e validation loss.}
+    \caption{Training loss and validation loss.}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \maybeincludegraphics[width=0.62\linewidth]{../outputs/figures/true_vs_predicted.png}
-    \caption{Prezzi Black-Scholes rispetto ai prezzi predetti dalla rete.}
+    \caption{Black-Scholes prices against neural network predictions.}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \maybeincludegraphics[width=0.72\linewidth]{../outputs/figures/error_distribution.png}
-    \caption{Distribuzione degli errori di predizione.}
+    \caption{Distribution of prediction errors.}
 \end{figure}
 
 \begin{figure}[H]
@@ -54,29 +54,29 @@ Il MAPE e' piu' delicato da interpretare, perche' i prezzi di opzioni molto out-
     \begin{subfigure}{0.32\linewidth}
         \centering
         \maybeincludegraphics[width=\linewidth]{../outputs/figures/error_vs_volatility.png}
-        \caption{Volatilita'}
+        \caption{Volatility}
     \end{subfigure}
-    \caption{Errore assoluto rispetto ad alcune feature finanziarie.}
+    \caption{Absolute error against selected financial features.}
 \end{figure}
 
-\subsection{Confronto Monte Carlo}
+\subsection{Monte Carlo Comparison}
 
-Sul sottoinsieme usato per il benchmark Monte Carlo, la simulazione numerica ha ottenuto:
+On the subset used for the Monte Carlo benchmark, the numerical simulation obtained:
 
 \begin{table}[H]
     \centering
     \begin{tabular}{lr}
         \toprule
-        Metrica & Valore \\
+        Metric & Value \\
         \midrule
         MAE & 0.3100 \\
         RMSE & 0.5201 \\
         $R^2$ & 0.9996 \\
-        MAPE, prezzi $> 1$ & 2.2139\% \\
+        MAPE, prices $> 1$ & 2.2139\% \\
         \bottomrule
     \end{tabular}
-    \caption{Metriche preliminari Monte Carlo rispetto ai prezzi Black-Scholes.}
+    \caption{Preliminary Monte Carlo metrics against Black-Scholes prices.}
 \end{table}
 
-Il confronto con Monte Carlo e' utile per mostrare la differenza tra un metodo numerico basato su simulazione e un modello supervisionato che, una volta addestrato, produce predizioni molto rapidamente.
+The comparison with Monte Carlo is useful because it highlights the difference between a simulation-based numerical method and a supervised model that, once trained, can produce predictions very quickly.
 

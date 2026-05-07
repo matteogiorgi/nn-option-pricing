@@ -1,21 +1,20 @@
-# Relazione LaTeX
+# LaTeX Report
 
-La relazione principale e' `main.tex`.
+The main report file is `main.tex`.
 
-Compilazione consigliata:
+Recommended compilation command:
 
 ```bash
 cd report
 latexmk -pdf main.tex
 ```
 
-Pulizia dei file temporanei:
+Temporary file cleanup:
 
 ```bash
 cd report
 latexmk -c main.tex
 ```
 
-Le figure vengono lette da `../outputs/figures/`.
-Se gli esperimenti non sono ancora stati eseguiti, il PDF resta compilabile e mostra placeholder al posto delle figure.
-
+Figures are loaded from `../outputs/figures/`.
+If the experiments have not been run yet, the PDF remains compilable and shows placeholders instead of figures.

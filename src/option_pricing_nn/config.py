@@ -1,3 +1,10 @@
+"""Configuration objects for reproducible experiments.
+
+The project uses frozen dataclasses instead of global constants so that
+experiments can be configured explicitly from scripts while keeping defaults in
+one place.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -6,6 +13,8 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class DatasetConfig:
+    """Ranges and random seed used to generate synthetic option data."""
+
     n_samples: int = 100_000
     seed: int = 42
     s0_min: float = 50.0
@@ -22,6 +31,8 @@ class DatasetConfig:
 
 @dataclass(frozen=True)
 class TrainingConfig:
+    """Hyperparameters for neural network training and data splitting."""
+
     seed: int = 42
     test_size: float = 0.15
     validation_size: float = 0.15
@@ -35,6 +46,8 @@ class TrainingConfig:
 
 @dataclass(frozen=True)
 class MonteCarloConfig:
+    """Parameters controlling the Monte Carlo benchmark."""
+
     n_paths: int = 50_000
     option_batch_size: int = 512
     path_batch_size: int = 10_000
@@ -44,6 +57,8 @@ class MonteCarloConfig:
 
 @dataclass(frozen=True)
 class PathConfig:
+    """Filesystem locations for generated data, outputs, and artifacts."""
+
     data_dir: Path = Path("data")
     output_dir: Path = Path("outputs")
     figure_dir: Path = Path("outputs/figures")
@@ -55,6 +70,8 @@ class PathConfig:
 
 @dataclass(frozen=True)
 class ExperimentConfig:
+    """Top-level configuration grouping all experiment settings."""
+
     dataset: DatasetConfig = DatasetConfig()
     training: TrainingConfig = TrainingConfig()
     monte_carlo: MonteCarloConfig = MonteCarloConfig()

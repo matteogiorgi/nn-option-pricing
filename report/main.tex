@@ -2,7 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[italian]{babel}
+\usepackage[english]{babel}
 \usepackage{lmodern}
 \usepackage{geometry}
 \usepackage{microtype}
@@ -43,7 +43,7 @@
     \fbox{%
         \begin{minipage}[c][5cm][c]{0.88\linewidth}
             \centering
-            \small Figura non ancora disponibile: #1
+            \small Figure not yet available: #1
         \end{minipage}
     }%
 }
@@ -56,7 +56,7 @@
 }
 
 \title{\projecttitle}
-\author{Gruppo di progetto}
+\author{Project group}
 \date{\today}
 
 \begin{document}
@@ -64,25 +64,24 @@
 \maketitle
 
 \begin{abstract}
-    Questo progetto studia se una rete neurale feed-forward possa approssimare accuratamente la funzione di pricing di Black-Scholes per opzioni call europee.
-    Il problema viene affrontato in un ambiente controllato: i dati sono generati sinteticamente a partire dalla formula analitica di Black-Scholes, mentre la simulazione Monte Carlo viene usata come benchmark numerico.
-    La rete neurale viene addestrata in modo supervisionato per apprendere la mappa tra parametri contrattuali e di mercato e prezzo teorico dell'opzione.
-    L'obiettivo non e' costruire un sistema di trading reale, ma valutare il ruolo di una neural network come pricing surrogate in un contesto finanziario matematicamente noto.
+    This project studies whether a feed-forward neural network can accurately approximate the Black-Scholes pricing function for European call options.
+    The problem is addressed in a controlled setting: data are generated synthetically from the analytical Black-Scholes formula, while Monte Carlo simulation is used as a numerical benchmark.
+    The neural network is trained in a supervised learning framework to learn the mapping from market and contract parameters to the theoretical option price.
+    The goal is not to build a real trading system, but to evaluate the role of a neural network as a pricing surrogate in a mathematically well-defined financial setting.
 \end{abstract}
 
 \tableofcontents
 \newpage
 
-\input{sections/01_introduzione}
-\input{sections/02_framework_teorico}
-\input{sections/03_metodologia}
-\input{sections/04_implementazione}
-\input{sections/05_esperimenti}
-\input{sections/06_risultati}
-\input{sections/07_conclusioni}
+\input{sections/01_introduction}
+\input{sections/02_theoretical_framework}
+\input{sections/03_methodology}
+\input{sections/04_implementation}
+\input{sections/05_experiments}
+\input{sections/06_results}
+\input{sections/07_conclusions}
 
 \bibliographystyle{plain}
 \bibliography{references}
 
 \end{document}
-
