@@ -1,0 +1,65 @@
+\section{Framework teorico}
+
+\subsection{Dinamica del sottostante}
+
+Nel modello di Black-Scholes, il prezzo del sottostante segue un moto browniano geometrico sotto misura risk-neutral:
+Questa formulazione e' standard nella modellazione continua dei mercati finanziari \cite{shreve2004stochastic}.
+
+\begin{equation}
+    dS_t = r S_t dt + \sigma S_t dW_t,
+\end{equation}
+
+dove $S_t$ e' il prezzo dell'asset al tempo $t$, $r$ e' il tasso risk-free, $\sigma$ e' la volatilita' costante e $W_t$ e' un moto browniano standard.
+
+La soluzione della SDE e':
+
+\begin{equation}
+    S_T = S_0 \exp\left[\left(r - \frac{1}{2}\sigma^2\right)T + \sigma \sqrt{T} Z\right],
+    \qquad Z \sim \mathcal{N}(0,1).
+\end{equation}
+
+\subsection{Opzione call europea}
+
+Una call europea con strike $K$ e maturity $T$ ha payoff:
+
+\begin{equation}
+    \max(S_T - K, 0).
+\end{equation}
+
+Sotto pricing risk-neutral, il prezzo e' il valore atteso scontato del payoff:
+
+\begin{equation}
+    C = e^{-rT}\mathbb{E}^{\mathbb{Q}}\left[\max(S_T - K, 0)\right].
+\end{equation}
+
+\subsection{Formula di Black-Scholes}
+
+La formula analitica per una call europea e':
+
+\begin{equation}
+    C_{BS} = S_0 N(d_1) - K e^{-rT} N(d_2),
+\end{equation}
+
+dove $N(\cdot)$ e' la funzione di ripartizione della normale standard e:
+
+\begin{align}
+    d_1 &= \frac{\ln(S_0/K) + \left(r + \frac{1}{2}\sigma^2\right)T}{\sigma\sqrt{T}}, \\
+    d_2 &= d_1 - \sigma\sqrt{T}.
+\end{align}
+
+Nel progetto, $C_{BS}$ viene usato come valore target per il training e come riferimento per la valutazione.
+
+\subsection{Pricing Monte Carlo}
+
+La simulazione Monte Carlo approssima il valore atteso risk-neutral generando molte realizzazioni di $S_T$:
+
+\begin{equation}
+    \hat{C}_{MC} =
+    e^{-rT}
+    \frac{1}{M}
+    \sum_{i=1}^{M}
+    \max(S_T^{(i)} - K, 0).
+\end{equation}
+
+Per $M$ sufficientemente grande, $\hat{C}_{MC}$ converge a $C_{BS}$.
+Nel progetto Monte Carlo viene usato come benchmark numerico e come confronto rispetto alla rete neurale.

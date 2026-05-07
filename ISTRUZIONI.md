@@ -214,3 +214,8 @@ La prima versione del progetto dovrebbe includere:
 7. breve discussione dei risultati.
 
 Solo dopo questa prima versione conviene aggiungere miglioramenti progressivi.
+
+
+#### Note implementative
+
+Questo progetto deve avere una architettura professionale e deve essere computazionalmente e algoritmicamente efficiente.

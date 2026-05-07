@@ -1,0 +1,18 @@
+\section{Conclusioni e prossimi passi}
+
+La prima implementazione conferma che una rete neurale feed-forward puo' approssimare con elevata accuratezza la funzione di pricing Black-Scholes per call europee in un ambiente sintetico controllato.
+Il progetto e' quindi coerente con la domanda iniziale e fornisce una base solida per ulteriori esperimenti.
+
+I prossimi passi sono:
+
+\begin{itemize}
+    \item aumentare la dimensione del dataset sintetico;
+    \item eseguire training piu' lunghi e confrontare diverse architetture;
+    \item studiare l'errore per regioni specifiche dello spazio dei parametri, per esempio opzioni deep in-the-money o out-of-the-money;
+    \item confrontare tempi di valutazione tra formula analitica, Monte Carlo e rete neurale;
+    \item migliorare la discussione teorica sui limiti di un pricing surrogate addestrato su dati sintetici.
+\end{itemize}
+
+Come sviluppi futuri, si potrebbero considerare modelli con volatilita' stocastica, opzioni piu' complesse o metodi neurali piu' avanzati.
+Queste estensioni non fanno parte della prima versione del progetto, ma rappresentano direzioni naturali per generalizzare l'approccio.
+

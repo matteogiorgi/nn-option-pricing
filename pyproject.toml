@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=66", "wheel>=0.40"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "option-pricing-nn"
+version = "0.1.0"
+description = "Neural network surrogate for Black-Scholes European option pricing"
+requires-python = ">=3.11"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

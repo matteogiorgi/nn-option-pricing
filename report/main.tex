@@ -1,0 +1,88 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{microtype}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+
+\geometry{margin=2.6cm}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!50!black,
+    citecolor=blue!50!black,
+    urlcolor=blue!50!black
+}
+
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue!60!black},
+    commentstyle=\color{green!40!black},
+    stringstyle=\color{red!50!black},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{black!20},
+    backgroundcolor=\color{black!2}
+}
+
+\newcommand{\projecttitle}{Neural Network-Based European Option Pricing under Black-Scholes SDE Dynamics}
+\newcommand{\placeholderfigure}[1]{%
+    \fbox{%
+        \begin{minipage}[c][5cm][c]{0.88\linewidth}
+            \centering
+            \small Figura non ancora disponibile: #1
+        \end{minipage}
+    }%
+}
+\newcommand{\maybeincludegraphics}[2][]{%
+    \IfFileExists{#2}{%
+        \includegraphics[#1]{#2}%
+    }{%
+        \placeholderfigure{#2}%
+    }%
+}
+
+\title{\projecttitle}
+\author{Gruppo di progetto}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    Questo progetto studia se una rete neurale feed-forward possa approssimare accuratamente la funzione di pricing di Black-Scholes per opzioni call europee.
+    Il problema viene affrontato in un ambiente controllato: i dati sono generati sinteticamente a partire dalla formula analitica di Black-Scholes, mentre la simulazione Monte Carlo viene usata come benchmark numerico.
+    La rete neurale viene addestrata in modo supervisionato per apprendere la mappa tra parametri contrattuali e di mercato e prezzo teorico dell'opzione.
+    L'obiettivo non e' costruire un sistema di trading reale, ma valutare il ruolo di una neural network come pricing surrogate in un contesto finanziario matematicamente noto.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\input{sections/01_introduzione}
+\input{sections/02_framework_teorico}
+\input{sections/03_metodologia}
+\input{sections/04_implementazione}
+\input{sections/05_esperimenti}
+\input{sections/06_risultati}
+\input{sections/07_conclusioni}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
+

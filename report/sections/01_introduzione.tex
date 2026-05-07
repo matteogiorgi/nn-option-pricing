@@ -1,0 +1,21 @@
+\section{Introduzione}
+
+Il pricing di strumenti derivati e' uno dei problemi classici della finanza quantitativa.
+Nel caso delle opzioni europee, il modello di Black-Scholes fornisce una formula chiusa per il prezzo teorico sotto ipotesi precise sulla dinamica del sottostante, sul mercato e sulla volatilita' \cite{black1973pricing}.
+Questa disponibilita' di una soluzione analitica rende Black-Scholes un ambiente ideale per valutare in modo controllato l'accuratezza di metodi numerici e di modelli di machine learning.
+
+La domanda di progetto e':
+
+\begin{quote}
+Una rete neurale feed-forward riesce ad approssimare accuratamente la funzione di pricing Black-Scholes per opzioni call europee?
+\end{quote}
+
+Il progetto confronta tre approcci:
+\begin{itemize}
+    \item formula analitica di Black-Scholes, usata come ground truth;
+    \item simulazione Monte Carlo, usata come benchmark numerico;
+    \item rete neurale feed-forward, usata come modello supervisionato e pricing surrogate.
+\end{itemize}
+
+L'interesse principale non e' sostituire Black-Scholes nel caso in cui la formula chiusa sia disponibile, ma verificare se una rete neurale possa apprendere una funzione di pricing nota.
+Questo e' un primo passo utile per comprendere l'uso di modelli neurali in contesti piu' complessi, dove formule analitiche non sono disponibili o risultano computazionalmente costose.
