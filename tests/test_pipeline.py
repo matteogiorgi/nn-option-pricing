@@ -49,9 +49,7 @@ def test_run_experiment_smoke_test_writes_expected_artifacts(tmp_path):
     assert (paths.output_dir / "experiment_config.json").exists()
     assert (paths.output_dir / "target_scaler.joblib").exists()
     assert (paths.metrics_dir / "nn_metrics.json").exists()
-    assert (
-        paths.metrics_dir / "monte_carlo_vs_black_scholes_metrics.json"
-    ).exists()
+    assert (paths.metrics_dir / "monte_carlo_vs_black_scholes_metrics.json").exists()
 
     expected_figures = [
         "loss.png",

@@ -1,0 +1,47 @@
+{
+  "dataset": {
+    "n_samples": 100000,
+    "seed": 42,
+    "s0_min": 50.0,
+    "s0_max": 150.0,
+    "k_min": 50.0,
+    "k_max": 150.0,
+    "t_min": 0.1,
+    "t_max": 2.0,
+    "r_min": 0.0,
+    "r_max": 0.05,
+    "sigma_min": 0.1,
+    "sigma_max": 0.6
+  },
+  "training": {
+    "seed": 42,
+    "test_size": 0.15,
+    "validation_size": 0.15,
+    "batch_size": 1024,
+    "max_epochs": 200,
+    "patience": 20,
+    "learning_rate": 0.001,
+    "weight_decay": 1e-06,
+    "hidden_layers": [
+      64,
+      64,
+      32
+    ]
+  },
+  "monte_carlo": {
+    "n_paths": 50000,
+    "option_batch_size": 512,
+    "path_batch_size": 10000,
+    "evaluation_samples": 512,
+    "seed": 123
+  },
+  "paths": {
+    "data_dir": "data/final",
+    "output_dir": "outputs/final",
+    "figure_dir": "outputs/final/figures",
+    "metrics_dir": "outputs/final/metrics",
+    "dataset_path": "data/final/synthetic_options.csv",
+    "model_path": "outputs/final/model.pt",
+    "scaler_path": "outputs/final/scaler.joblib"
+  }
+}

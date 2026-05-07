@@ -24,6 +24,8 @@ Black-Scholes prices and Monte Carlo estimates?
 │   ├── main.pdf
 │   ├── main.tex
 │   └── sections/
+├── results/
+│   └── final/
 ├── scripts/
 │   └── run_experiment.py
 ├── src/
@@ -39,7 +41,8 @@ Black-Scholes prices and Monte Carlo estimates?
 Generated experiment artifacts are written to `data/` and `outputs/`.
 These directories are ignored by Git because they can be reproduced from the
 code and configuration. The report and presentation PDFs are tracked because
-they are final project deliverables.
+they are final project deliverables. Selected final metrics and figures are
+tracked in `results/final/`.
 
 ## Quick Start
 
