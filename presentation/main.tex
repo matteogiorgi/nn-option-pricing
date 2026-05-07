@@ -1,0 +1,263 @@
+\documentclass[10pt,aspectratio=43]{beamer}
+
+\usepackage[english]{babel}
+\usepackage{fontspec}
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmonofont{Cascadia Code}[Scale=0.88]
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\usetheme{default}
+\usecolortheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{caption}[numbered]
+\setbeamersize{text margin left=8mm,text margin right=8mm}
+
+\definecolor{projectblue}{RGB}{24, 70, 125}
+\definecolor{projectgray}{RGB}{82, 91, 103}
+
+\setbeamercolor{structure}{fg=projectblue}
+\setbeamercolor{frametitle}{fg=projectblue}
+\setbeamercolor{title}{fg=projectblue}
+\setbeamercolor{normal text}{fg=black}
+\setbeamercolor{block title}{fg=white,bg=projectblue}
+\setbeamercolor{block body}{fg=black,bg=projectblue!5}
+\setbeamercolor{footline}{fg=projectgray}
+
+\setbeamertemplate{frametitle}{%
+    \vspace{0.45em}
+    \insertframetitle\par
+    \vspace{0.25em}
+    {\color{projectblue!35}\rule{\linewidth}{0.5pt}}
+}
+\setbeamertemplate{footline}{%
+    \hfill
+    \usebeamercolor[fg]{footline}
+    \scriptsize\insertframenumber/\inserttotalframenumber
+    \hspace{0.8em}\vspace{0.45em}
+}
+
+\newcommand{\projecttitle}{Neural Network Option Pricing}
+\newcommand{\projectsubtitle}{Approximating Black-Scholes European Call Prices with Feed-Forward Neural Networks}
+\newcommand{\placeholderfigure}[1]{%
+    \begin{center}
+        \fbox{%
+            \begin{minipage}[c][0.46\textheight][c]{0.82\linewidth}
+                \centering
+                \small Figure not yet available: \texttt{\detokenize{#1}}
+            \end{minipage}
+        }
+    \end{center}
+}
+\newcommand{\maybeincludegraphics}[2][]{%
+    \IfFileExists{#2}{%
+        \includegraphics[#1]{#2}%
+    }{%
+        \placeholderfigure{#2}%
+    }%
+}
+
+\title{\projecttitle}
+\subtitle{\projectsubtitle}
+\author{Project group}
+\institute{Machine Learning for Finance}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}{Title and Objective}
+    \vspace{0.4em}
+    {\Large\bfseries\color{projectblue}\projecttitle}
+
+    \vspace{0.4em}
+    {\large \projectsubtitle}
+
+    \vspace{1.2em}
+    \begin{block}{Objective}
+        Evaluate whether a feed-forward neural network can learn the Black-Scholes European call pricing function and act as an efficient pricing surrogate.
+    \end{block}
+
+    \vfill
+    \small Project group \hfill Machine Learning for Finance
+\end{frame}
+
+\begin{frame}{Research Question}
+    \begin{block}{Research question}
+        Can a feed-forward neural network accurately approximate the Black-Scholes pricing function for European call options?
+    \end{block}
+
+    \vspace{0.5em}
+    The project compares:
+    \begin{itemize}
+        \item the analytical Black-Scholes formula;
+        \item Monte Carlo simulation;
+        \item a supervised neural network pricing surrogate.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Black-Scholes SDE}
+    The underlying asset follows the geometric Brownian motion
+    \[
+        dS_t = r S_t\,dt + \sigma S_t\,dW_t,
+    \]
+    where \(r\) is the risk-free rate, \(\sigma\) is volatility and \(W_t\) is a Brownian motion.
+
+    \vspace{0.7em}
+    The analytical European call price is used as the ground truth:
+    \[
+        S_T = S_0 \exp\left((r-\tfrac{1}{2}\sigma^2)T + \sigma W_T\right).
+    \]
+\end{frame}
+
+\begin{frame}{European Call Option Pricing}
+    A European call option has payoff
+    \[
+        \Phi(S_T) = \max(S_T-K,0).
+    \]
+
+    Under the Black-Scholes model, its analytical price is
+    \[
+        C_{\mathrm{BS}} = S_0 N(d_1) - K e^{-rT}N(d_2),
+    \]
+    with
+    \[
+        d_1 = \frac{\log(S_0/K)+(r+\tfrac{1}{2}\sigma^2)T}{\sigma\sqrt{T}},
+        \qquad
+        d_2 = d_1-\sigma\sqrt{T}.
+    \]
+\end{frame}
+
+\begin{frame}{Synthetic Dataset}
+    Synthetic observations are sampled over the input space:
+    \[
+        x = (S_0, K, T, r, \sigma),
+        \qquad
+        y = C_{\mathrm{BS}}(S_0,K,T,r,\sigma).
+    \]
+
+    \vspace{0.5em}
+    \begin{center}
+        \begin{tabular}{ll}
+            \toprule
+            Variable              & Range          \\
+            \midrule
+            Initial price \(S_0\) & \([50, 150]\)  \\
+            Strike \(K\)          & \([50, 150]\)  \\
+            Maturity \(T\)        & \([0.1, 2]\)   \\
+            Risk-free rate \(r\)  & \([0, 0.05]\)  \\
+            Volatility \(\sigma\) & \([0.1, 0.6]\) \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Neural Network as Pricing Surrogate}
+    The neural network learns the pricing map
+    \[
+        f_\theta: (S_0, K, T, r, \sigma) \mapsto C_{\mathrm{BS}}.
+    \]
+
+    \vspace{0.5em}
+    Baseline architecture:
+    \begin{itemize}
+        \item fully connected feed-forward network;
+        \item ReLU hidden activations;
+        \item mean squared error loss;
+        \item Adam optimizer;
+        \item train/validation/test split with feature scaling.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Experimental Pipeline}
+    \begin{enumerate}
+        \item Sample synthetic contracts.
+        \item Compute Black-Scholes analytical prices.
+        \item Train the neural network on the supervised pricing task.
+        \item Estimate selected prices with Monte Carlo simulation.
+        \item Compare errors and analyse where approximation is harder.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Evaluation Metrics}
+    The main quantitative metrics are:
+    \begin{itemize}
+        \item Mean Absolute Error;
+        \item Root Mean Squared Error;
+        \item coefficient of determination \(R^2\);
+        \item relative error diagnostics where meaningful.
+    \end{itemize}
+
+    \vspace{0.5em}
+    Error analysis is performed against moneyness \(S_0/K\), maturity \(T\), and volatility \(\sigma\).
+\end{frame}
+
+\begin{frame}{Main Results}
+    \begin{block}{To be completed after the final experiment}
+        This slide will report the main test-set metrics for the neural network and the numerical benchmark.
+    \end{block}
+
+    \vspace{0.5em}
+    \begin{center}
+        \begin{tabular}{lccc}
+            \toprule
+            Method         & MAE & RMSE & \(R^2\) \\
+            \midrule
+            Neural network & --  & --   & --      \\
+            Monte Carlo    & --  & --   & --      \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Error Analysis}
+    \maybeincludegraphics[width=0.82\linewidth]{../outputs/figures/training_history.pdf}
+\end{frame}
+
+\begin{frame}{Monte Carlo Benchmark}
+    Simulated terminal prices are generated as
+    \[
+        S_T = S_0 \exp\left((r-\tfrac{1}{2}\sigma^2)T + \sigma\sqrt{T}Z\right),
+        \qquad Z \sim \mathcal{N}(0,1).
+    \]
+
+    The discounted estimator is
+    \[
+        \widehat{C}_{\mathrm{MC}}
+        = e^{-rT}\frac{1}{M}\sum_{m=1}^{M}\max(S_T^{(m)}-K,0).
+    \]
+\end{frame}
+
+\begin{frame}{Discussion}
+    Expected discussion points:
+    \begin{itemize}
+        \item approximation quality of the neural network surrogate;
+        \item regions of the input space with larger errors;
+        \item comparison with Monte Carlo as a numerical benchmark;
+        \item computational trade-offs between analytical, simulation-based and learned pricing.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Limitations}
+    \begin{itemize}
+        \item The first version uses synthetic data generated under Black-Scholes assumptions.
+        \item The model prices European calls only.
+        \item The target function is known analytically, so the neural network is evaluated as a surrogate rather than as a replacement for financial theory.
+        \item Generalization outside the sampled parameter ranges is not guaranteed.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Conclusions and Future Work}
+    The project evaluates neural networks as pricing surrogates in a controlled financial setting.
+
+    \vspace{0.7em}
+    The central question is not whether the neural network replaces Black-Scholes, but whether it can learn its pricing function accurately and efficiently from supervised data.
+
+    \vspace{0.7em}
+    Future extensions may include stochastic volatility, Heston dynamics, American options and Greeks estimation.
+\end{frame}
+
+\end{document}
