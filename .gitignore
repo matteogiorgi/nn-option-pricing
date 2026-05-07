@@ -1,8 +1,50 @@
-.venv/
+# Python bytecode and caches
 __pycache__/
 *.py[cod]
+*$py.class
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+
+# Packaging and build artifacts
+build/
+dist/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local environment files
+.env
+.env.*
+
+# Generated experiment data and artifacts
 data/*.csv
 outputs/
 
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
