@@ -62,7 +62,7 @@ experiment artifacts.
 
 Repository state:
 
-- verification commit: `0f58408`;
+- final results commit: `0f58408`;
 - final experiment artifacts directory: `results/final/`;
 - generated but untracked reproducible artifacts:
   - `data/final/`;

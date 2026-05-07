@@ -75,6 +75,7 @@ For a fast smoke test:
 python scripts/run_experiment.py \
   --n-samples 10000 \
   --max-epochs 40 \
+  --batch-size 1024 \
   --mc-n-paths 5000 \
   --mc-evaluation-samples 128
 ```
@@ -105,6 +106,15 @@ Build the Sphinx documentation:
 ```bash
 pip install -r requirements-docs.txt
 sphinx-build -b html docs/source docs/build/html
+```
+
+For a clean environment, install the runtime requirements and the local package
+before building the API documentation:
+
+```bash
+pip install -r requirements.txt
+pip install -r requirements-docs.txt
+pip install -e . --no-build-isolation
 ```
 
 Open `docs/build/html/index.html` in a browser to read the generated
