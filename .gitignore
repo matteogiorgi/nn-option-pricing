@@ -33,6 +33,5 @@ outputs/
 # OS/editor files
 .DS_Store
 Thumbs.db
-.vscode/*
-!.vscode/settings.json
+.vscode/
 .idea/

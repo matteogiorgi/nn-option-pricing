@@ -25,5 +25,5 @@ The documentation is organized into two complementary parts:
    methodology
    experiment_pipeline
    experiments
+   testing
    api/index
-
