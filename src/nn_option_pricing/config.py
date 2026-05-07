@@ -7,8 +7,9 @@ one place.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass, is_dataclass
 from pathlib import Path
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -76,3 +77,51 @@ class ExperimentConfig:
     training: TrainingConfig = TrainingConfig()
     monte_carlo: MonteCarloConfig = MonteCarloConfig()
     paths: PathConfig = PathConfig()
+
+
+def make_path_config(
+    data_dir: Path | str = Path("data"),
+    output_dir: Path | str = Path("outputs"),
+) -> PathConfig:
+    """Create a consistent set of experiment paths from base directories.
+
+    Parameters
+    ----------
+    data_dir
+        Directory where generated datasets are written.
+    output_dir
+        Directory where models, scalers, metrics, figures, and configuration
+        snapshots are written.
+
+    Returns
+    -------
+    PathConfig
+        Fully resolved path configuration derived from the two base
+        directories.
+    """
+    data_path = Path(data_dir)
+    output_path = Path(output_dir)
+    return PathConfig(
+        data_dir=data_path,
+        output_dir=output_path,
+        figure_dir=output_path / "figures",
+        metrics_dir=output_path / "metrics",
+        dataset_path=data_path / "synthetic_options.csv",
+        model_path=output_path / "model.pt",
+        scaler_path=output_path / "scaler.joblib",
+    )
+
+
+def config_to_dict(config: Any) -> Any:
+    """Convert experiment configuration objects into JSON-serializable values."""
+    if is_dataclass(config) and not isinstance(config, type):
+        return {key: config_to_dict(value) for key, value in asdict(config).items()}
+    if isinstance(config, Path):
+        return str(config)
+    if isinstance(config, tuple):
+        return [config_to_dict(value) for value in config]
+    if isinstance(config, list):
+        return [config_to_dict(value) for value in config]
+    if isinstance(config, dict):
+        return {key: config_to_dict(value) for key, value in config.items()}
+    return config

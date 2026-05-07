@@ -46,6 +46,7 @@ def test_run_experiment_smoke_test_writes_expected_artifacts(tmp_path):
     assert paths.dataset_path.exists()
     assert paths.model_path.exists()
     assert paths.scaler_path.exists()
+    assert (paths.output_dir / "experiment_config.json").exists()
     assert (paths.output_dir / "target_scaler.joblib").exists()
     assert (paths.metrics_dir / "nn_metrics.json").exists()
     assert (
@@ -65,3 +66,10 @@ def test_run_experiment_smoke_test_writes_expected_artifacts(tmp_path):
 
     saved_metrics = json.loads((paths.metrics_dir / "nn_metrics.json").read_text())
     assert set(saved_metrics) == expected_metric_keys
+
+    saved_config = json.loads((paths.output_dir / "experiment_config.json").read_text())
+    assert saved_config["dataset"]["n_samples"] == config.dataset.n_samples
+    assert saved_config["training"]["hidden_layers"] == list(
+        config.training.hidden_layers
+    )
+    assert saved_config["paths"]["output_dir"] == str(paths.output_dir)

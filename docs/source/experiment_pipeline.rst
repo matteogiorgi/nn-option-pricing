@@ -7,6 +7,15 @@ The command-line entry point is:
 
    python scripts/run_experiment.py
 
+Different runs can be isolated by choosing explicit data and output
+directories:
+
+.. code-block:: bash
+
+   python scripts/run_experiment.py \
+     --data-dir data/intermediate \
+     --output-dir outputs/intermediate
+
 The pipeline performs the following steps:
 
 1. Create output directories.
@@ -27,6 +36,7 @@ The experiment writes:
 .. code-block:: text
 
    data/synthetic_options.csv
+   outputs/experiment_config.json
    outputs/model.pt
    outputs/scaler.joblib
    outputs/target_scaler.joblib
@@ -49,5 +59,22 @@ For a quick local check:
      --max-epochs 40 \
      --batch-size 1024 \
      --mc-n-paths 5000 \
-     --mc-evaluation-samples 128
+     --mc-evaluation-samples 128 \
+     --data-dir data/smoke \
+     --output-dir outputs/smoke
 
+Intermediate Experiment
+-----------------------
+
+Before running the final experiment, a useful intermediate configuration is:
+
+.. code-block:: bash
+
+   python scripts/run_experiment.py \
+     --n-samples 50000 \
+     --max-epochs 100 \
+     --batch-size 1024 \
+     --mc-n-paths 20000 \
+     --mc-evaluation-samples 256 \
+     --data-dir data/intermediate \
+     --output-dir outputs/intermediate

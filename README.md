@@ -58,6 +58,14 @@ Run the complete experiment:
 python scripts/run_experiment.py
 ```
 
+Use `--data-dir` and `--output-dir` to keep different runs separate:
+
+```bash
+python scripts/run_experiment.py \
+  --data-dir data/intermediate \
+  --output-dir outputs/intermediate
+```
+
 For a fast smoke test:
 
 ```bash
@@ -72,6 +80,7 @@ The run generates:
 
 - synthetic option data in `data/`;
 - trained model checkpoint in `outputs/`;
+- experiment configuration snapshot in `outputs/experiment_config.json`;
 - metrics in `outputs/metrics/`;
 - figures in `outputs/figures/`.
 

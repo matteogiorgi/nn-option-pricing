@@ -27,7 +27,7 @@ dist/
 .env.*
 
 # Generated experiment data and artifacts
-data/*.csv
+data/
 outputs/
 
 # OS/editor files

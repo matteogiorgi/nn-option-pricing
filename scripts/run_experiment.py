@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 
 from nn_option_pricing.config import (
     DatasetConfig,
     ExperimentConfig,
     MonteCarloConfig,
     TrainingConfig,
+    make_path_config,
 )
 from nn_option_pricing.pipeline import run_experiment
 
@@ -26,6 +28,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mc-n-paths", type=int, default=50_000)
     parser.add_argument("--mc-evaluation-samples", type=int, default=512)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--data-dir", type=Path, default=Path("data"))
+    parser.add_argument("--output-dir", type=Path, default=Path("outputs"))
     return parser.parse_args()
 
 
@@ -44,6 +48,7 @@ def main() -> None:
             n_paths=args.mc_n_paths,
             evaluation_samples=args.mc_evaluation_samples,
         ),
+        paths=make_path_config(data_dir=args.data_dir, output_dir=args.output_dir),
     )
     metrics = run_experiment(config)
     print(json.dumps(metrics, indent=2))

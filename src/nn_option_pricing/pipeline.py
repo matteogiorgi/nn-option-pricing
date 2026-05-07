@@ -7,6 +7,7 @@ artifact persistence, and diagnostic plots.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import joblib
@@ -14,7 +15,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from nn_option_pricing.config import ExperimentConfig
+from nn_option_pricing.config import ExperimentConfig, config_to_dict
 from nn_option_pricing.dataset import (
     FEATURE_COLUMNS,
     generate_synthetic_dataset,
@@ -42,6 +43,15 @@ def ensure_directories(config: ExperimentConfig) -> None:
         Path(path).mkdir(parents=True, exist_ok=True)
 
 
+def save_experiment_config(config: ExperimentConfig, path: Path) -> None:
+    """Persist the complete experiment configuration as JSON."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(config_to_dict(config), indent=2),
+        encoding="utf-8",
+    )
+
+
 def run_experiment(config: ExperimentConfig) -> dict[str, float]:
     """Run the full Black-Scholes neural pricing experiment.
 
@@ -57,6 +67,7 @@ def run_experiment(config: ExperimentConfig) -> dict[str, float]:
         Black-Scholes prices on the held-out test set.
     """
     ensure_directories(config)
+    save_experiment_config(config, config.paths.output_dir / "experiment_config.json")
 
     # The analytical Black-Scholes formula is the label generator. This makes
     # the supervised task a controlled function approximation problem.
