@@ -1,6 +1,6 @@
 # Neural Network Option Pricing
 
-Project for Machine Learning for Finance.
+Project for the Machine Learning for Finance course.
 
 The goal is to test whether a feed-forward neural network can accurately
 approximate the Black-Scholes pricing function for European call options.
@@ -15,10 +15,15 @@ Black-Scholes prices and Monte Carlo estimates?
 
 ```text
 .
-├── data/
-├── outputs/
-│   ├── figures/
-│   └── metrics/
+├── docs/
+│   └── source/
+├── presentation/
+│   ├── main.pdf
+│   └── main.tex
+├── report/
+│   ├── main.pdf
+│   ├── main.tex
+│   └── sections/
 ├── scripts/
 │   └── run_experiment.py
 ├── src/
@@ -26,8 +31,15 @@ Black-Scholes prices and Monte Carlo estimates?
 ├── tests/
 ├── ISTRUZIONI.md
 ├── README.md
+├── pyproject.toml
+├── requirements-docs.txt
 └── requirements.txt
 ```
+
+Generated experiment artifacts are written to `data/` and `outputs/`.
+These directories are ignored by Git because they can be reproduced from the
+code and configuration. The report and presentation PDFs are tracked because
+they are final project deliverables.
 
 ## Quick Start
 
@@ -63,6 +75,17 @@ The run generates:
 - metrics in `outputs/metrics/`;
 - figures in `outputs/figures/`.
 
+## Testing
+
+Run the automated test suite:
+
+```bash
+pytest
+```
+
+The tests cover analytical Black-Scholes pricing, synthetic dataset generation,
+Monte Carlo pricing, and a small end-to-end pipeline smoke test.
+
 ## Documentation
 
 Build the Sphinx documentation:
@@ -74,3 +97,21 @@ sphinx-build -b html docs/source docs/build/html
 
 Open `docs/build/html/index.html` in a browser to read the generated
 documentation.
+
+## Report and Presentation
+
+The technical report is written in LaTeX:
+
+```bash
+cd report
+latexmk -xelatex main.tex
+```
+
+The oral presentation is written with Beamer:
+
+```bash
+cd presentation
+latexmk -xelatex main.tex
+```
+
+Both documents use XeLaTeX.
