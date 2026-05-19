@@ -27,7 +27,8 @@ dist/
 .env.*
 
 # Generated experiment data and artifacts
-data/
+data/*
+!data/code_structure_overview.md
 outputs/
 
 # OS/editor files
