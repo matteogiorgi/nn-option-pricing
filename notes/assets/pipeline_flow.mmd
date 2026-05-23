@@ -1,0 +1,12 @@
+flowchart TD
+    A["scripts/run_experiment.py<br/>CLI entry point"] --> B["ExperimentConfig<br/>dataset + training + Monte Carlo + paths"]
+    B --> C["pipeline.run_experiment"]
+    C --> D["generate_synthetic_dataset"]
+    D --> E["Black-Scholes analytical labels"]
+    E --> F["train_model"]
+    F --> G["PricingMLP"]
+    G --> H["predict on test set"]
+    H --> I["regression_metrics"]
+    C --> J["Monte Carlo benchmark<br/>test subset"]
+    C --> K["plots"]
+    C --> L["saved artifacts<br/>CSV, model, scalers, metrics, figures"]
