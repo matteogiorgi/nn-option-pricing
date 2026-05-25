@@ -8,7 +8,8 @@ flowchart LR
     EVAL["evaluation.py<br/>MAE, RMSE, R2, MAPE"]
     PLOTS["plots.py<br/>diagnostic figures"]
     PIPE["pipeline.py<br/>end-to-end orchestration"]
-    CLI["scripts/run_experiment.py<br/>command-line interface"]
+    CLI["scripts/run_experiment.py<br/>experiment CLI"]
+    BENCH["scripts/benchmark_runtime.py<br/>runtime benchmark CLI"]
 
     CLI --> CFG
     CLI --> PIPE
@@ -21,3 +22,6 @@ flowchart LR
     DATA --> BS
     MC --> BS
     TRAIN --> MODEL
+    BENCH --> BS
+    BENCH --> TRAIN
+    BENCH --> MC

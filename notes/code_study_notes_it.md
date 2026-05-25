@@ -27,6 +27,14 @@ La domanda non e': "possiamo prevedere i prezzi reali di mercato?", ma:
 
 Quindi il dataset e' sintetico per scelta metodologica: vogliamo un problema controllato, riproducibile, con ground truth nota. Il target `call_price` e' calcolato dalla formula Black-Scholes, non osservato dal mercato.
 
+Nota aggiornata: la configurazione finale ufficiale usa anche `moneyness = s0/k` come feature ingegnerizzata. Quindi il modello finale apprende la mappa:
+
+```text
+(s0, k, t, r, sigma, moneyness) -> call_price
+```
+
+La moneyness non aggiunge nuova informazione rispetto a `s0` e `k`, ma rende esplicita una relazione finanziariamente importante.
+
 ## 2. Flusso completo dell'esperimento
 
 Il file principale da lanciare e':
@@ -44,8 +52,11 @@ Per la run finale, il comando usato e' stato:
   --batch-size 1024 \
   --mc-n-paths 50000 \
   --mc-evaluation-samples 512 \
-  --data-dir data/final \
-  --output-dir outputs/final
+  --feature-set with_moneyness \
+  --activation silu \
+  --seed 42 \
+  --data-dir data/final_improved \
+  --output-dir outputs/final_improved
 ```
 
 Il flusso logico e':
@@ -60,6 +71,14 @@ Il flusso logico e':
 8. calcolo metriche;
 9. benchmark Monte Carlo su un sottoinsieme del test set;
 10. salvataggio di dataset, modello, scaler, metriche e grafici.
+
+In piu', e' stato aggiunto uno script separato:
+
+```bash
+.venv/bin/python scripts/benchmark_runtime.py
+```
+
+che confronta i tempi di pricing di Black-Scholes analitico, neural network inference e Monte Carlo.
 
 Diagramma principale:
 
@@ -87,7 +106,8 @@ La struttura concettuale e':
 ```text
 .
 ├── scripts/
-│   └── run_experiment.py
+│   ├── run_experiment.py
+│   └── benchmark_runtime.py
 ├── src/
 │   └── nn_option_pricing/
 │       ├── black_scholes.py
@@ -122,7 +142,8 @@ flowchart LR
     EVAL["evaluation.py<br/>MAE, RMSE, R2, MAPE"]
     PLOTS["plots.py<br/>diagnostic figures"]
     PIPE["pipeline.py<br/>end-to-end orchestration"]
-    CLI["scripts/run_experiment.py<br/>command-line interface"]
+    CLI["scripts/run_experiment.py<br/>experiment CLI"]
+    BENCH["scripts/benchmark_runtime.py<br/>runtime benchmark CLI"]
 
     CLI --> CFG
     CLI --> PIPE
@@ -135,6 +156,9 @@ flowchart LR
     DATA --> BS
     MC --> BS
     TRAIN --> MODEL
+    BENCH --> BS
+    BENCH --> TRAIN
+    BENCH --> MC
 ```
 
 Lo stesso diagramma e' salvato anche in `notes/assets/module_map.mmd`.
@@ -146,7 +170,7 @@ Questo e' il file da eseguire. Non contiene la logica scientifica principale: le
 Punti importanti:
 
 - usa `argparse` per esporre parametri da CLI;
-- permette di modificare numero di campioni, epoche, batch size, learning rate, numero di path Monte Carlo;
+- permette di modificare numero di campioni, epoche, batch size, learning rate, feature set, activation function e numero di path Monte Carlo;
 - costruisce un oggetto `ExperimentConfig`;
 - chiama `nn_option_pricing.pipeline.run_experiment(config)`;
 - stampa le metriche finali in formato JSON.
@@ -158,9 +182,11 @@ config = ExperimentConfig(
     dataset=DatasetConfig(n_samples=args.n_samples, seed=args.seed),
     training=TrainingConfig(
         seed=args.seed,
+        feature_set=args.feature_set,
         max_epochs=args.max_epochs,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,
+        activation=args.activation,
     ),
     monte_carlo=MonteCarloConfig(
         n_paths=args.mc_n_paths,
@@ -175,6 +201,20 @@ Da spiegare oralmente:
 
 > Lo script e' l'interfaccia operativa. La pipeline vera e' nel package, cosi' il codice resta testabile e riutilizzabile.
 
+Parametri CLI importanti aggiunti negli ultimi step:
+
+```bash
+--feature-set base|with_moneyness
+--activation relu|tanh|leaky_relu|silu|gelu
+```
+
+La final ufficiale usa:
+
+```text
+--feature-set with_moneyness
+--activation silu
+```
+
 ## 5. Configurazione: `config.py`
 
 `config.py` contiene dataclass immutabili che descrivono tutti i parametri dell'esperimento.
@@ -182,7 +222,7 @@ Da spiegare oralmente:
 Le classi principali sono:
 
 - `DatasetConfig`: dimensione dataset, seed, range di `s0`, `k`, `t`, `r`, `sigma`;
-- `TrainingConfig`: split, batch size, epoche, patience, learning rate, architettura hidden layers;
+- `TrainingConfig`: feature set, split, batch size, epoche, patience, learning rate, architettura hidden layers, activation function;
 - `MonteCarloConfig`: numero di path, batch per opzioni e path, numero di esempi usati nel benchmark;
 - `PathConfig`: path per dataset, output, figure, metriche, modello e scaler;
 - `ExperimentConfig`: contenitore unico che raggruppa tutto.
@@ -212,6 +252,15 @@ class DatasetConfig:
     sigma_min: float = 0.1
     sigma_max: float = 0.6
 ```
+
+Nel `TrainingConfig` i campi chiave aggiunti sono:
+
+```python
+feature_set: str = "base"
+activation: str = "relu"
+```
+
+Il valore di default conserva la baseline storica, mentre la final ufficiale passa esplicitamente a `with_moneyness + silu`.
 
 ## 6. Formula analitica: `black_scholes.py`
 
@@ -301,10 +350,10 @@ data[TARGET_COLUMN] = call_price(
 )
 ```
 
-4. viene aggiunta la variabile diagnostica:
+4. viene aggiunta la variabile `moneyness`:
 
 ```python
-data["moneyness"] = data["s0"] / data["k"]
+data[MONEYNESS_COLUMN] = data["s0"] / data["k"]
 ```
 
 Le colonne sono:
@@ -317,18 +366,30 @@ Le colonne sono:
 | `r` | risk-free rate | si |
 | `sigma` | volatilita' | si |
 | `call_price` | target Black-Scholes | target |
-| `moneyness` | `s0/k`, analisi errori | no |
+| `moneyness` | `s0/k`, feature finale e analisi errori | si nella final |
 
-La lista delle feature e' definita esplicitamente:
+La lista delle feature base e' definita esplicitamente:
 
 ```python
-FEATURE_COLUMNS = ["s0", "k", "t", "r", "sigma"]
+BASE_FEATURE_COLUMNS = ["s0", "k", "t", "r", "sigma"]
+MONEYNESS_COLUMN = "moneyness"
+FEATURE_COLUMNS = BASE_FEATURE_COLUMNS
 TARGET_COLUMN = "call_price"
 ```
 
-Nota importante:
+La selezione delle feature avviene tramite:
 
-> `moneyness` non viene data come input alla rete. Serve solo dopo, per capire se gli errori cambiano tra opzioni out-of-the-money, at-the-money e in-the-money.
+```python
+def get_feature_columns(feature_set: str = "base") -> list[str]:
+    if feature_set == "base":
+        return list(BASE_FEATURE_COLUMNS)
+    if feature_set == "with_moneyness":
+        return [*BASE_FEATURE_COLUMNS, MONEYNESS_COLUMN]
+```
+
+Nota importante aggiornata:
+
+> Nella baseline storica `moneyness` era usata solo per analisi degli errori. Nella configurazione finale viene anche data in input alla rete con `--feature-set with_moneyness`.
 
 ## 8. Modello neurale: `model.py`
 
@@ -354,13 +415,13 @@ Il modello e' una rete feed-forward fully connected, chiamata `PricingMLP`.
 >
 > La non linearita' e' fondamentale: senza funzioni di attivazione, una sequenza di layer lineari sarebbe equivalente a un solo layer lineare. Con le ReLU, invece, la rete puo' approssimare funzioni non lineari complesse.
 >
-> Una MLP e' adatta a questo progetto perche' il nostro problema e' una regressione tabellare: abbiamo cinque variabili numeriche di input (`s0`, `k`, `t`, `r`, `sigma`) e vogliamo predire un singolo valore continuo (`call_price`). Non abbiamo immagini, testi o sequenze temporali da modellare direttamente; quindi non serve una CNN, una RNN o un Transformer. La funzione Black-Scholes e' una funzione deterministica e non lineare di cinque variabili, e una MLP e' una scelta naturale per approssimare questo tipo di mappa.
+> Una MLP e' adatta a questo progetto perche' il nostro problema e' una regressione tabellare: abbiamo variabili numeriche di input (`s0`, `k`, `t`, `r`, `sigma`, e nella final anche `moneyness`) e vogliamo predire un singolo valore continuo (`call_price`). Non abbiamo immagini, testi o sequenze temporali da modellare direttamente; quindi non serve una CNN, una RNN o un Transformer. La funzione Black-Scholes e' una funzione deterministica e non lineare degli input, e una MLP e' una scelta naturale per approssimare questo tipo di mappa.
 
 > DA APPROFONDIRE:
 > aggiungi degli schemi / immagini che aiutino a capire
 
 > RISPOSTA:
-> Uno schema utile e' vedere la rete come una catena di trasformazioni. I cinque parametri finanziari entrano nel primo layer; ogni layer nascosto combina le informazioni del layer precedente, applica una trasformazione lineare e poi una ReLU; l'ultimo layer restituisce un solo numero, cioe' il prezzo stimato della call.
+> Uno schema utile e' vedere la rete come una catena di trasformazioni. Nella configurazione finale i parametri finanziari piu' `moneyness` entrano nel primo layer; ogni layer nascosto combina le informazioni del layer precedente, applica una trasformazione lineare e poi una activation function. La final usa SiLU; l'ultimo layer restituisce un solo numero, cioe' il prezzo stimato della call.
 >
 > ```mermaid
 > flowchart LR
@@ -370,21 +431,22 @@ Il modello e' una rete feed-forward fully connected, chiamata `PricingMLP`.
 >         T["t"]
 >         R["r"]
 >         SIG["sigma"]
+>         M["moneyness"]
 >     end
 >
 >     subgraph H1["Hidden layer 1"]
 >         H1A["64 neurons"]
->         H1R["ReLU"]
+>         H1R["SiLU"]
 >     end
 >
 >     subgraph H2["Hidden layer 2"]
 >         H2A["64 neurons"]
->         H2R["ReLU"]
+>         H2R["SiLU"]
 >     end
 >
 >     subgraph H3["Hidden layer 3"]
 >         H3A["32 neurons"]
->         H3R["ReLU"]
+>         H3R["SiLU"]
 >     end
 >
 >     OUT["Predicted call price"]
@@ -395,11 +457,11 @@ Il modello e' una rete feed-forward fully connected, chiamata `PricingMLP`.
 > Un secondo modo di pensarla e' come composizione di funzioni:
 >
 > ```text
-> x = (s0, k, t, r, sigma)
+> x = (s0, k, t, r, sigma, moneyness)
 >
-> h1 = ReLU(W1 x  + b1)
-> h2 = ReLU(W2 h1 + b2)
-> h3 = ReLU(W3 h2 + b3)
+> h1 = SiLU(W1 x  + b1)
+> h2 = SiLU(W2 h1 + b2)
+> h3 = SiLU(W3 h2 + b3)
 > y  = W4 h3 + b4
 > ```
 >
@@ -412,25 +474,25 @@ Il modello e' una rete feed-forward fully connected, chiamata `PricingMLP`.
 > RISPOSTA:
 > Nella nostra rete ci sono tre tipi concettuali di layer: input layer, hidden layers e output layer.
 >
-> L'input layer non e' un layer che "impara" parametri nel nostro codice: rappresenta semplicemente il vettore delle cinque feature finanziarie:
+> L'input layer non e' un layer che "impara" parametri nel nostro codice: rappresenta semplicemente il vettore delle feature finanziarie. Nella final:
 >
 > ```text
-> x = (s0, k, t, r, sigma)
+> x = (s0, k, t, r, sigma, moneyness)
 > ```
 >
-> Dopo lo scaling, questi cinque numeri entrano nel primo layer lineare. Lo scaling e' importante perche' le variabili hanno scale diverse: ad esempio `s0` e `k` sono nell'ordine delle decine/centinaia, mentre `r` e' tra 0 e 0.05.
+> Dopo lo scaling, questi numeri entrano nel primo layer lineare. Lo scaling e' importante perche' le variabili hanno scale diverse: ad esempio `s0` e `k` sono nell'ordine delle decine/centinaia, mentre `r` e' tra 0 e 0.05.
 >
 > I hidden layers sono i layer interni della rete. Nel nostro caso sono:
 >
 > ```text
-> Linear(5, 64)  + ReLU
-> Linear(64, 64) + ReLU
-> Linear(64, 32) + ReLU
+> Linear(6, 64)  + SiLU
+> Linear(64, 64) + SiLU
+> Linear(64, 32) + SiLU
 > ```
 >
 > Ogni layer lineare costruisce nuove combinazioni delle informazioni ricevute. Per esempio, la rete puo' imparare relazioni implicite tra prezzo iniziale e strike, tra maturity e volatilita', oppure tra tasso risk-free e sconto del payoff. Non dobbiamo interpretare ogni singolo neurone come una variabile finanziaria precisa: i neuroni imparano rappresentazioni intermedie utili a ridurre l'errore di pricing.
 >
-> Le ReLU introducono non linearita'. Questo e' essenziale perche' la formula Black-Scholes non e' lineare rispetto agli input: contiene logaritmi, radici quadrate, esponenziali e distribuzione normale cumulativa.
+> Le activation functions introducono non linearita'. Questo e' essenziale perche' la formula Black-Scholes non e' lineare rispetto agli input: contiene logaritmi, radici quadrate, esponenziali e distribuzione normale cumulativa. La final usa SiLU, una activation liscia che negli esperimenti intermedi ha funzionato meglio di ReLU.
 >
 > L'output layer e':
 >
@@ -460,7 +522,7 @@ Il modello e' una rete feed-forward fully connected, chiamata `PricingMLP`.
 >
 > I Gaussian processes sono interessanti perche' danno anche incertezza predittiva, ma scalano male con dataset grandi. Con 100000 osservazioni diventano poco pratici senza approssimazioni.
 >
-> Architetture neurali piu' sofisticate sarebbero possibili, ma rischierebbero di essere eccessive per un primo esperimento. Il nostro input e' un vettore di cinque feature, non una serie temporale o un'immagine; quindi una MLP e' gia' una scelta naturale e sufficientemente espressiva.
+> Architetture neurali piu' sofisticate sarebbero possibili, ma rischierebbero di essere eccessive per un primo esperimento. Il nostro input e' un piccolo vettore tabellare, non una serie temporale o un'immagine; quindi una MLP e' gia' una scelta naturale e sufficientemente espressiva.
 >
 > In sintesi, abbiamo scelto la MLP perche':
 >
@@ -472,13 +534,21 @@ Il modello e' una rete feed-forward fully connected, chiamata `PricingMLP`.
 >
 > Lo svantaggio principale e' che la MLP non incorpora direttamente conoscenza finanziaria: impara dai dati. Per questo la valutiamo contro Black-Scholes e Monte Carlo, e manteniamo la discussione prudente.
 
-Architettura di default:
+Architettura baseline e architettura finale:
 
 ```text
+Baseline storica:
 Input(5)
 -> Linear(5, 64) + ReLU
 -> Linear(64, 64) + ReLU
 -> Linear(64, 32) + ReLU
+-> Linear(32, 1)
+
+Final ufficiale:
+Input(6)
+-> Linear(6, 64) + SiLU
+-> Linear(64, 64) + SiLU
+-> Linear(64, 32) + SiLU
 -> Linear(32, 1)
 ```
 
@@ -487,7 +557,7 @@ Nel codice l'architettura e' costruita dinamicamente:
 ```python
 for hidden_dim in hidden_layers:
     layers.append(nn.Linear(previous_dim, hidden_dim))
-    layers.append(nn.ReLU())
+    layers.append(make_activation(activation))
     previous_dim = hidden_dim
 
 layers.append(nn.Linear(previous_dim, 1))
@@ -503,13 +573,14 @@ def forward(self, x: torch.Tensor) -> torch.Tensor:
 
 Da spiegare oralmente:
 
-> La rete e' usata come function approximator: prende cinque parametri finanziari e restituisce una stima del prezzo Black-Scholes.
+> La rete e' usata come function approximator: prende i parametri finanziari, nella final anche moneyness, e restituisce una stima del prezzo Black-Scholes.
 
 ## 9. Training: `training.py`
 
 `training.py` e' uno dei moduli piu' importanti. Contiene:
 
 - gestione dei seed;
+- selezione del feature set (`base` oppure `with_moneyness`);
 - split train/validation/test;
 - scaling;
 - DataLoader PyTorch;
@@ -548,6 +619,24 @@ Perche' si fa cosi':
 - la validation serve per early stopping e scelta del miglior modello;
 - lo split e' riproducibile grazie al seed.
 
+### 9.1.1 Feature set
+
+Prima dello split, il training decide quali colonne usare:
+
+```python
+feature_columns = get_feature_columns(config.feature_set)
+x = df[feature_columns].to_numpy(dtype=np.float32)
+```
+
+Questo permette di confrontare in modo controllato:
+
+```text
+base           -> s0, k, t, r, sigma
+with_moneyness -> s0, k, t, r, sigma, moneyness
+```
+
+La configurazione finale usa `with_moneyness`.
+
 ### 9.2 Scaling
 
 Gli input vengono standardizzati:
@@ -583,6 +672,18 @@ Il training usa:
 - `weight_decay`;
 - batch training con `DataLoader`;
 - early stopping sulla validation loss.
+
+Il modello viene costruito usando sia il numero effettivo di feature sia la activation configurata:
+
+```python
+model = PricingMLP(
+    input_dim=x.shape[1],
+    hidden_layers=config.hidden_layers,
+    activation=config.activation,
+)
+```
+
+Questo e' il punto in cui `--feature-set` e `--activation` diventano effettivamente architettura del modello.
 
 Frammento centrale:
 
@@ -766,6 +867,41 @@ Punto importante:
 
 > La pipeline non e' solo training. E' l'esperimento completo, dalla generazione dati alla produzione degli artifact finali.
 
+Nel checkpoint del modello vengono salvate anche le informazioni necessarie per ricostruire correttamente la rete:
+
+```python
+{
+    "model_state_dict": artifacts.model.state_dict(),
+    "hidden_layers": config.training.hidden_layers,
+    "activation": config.training.activation,
+    "feature_columns": artifacts.feature_columns,
+}
+```
+
+Questo e' importante perche' ora la dimensione dell'input e la activation function non sono piu' fisse.
+
+## 13.1 Runtime benchmark: `scripts/benchmark_runtime.py`
+
+Oltre alla pipeline sperimentale principale, esiste uno script dedicato al confronto dei tempi:
+
+```bash
+.venv/bin/python scripts/benchmark_runtime.py
+```
+
+Lo script:
+
+1. genera un dataset sintetico;
+2. addestra una rete con la configurazione richiesta;
+3. misura separatamente il training time;
+4. misura il tempo di pricing con Black-Scholes analitico;
+5. misura il tempo di inference della neural network;
+6. misura il tempo di Monte Carlo;
+7. salva un JSON con tempi, throughput e configurazione.
+
+Il punto concettuale e':
+
+> La rete ha un costo iniziale di training, ma dopo l'addestramento produce prezzi con una forward pass molto piu' veloce del Monte Carlo. Black-Scholes analitico resta comunque il piu' veloce quando la formula chiusa e' disponibile.
+
 ## 14. Test
 
 I test stanno in `tests/`.
@@ -774,6 +910,7 @@ File principali:
 
 - `test_black_scholes.py`: controlla proprieta' della formula e casi noti;
 - `test_dataset.py`: controlla colonne, range e forma del dataset;
+- `test_model.py`: controlla activation factory e shape del modello;
 - `test_monte_carlo.py`: controlla che Monte Carlo converga ragionevolmente verso Black-Scholes;
 - `test_pipeline.py`: smoke test della pipeline end-to-end.
 
@@ -786,6 +923,8 @@ Il comando e':
 Per l'esposizione:
 
 > I test non servono a dimostrare la teoria finanziaria, ma a evitare regressioni nel codice e a verificare che i pezzi principali funzionino assieme.
+
+Al momento la suite contiene 18 test.
 
 ## 15. Risultati finali
 
@@ -803,10 +942,10 @@ Metriche finali neural network:
 
 ```json
 {
-  "mae": 0.0619787834584713,
-  "rmse": 0.08218503059459481,
-  "r2": 0.9999874234199524,
-  "mape_percent_price_gt_1": 0.6746048331260681
+  "mae": 0.04289555922150612,
+  "rmse": 0.06208079538235526,
+  "r2": 0.9999927878379822,
+  "mape_percent_price_gt_1": 0.48025041818618774
 }
 ```
 
@@ -823,10 +962,20 @@ Metriche Monte Carlo vs Black-Scholes:
 
 Interpretazione prudente:
 
-- la rete approssima molto bene la funzione Black-Scholes nel dominio simulato;
+- la rete finale `with_moneyness + silu` approssima molto bene la funzione Black-Scholes nel dominio simulato;
 - Monte Carlo e' anch'esso vicino, ma resta affetto da errore statistico;
 - la rete non sostituisce Black-Scholes come formula teorica, ma funziona come surrogate model nel dominio di training;
 - non bisogna concludere che il modello prezza correttamente opzioni reali di mercato.
+
+Risultato runtime principale:
+
+```text
+Black-Scholes analytical, 1000 options: 0.00091 s
+Neural network inference, 1000 options: 0.03190 s
+Monte Carlo, 1000 options, 20000 paths: 1.28235 s
+```
+
+Quindi, dopo training, la neural network e' circa 40 volte piu' veloce del Monte Carlo nel benchmark eseguito.
 
 ## 16. Cosa dire se chiedono "perche' dataset sintetico?"
 
@@ -849,6 +998,7 @@ Punti principali:
 - l'inferenza usa batch e `torch.no_grad()`;
 - Monte Carlo simula direttamente la distribuzione terminale, non tutta la traiettoria;
 - Monte Carlo usa batching su opzioni e path per limitare la memoria;
+- lo script di runtime separa training time e inference time;
 - configurazione e artifact sono separati dal codice;
 - test e documentazione rendono il progetto manutenibile.
 
@@ -872,7 +1022,7 @@ Possibili domande da aggiungere durante lo studio:
 
 Prime risposte sintetiche:
 
-- MLP: perche' il problema e' regressione tabellare su cinque input, non sequenziale.
+- MLP: perche' il problema e' regressione tabellare su pochi input numerici, non sequenziale.
 - Range: i risultati valgono soprattutto nel dominio campionato.
 - Extrapolation: non e' garantita; andrebbe testata separatamente.
 - Monte Carlo: non e' un confronto di training, ma un benchmark numerico sul prezzo.
