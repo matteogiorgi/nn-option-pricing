@@ -2,8 +2,14 @@
 
 This directory contains the selected artifacts from the final experiment run.
 Generated datasets, trained model checkpoints, and scalers are kept in
-`data/final/` and `outputs/final/`, which are ignored by Git because they can be
-reproduced from the code and configuration.
+`data/final_improved/` and `outputs/final_improved/`, which are ignored by Git
+because they can be reproduced from the code and configuration.
+
+The final model uses the improved configuration selected after the intermediate
+feature-engineering and activation-function experiments:
+
+- feature set: `with_moneyness`;
+- activation function: `silu`.
 
 ## Command
 
@@ -14,18 +20,21 @@ reproduced from the code and configuration.
   --batch-size 1024 \
   --mc-n-paths 50000 \
   --mc-evaluation-samples 512 \
-  --data-dir data/final \
-  --output-dir outputs/final
+  --feature-set with_moneyness \
+  --activation silu \
+  --seed 42 \
+  --data-dir data/final_improved \
+  --output-dir outputs/final_improved
 ```
 
 ## Neural Network Metrics
 
 ```json
 {
-  "mae": 0.0619787834584713,
-  "rmse": 0.08218503059459481,
-  "r2": 0.9999874234199524,
-  "mape_percent_price_gt_1": 0.6746048331260681
+  "mae": 0.04289555922150612,
+  "rmse": 0.06208079538235526,
+  "r2": 0.9999927878379822,
+  "mape_percent_price_gt_1": 0.48025041818618774
 }
 ```
 
@@ -62,11 +71,11 @@ experiment artifacts.
 
 Repository state:
 
-- final results commit: `0f58408`;
+- final improved configuration promoted to `results/final/`;
 - final experiment artifacts directory: `results/final/`;
 - generated but untracked reproducible artifacts:
-  - `data/final/`;
-  - `outputs/final/`.
+  - `data/final_improved/`;
+  - `outputs/final_improved/`.
 
 Test suite:
 
@@ -77,7 +86,7 @@ Test suite:
 Result:
 
 ```text
-10 passed
+18 passed
 ```
 
 Documentation build:

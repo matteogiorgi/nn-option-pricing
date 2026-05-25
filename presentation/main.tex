@@ -162,10 +162,11 @@
     \]
 
     \vspace{0.5em}
-    Baseline architecture:
+    Final architecture:
     \begin{itemize}
         \item fully connected feed-forward network;
-        \item ReLU hidden activations;
+        \item moneyness \(S_0/K\) included as engineered feature;
+        \item SiLU hidden activations;
         \item mean squared error loss;
         \item Adam optimizer;
         \item train/validation/test split with feature scaling.
@@ -209,7 +210,7 @@
             \toprule
             Method         & MAE     & RMSE    & \(R^2\)  \\
             \midrule
-            Neural network & 0.06198 & 0.08219 & 0.999987 \\
+            Neural network & 0.04290 & 0.06208 & 0.999993 \\
             Monte Carlo    & 0.08882 & 0.15790 & 0.999951 \\
             \bottomrule
         \end{tabular}
@@ -242,6 +243,25 @@
         \item Provides a classical numerical benchmark with sampling error.
         \item The trained neural network gives deterministic forward-pass predictions.
     \end{itemize}
+\end{frame}
+
+\begin{frame}{Runtime Benchmark}
+    \begin{center}
+        \begin{tabular}{lrr}
+            \toprule
+            Method & Time & Options/s \\
+            \midrule
+            Black-Scholes & 0.00091 s & 1,101,095 \\
+            Neural inference & 0.03190 s & 31,351 \\
+            Monte Carlo & 1.28235 s & 780 \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+
+    \vspace{0.4em}
+    \begin{block}{Surrogate pricing point}
+        After training, neural inference was about \(40\times\) faster than Monte Carlo for pricing 1,000 options in the benchmark.
+    \end{block}
 \end{frame}
 
 \begin{frame}{Discussion}

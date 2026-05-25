@@ -32,12 +32,14 @@ Final Experiment
 The final experiment artifacts selected for the report are stored in
 ``results/final/``. This directory tracks the configuration snapshot, metrics,
 diagnostic figures, and verification notes, while generated datasets and model
-checkpoints remain reproducible but untracked in ``data/final/`` and
-``outputs/final/``.
+checkpoints remain reproducible but untracked in ``data/final_improved/`` and
+``outputs/final_improved/``.
 
 The final run uses:
 
 * 100,000 synthetic option contracts;
+* the engineered feature set ``with_moneyness``;
+* the SiLU hidden-layer activation function;
 * up to 200 training epochs with early stopping;
 * 50,000 Monte Carlo paths;
 * a deterministic Monte Carlo evaluation subset of 512 test options.
@@ -50,13 +52,13 @@ The final neural network metrics against analytical Black-Scholes prices are:
    * - Metric
      - Value
    * - MAE
-     - 0.0619787835
+     - 0.0428955592
    * - RMSE
-     - 0.0821850306
+     - 0.0620807954
    * - :math:`R^2`
-     - 0.9999874234
+     - 0.9999927878
    * - MAPE, price > 1
-     - 0.6746048331%
+     - 0.4802504182%
 
 Further Experiment Ideas
 ------------------------

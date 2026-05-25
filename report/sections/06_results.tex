@@ -10,17 +10,17 @@ The final neural network results on the held-out test set are reported in Table~
         \toprule
         Metric & Value \\
         \midrule
-        MAE & 0.06198 \\
-        RMSE & 0.08219 \\
-        $R^2$ & 0.999987 \\
-        MAPE, prices $> 1$ & 0.6746\% \\
+        MAE & 0.04290 \\
+        RMSE & 0.06208 \\
+        $R^2$ & 0.999993 \\
+        MAPE, prices $> 1$ & 0.4803\% \\
         \bottomrule
     \end{tabular}
     \caption{Final neural network metrics against analytical Black-Scholes prices.}
     \label{tab:nn-final-metrics}
 \end{table}
 
-The results show that the feed-forward neural network approximates the Black-Scholes pricing function with very high accuracy on the sampled parameter domain.
+The results show that the feed-forward neural network with moneyness as an engineered feature and SiLU hidden activations approximates the Black-Scholes pricing function with very high accuracy on the sampled parameter domain.
 The coefficient of determination is close to one, while MAE and RMSE are small in absolute price units.
 This supports the main research question: in this controlled setting, a neural network can learn the Black-Scholes pricing map effectively and can be interpreted as a fast pricing surrogate after training.
 
@@ -104,9 +104,35 @@ However, it remains a simulation-based estimator and therefore has sampling erro
 The neural network, in contrast, produces deterministic forward-pass predictions once trained.
 This highlights the main computational role of the network: it does not replace the analytical Black-Scholes formula in this setting, but it demonstrates how a learned surrogate can approximate a pricing map efficiently.
 
+\section{Runtime Benchmark}
+
+The runtime benchmark separates the initial neural network training cost from pricing time after training.
+Using the improved final configuration, training required approximately 359 seconds in the benchmark environment.
+Once trained, the neural network priced 1,000 options in approximately 0.0319 seconds on average.
+The Monte Carlo benchmark with 20,000 paths required approximately 1.2824 seconds for the same number of options, while the vectorized analytical Black-Scholes formula required approximately 0.00091 seconds.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lrr}
+        \toprule
+        Method & Mean time for 1,000 options & Mean options/s \\
+        \midrule
+        Black-Scholes formula & 0.00091 s & 1,101,094.82 \\
+        Neural network inference & 0.03190 s & 31,350.77 \\
+        Monte Carlo, 20,000 paths & 1.28235 s & 779.82 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Runtime benchmark for analytical, neural-network, and Monte Carlo pricing.}
+    \label{tab:runtime-benchmark}
+\end{table}
+
+As expected, the analytical Black-Scholes formula is the fastest method when available.
+The relevant surrogate-pricing comparison is therefore between neural network inference and Monte Carlo simulation.
+In this benchmark, neural inference is roughly 40 times faster than Monte Carlo after the model has been trained.
+
 \section{Discussion}
 
-The final results indicate that the neural network performs slightly better than the Monte Carlo benchmark in terms of MAE and RMSE on the reported experiment, while Monte Carlo obtains a slightly lower MAPE on prices greater than 1.
+The final results indicate that the neural network performs better than the Monte Carlo benchmark in terms of MAE, RMSE, and MAPE on the reported experiment.
 This comparison should be interpreted carefully because the two methods are evaluated differently: the neural network is evaluated on the full held-out test set, whereas Monte Carlo is evaluated on a deterministic subset due to computational cost.
 
 The most important conclusion is qualitative rather than competitive.

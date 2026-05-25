@@ -15,6 +15,7 @@
   },
   "training": {
     "seed": 42,
+    "feature_set": "with_moneyness",
     "test_size": 0.15,
     "validation_size": 0.15,
     "batch_size": 1024,
@@ -26,7 +27,8 @@
       64,
       64,
       32
-    ]
+    ],
+    "activation": "silu"
   },
   "monte_carlo": {
     "n_paths": 50000,
@@ -36,12 +38,12 @@
     "seed": 123
   },
   "paths": {
-    "data_dir": "data/final",
-    "output_dir": "outputs/final",
-    "figure_dir": "outputs/final/figures",
-    "metrics_dir": "outputs/final/metrics",
-    "dataset_path": "data/final/synthetic_options.csv",
-    "model_path": "outputs/final/model.pt",
-    "scaler_path": "outputs/final/scaler.joblib"
+    "data_dir": "data/final_improved",
+    "output_dir": "outputs/final_improved",
+    "figure_dir": "outputs/final_improved/figures",
+    "metrics_dir": "outputs/final_improved/metrics",
+    "dataset_path": "data/final_improved/synthetic_options.csv",
+    "model_path": "outputs/final_improved/model.pt",
+    "scaler_path": "outputs/final_improved/scaler.joblib"
   }
 }

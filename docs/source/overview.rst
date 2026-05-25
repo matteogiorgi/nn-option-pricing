@@ -40,8 +40,8 @@ The final experiment results are reflected in the tracked project deliverables:
   from ``presentation/main.tex``.
 
 Generated datasets, trained model checkpoints, scalers, and full run outputs
-are kept reproducible but untracked under ``data/final/`` and
-``outputs/final/``.
+are kept reproducible but untracked under ``data/final_improved/`` and
+``outputs/final_improved/``.
 
 Repository Layout
 -----------------

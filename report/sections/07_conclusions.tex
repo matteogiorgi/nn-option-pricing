@@ -1,12 +1,13 @@
 \chapter{Conclusions and Next Steps}
 
 The final experiment confirms that a feed-forward neural network can approximate the Black-Scholes pricing function for European call options with high accuracy in a controlled synthetic environment.
-With 100,000 synthetic contracts, the network achieves an MAE of 0.06198, an RMSE of 0.08219, and an $R^2$ of 0.999987 on the held-out test set.
+With 100,000 synthetic contracts, the network achieves an MAE of 0.04290, an RMSE of 0.06208, and an $R^2$ of 0.999993 on the held-out test set.
 These results answer the research question positively within the assumptions and parameter ranges considered in the project.
 
 The comparison with Monte Carlo also clarifies the role of the neural network.
 Monte Carlo is a classical numerical estimator and remains useful as a benchmark, while the trained neural network acts as a deterministic pricing surrogate.
 The purpose of the network is therefore not to replace the analytical Black-Scholes formula, but to demonstrate that a supervised model can accurately learn a well-defined pricing map.
+The runtime benchmark further supports the surrogate interpretation: after training, neural inference is substantially faster than Monte Carlo simulation for repeated pricing queries.
 
 The main limitations are:
 
@@ -20,9 +21,8 @@ The main limitations are:
 Natural next steps are:
 
 \begin{itemize}
-    \item compare different neural network architectures and activation functions;
+    \item compare additional neural network architectures beyond the selected MLP;
     \item study the error in specific regions of the parameter space, for instance deep in-the-money or out-of-the-money options;
-    \item compare evaluation times across the analytical formula, Monte Carlo simulation, and the neural network;
     \item extend the framework to stochastic volatility models such as Heston;
     \item estimate Greeks using either automatic differentiation or finite differences.
 \end{itemize}

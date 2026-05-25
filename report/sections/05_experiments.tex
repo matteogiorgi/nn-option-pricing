@@ -6,6 +6,7 @@ The final experiment was designed to evaluate the neural network as a supervised
 The analytical Black-Scholes formula is used as the reference target, while Monte Carlo simulation is used as a numerical benchmark on a deterministic subset of the test set.
 
 The final run used 100,000 synthetic option contracts sampled from the parameter ranges defined in the methodology.
+The selected neural network configuration includes moneyness $S_0/K$ as an engineered input feature and uses the SiLU activation function in the hidden layers.
 The neural network was trained for up to 200 epochs with early stopping, using mini-batches of size 1024.
 The Monte Carlo benchmark used 50,000 simulated paths on 512 test options.
 
@@ -16,13 +17,16 @@ The Monte Carlo benchmark used 50,000 simulated paths on 512 test options.
   --batch-size 1024 \
   --mc-n-paths 50000 \
   --mc-evaluation-samples 512 \
-  --data-dir data/final \
-  --output-dir outputs/final
+  --feature-set with_moneyness \
+  --activation silu \
+  --seed 42 \
+  --data-dir data/final_improved \
+  --output-dir outputs/final_improved
 \end{lstlisting}
 
 \section{Reproducible Artifacts}
 
-The complete generated dataset, trained model checkpoint, and fitted scalers are stored under \texttt{data/final/} and \texttt{outputs/final/}.
+The complete generated dataset, trained model checkpoint, and fitted scalers are stored under \texttt{data/final\_improved/} and \texttt{outputs/final\_improved/}.
 These directories are ignored by Git because they can be reproduced from the code and experiment configuration.
 
 The selected final artifacts used in the report are tracked in \texttt{results/final/}.
