@@ -17,7 +17,7 @@ import torch
 
 from nn_option_pricing.config import ExperimentConfig, config_to_dict
 from nn_option_pricing.dataset import (
-    FEATURE_COLUMNS,
+    MONEYNESS_COLUMN,
     generate_synthetic_dataset,
     save_dataset,
 )
@@ -87,7 +87,8 @@ def run_experiment(config: ExperimentConfig) -> dict[str, float]:
         {
             "model_state_dict": artifacts.model.state_dict(),
             "hidden_layers": config.training.hidden_layers,
-            "feature_columns": FEATURE_COLUMNS,
+            "activation": config.training.activation,
+            "feature_columns": artifacts.feature_columns,
         },
         config.paths.model_path,
     )
@@ -101,7 +102,8 @@ def run_experiment(config: ExperimentConfig) -> dict[str, float]:
     # Monte Carlo benchmark, which should operate on financial units rather
     # than standardized inputs.
     test_df = pd.DataFrame(
-        artifacts.scaler.inverse_transform(artifacts.x_test), columns=FEATURE_COLUMNS
+        artifacts.scaler.inverse_transform(artifacts.x_test),
+        columns=artifacts.feature_columns,
     )
     errors = y_pred - artifacts.y_test
 
@@ -134,7 +136,11 @@ def run_experiment(config: ExperimentConfig) -> dict[str, float]:
     )
     plot_error_distribution(errors, config.paths.figure_dir / "error_distribution.png")
     plot_error_against_feature(
-        test_df["s0"].to_numpy() / test_df["k"].to_numpy(),
+        (
+            test_df[MONEYNESS_COLUMN].to_numpy()
+            if MONEYNESS_COLUMN in test_df
+            else test_df["s0"].to_numpy() / test_df["k"].to_numpy()
+        ),
         errors,
         "Moneyness S0/K",
         config.paths.figure_dir / "error_vs_moneyness.png",

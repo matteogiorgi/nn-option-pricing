@@ -13,7 +13,7 @@ from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
 from nn_option_pricing.config import TrainingConfig
-from nn_option_pricing.dataset import FEATURE_COLUMNS, TARGET_COLUMN
+from nn_option_pricing.dataset import TARGET_COLUMN, get_feature_columns
 from nn_option_pricing.model import PricingMLP
 
 
@@ -35,6 +35,8 @@ class TrainingArtifacts:
         Scaled test features, ready for model inference.
     y_test
         Original-scale Black-Scholes test prices.
+    feature_columns
+        Ordered input columns used by the model.
     """
 
     model: PricingMLP
@@ -43,6 +45,7 @@ class TrainingArtifacts:
     history: dict[str, list[float]]
     x_test: np.ndarray
     y_test: np.ndarray
+    feature_columns: list[str]
 
 
 def set_seed(seed: int) -> None:
@@ -91,7 +94,8 @@ def train_model(
         device or ("cuda" if torch.cuda.is_available() else "cpu")
     )
 
-    x = df[FEATURE_COLUMNS].to_numpy(dtype=np.float32)
+    feature_columns = get_feature_columns(config.feature_set)
+    x = df[feature_columns].to_numpy(dtype=np.float32)
     y = df[TARGET_COLUMN].to_numpy(dtype=np.float32)
 
     # First reserve the test set. The remaining data are split again into
@@ -131,9 +135,11 @@ def train_model(
         x_val_scaled, y_val_scaled, config.batch_size, shuffle=False
     )
 
-    model = PricingMLP(input_dim=x.shape[1], hidden_layers=config.hidden_layers).to(
-        torch_device
-    )
+    model = PricingMLP(
+        input_dim=x.shape[1],
+        hidden_layers=config.hidden_layers,
+        activation=config.activation,
+    ).to(torch_device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(
         model.parameters(),
@@ -204,6 +210,7 @@ def train_model(
         history=history,
         x_test=x_test_scaled,
         y_test=y_test,
+        feature_columns=feature_columns,
     )
 
 

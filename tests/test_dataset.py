@@ -7,8 +7,10 @@ from nn_option_pricing.black_scholes import call_price
 from nn_option_pricing.config import DatasetConfig
 from nn_option_pricing.dataset import (
     FEATURE_COLUMNS,
+    MONEYNESS_COLUMN,
     TARGET_COLUMN,
     generate_synthetic_dataset,
+    get_feature_columns,
     load_dataset,
     save_dataset,
 )
@@ -32,7 +34,7 @@ def test_generate_synthetic_dataset_schema_and_ranges():
 
     df = generate_synthetic_dataset(config)
 
-    assert list(df.columns) == FEATURE_COLUMNS + [TARGET_COLUMN, "moneyness"]
+    assert list(df.columns) == FEATURE_COLUMNS + [TARGET_COLUMN, MONEYNESS_COLUMN]
     assert len(df) == config.n_samples
     assert df["s0"].between(config.s0_min, config.s0_max).all()
     assert df["k"].between(config.k_min, config.k_max).all()
@@ -40,7 +42,19 @@ def test_generate_synthetic_dataset_schema_and_ranges():
     assert df["r"].between(config.r_min, config.r_max).all()
     assert df["sigma"].between(config.sigma_min, config.sigma_max).all()
     assert np.all(df[TARGET_COLUMN].to_numpy() >= 0.0)
-    assert np.allclose(df["moneyness"], df["s0"] / df["k"])
+    assert np.allclose(df[MONEYNESS_COLUMN], df["s0"] / df["k"])
+
+
+def test_get_feature_columns_supports_base_and_moneyness_sets():
+    assert get_feature_columns("base") == ["s0", "k", "t", "r", "sigma"]
+    assert get_feature_columns("with_moneyness") == [
+        "s0",
+        "k",
+        "t",
+        "r",
+        "sigma",
+        "moneyness",
+    ]
 
 
 def test_generate_synthetic_dataset_is_reproducible_with_seed():

@@ -69,6 +69,18 @@ python scripts/run_experiment.py \
   --output-dir outputs/intermediate
 ```
 
+The baseline uses the primitive Black-Scholes inputs
+`(s0, k, t, r, sigma)` and ReLU activations. Experimental variants can be
+selected from the command line:
+
+```bash
+python scripts/run_experiment.py \
+  --feature-set with_moneyness \
+  --activation silu \
+  --data-dir data/experiments/moneyness_silu \
+  --output-dir outputs/experiments/moneyness_silu
+```
+
 For a fast smoke test:
 
 ```bash

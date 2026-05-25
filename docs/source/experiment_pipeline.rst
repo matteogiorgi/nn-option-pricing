@@ -16,6 +16,22 @@ directories:
      --data-dir data/intermediate \
      --output-dir outputs/intermediate
 
+The baseline experiment uses the primitive Black-Scholes inputs
+``(s0, k, t, r, sigma)`` and ReLU activations. The command-line interface also
+supports controlled experimental variants:
+
+.. code-block:: bash
+
+   python scripts/run_experiment.py \
+     --feature-set with_moneyness \
+     --activation silu \
+     --data-dir data/experiments/moneyness_silu \
+     --output-dir outputs/experiments/moneyness_silu
+
+Supported feature sets are ``base`` and ``with_moneyness``. Supported
+activation functions are ``relu``, ``tanh``, ``leaky_relu``, ``silu``, and
+``gelu``.
+
 The pipeline performs the following steps:
 
 1. Create output directories.

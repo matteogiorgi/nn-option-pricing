@@ -61,10 +61,16 @@ The final neural network metrics against analytical Black-Scholes prices are:
 Further Experiment Ideas
 ------------------------
 
-For the final project report, useful experiments include:
+The codebase already supports two controlled experimental switches:
+
+* ``--feature-set with_moneyness`` to include ``s0 / k`` as an engineered
+  model input;
+* ``--activation`` to compare hidden-layer activation functions such as ReLU,
+  Tanh, LeakyReLU, SiLU, and GELU.
+
+For the final project report, additional useful experiments include:
 
 * increasing the synthetic dataset size;
 * comparing different hidden layer widths and depths;
-* comparing activation functions such as ReLU, Tanh, and LeakyReLU;
 * measuring how the error changes with moneyness, maturity, and volatility;
 * comparing inference time against Monte Carlo simulation.

@@ -35,6 +35,7 @@ class TrainingConfig:
     """Hyperparameters for neural network training and data splitting."""
 
     seed: int = 42
+    feature_set: str = "base"
     test_size: float = 0.15
     validation_size: float = 0.15
     batch_size: int = 1024
@@ -43,6 +44,7 @@ class TrainingConfig:
     learning_rate: float = 1e-3
     weight_decay: float = 1e-6
     hidden_layers: tuple[int, ...] = (64, 64, 32)
+    activation: str = "relu"
 
 
 @dataclass(frozen=True)

@@ -22,6 +22,18 @@ def parse_args() -> argparse.Namespace:
         description="Run the Black-Scholes neural pricing experiment."
     )
     parser.add_argument("--n-samples", type=int, default=100_000)
+    parser.add_argument(
+        "--feature-set",
+        choices=["base", "with_moneyness"],
+        default="base",
+        help="Input feature set used by the neural network.",
+    )
+    parser.add_argument(
+        "--activation",
+        choices=["relu", "tanh", "leaky_relu", "silu", "gelu"],
+        default="relu",
+        help="Hidden-layer activation function.",
+    )
     parser.add_argument("--max-epochs", type=int, default=200)
     parser.add_argument("--batch-size", type=int, default=1024)
     parser.add_argument("--learning-rate", type=float, default=1e-3)
@@ -40,9 +52,11 @@ def main() -> None:
         dataset=DatasetConfig(n_samples=args.n_samples, seed=args.seed),
         training=TrainingConfig(
             seed=args.seed,
+            feature_set=args.feature_set,
             max_epochs=args.max_epochs,
             batch_size=args.batch_size,
             learning_rate=args.learning_rate,
+            activation=args.activation,
         ),
         monte_carlo=MonteCarloConfig(
             n_paths=args.mc_n_paths,

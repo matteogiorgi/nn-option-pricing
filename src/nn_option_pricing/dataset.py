@@ -16,8 +16,34 @@ import pandas as pd
 from nn_option_pricing.black_scholes import call_price
 from nn_option_pricing.config import DatasetConfig
 
-FEATURE_COLUMNS = ["s0", "k", "t", "r", "sigma"]
+BASE_FEATURE_COLUMNS = ["s0", "k", "t", "r", "sigma"]
+MONEYNESS_COLUMN = "moneyness"
+FEATURE_COLUMNS = BASE_FEATURE_COLUMNS
 TARGET_COLUMN = "call_price"
+
+
+def get_feature_columns(feature_set: str = "base") -> list[str]:
+    """Return the model input columns associated with a named feature set.
+
+    Parameters
+    ----------
+    feature_set
+        Feature set identifier. ``"base"`` uses only the primitive
+        Black-Scholes inputs, while ``"with_moneyness"`` also includes
+        ``s0 / k`` as an engineered feature.
+
+    Returns
+    -------
+    list[str]
+        Ordered feature columns to pass to the neural network.
+    """
+    if feature_set == "base":
+        return list(BASE_FEATURE_COLUMNS)
+    if feature_set == "with_moneyness":
+        return [*BASE_FEATURE_COLUMNS, MONEYNESS_COLUMN]
+    raise ValueError(
+        f"Unknown feature_set={feature_set!r}. " "Expected 'base' or 'with_moneyness'."
+    )
 
 
 def generate_synthetic_dataset(config: DatasetConfig) -> pd.DataFrame:
@@ -52,7 +78,7 @@ def generate_synthetic_dataset(config: DatasetConfig) -> pd.DataFrame:
         data["r"],
         data["sigma"],
     )
-    data["moneyness"] = data["s0"] / data["k"]
+    data[MONEYNESS_COLUMN] = data["s0"] / data["k"]
     return pd.DataFrame(data)
 
 

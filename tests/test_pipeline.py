@@ -2,6 +2,8 @@
 
 import json
 
+import torch
+
 from nn_option_pricing.config import (
     DatasetConfig,
     ExperimentConfig,
@@ -26,10 +28,12 @@ def test_run_experiment_smoke_test_writes_expected_artifacts(tmp_path):
         dataset=DatasetConfig(n_samples=160, seed=17),
         training=TrainingConfig(
             seed=17,
+            feature_set="with_moneyness",
             batch_size=32,
             max_epochs=2,
             patience=2,
             hidden_layers=(8,),
+            activation="tanh",
         ),
         monte_carlo=MonteCarloConfig(
             n_paths=200,
@@ -69,7 +73,13 @@ def test_run_experiment_smoke_test_writes_expected_artifacts(tmp_path):
 
     saved_config = json.loads((paths.output_dir / "experiment_config.json").read_text())
     assert saved_config["dataset"]["n_samples"] == config.dataset.n_samples
+    assert saved_config["training"]["feature_set"] == "with_moneyness"
     assert saved_config["training"]["hidden_layers"] == list(
         config.training.hidden_layers
     )
+    assert saved_config["training"]["activation"] == "tanh"
     assert saved_config["paths"]["output_dir"] == str(paths.output_dir)
+
+    checkpoint = torch.load(paths.model_path, weights_only=False)
+    assert checkpoint["feature_columns"] == ["s0", "k", "t", "r", "sigma", "moneyness"]
+    assert checkpoint["activation"] == "tanh"

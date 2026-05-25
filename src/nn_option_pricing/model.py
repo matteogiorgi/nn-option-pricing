@@ -6,6 +6,25 @@ import torch
 from torch import nn
 
 
+def make_activation(name: str) -> nn.Module:
+    """Create an activation layer from a stable configuration name."""
+    normalized = name.lower()
+    if normalized == "relu":
+        return nn.ReLU()
+    if normalized == "tanh":
+        return nn.Tanh()
+    if normalized == "leaky_relu":
+        return nn.LeakyReLU()
+    if normalized == "silu":
+        return nn.SiLU()
+    if normalized == "gelu":
+        return nn.GELU()
+    raise ValueError(
+        f"Unknown activation={name!r}. "
+        "Expected one of: relu, tanh, leaky_relu, silu, gelu."
+    )
+
+
 class PricingMLP(nn.Module):
     """Feed-forward neural network for scalar option price regression.
 
@@ -15,12 +34,16 @@ class PricingMLP(nn.Module):
         Number of input features. The default corresponds to
         ``(S0, K, T, r, sigma)``.
     hidden_layers
-        Width of each hidden layer. ReLU activations are inserted between
-        linear layers.
+        Width of each hidden layer.
+    activation
+        Activation function inserted after each hidden linear layer.
     """
 
     def __init__(
-        self, input_dim: int = 5, hidden_layers: tuple[int, ...] = (64, 64, 32)
+        self,
+        input_dim: int = 5,
+        hidden_layers: tuple[int, ...] = (64, 64, 32),
+        activation: str = "relu",
     ):
         super().__init__()
         layers: list[nn.Module] = []
@@ -28,7 +51,7 @@ class PricingMLP(nn.Module):
 
         for hidden_dim in hidden_layers:
             layers.append(nn.Linear(previous_dim, hidden_dim))
-            layers.append(nn.ReLU())
+            layers.append(make_activation(activation))
             previous_dim = hidden_dim
 
         layers.append(nn.Linear(previous_dim, 1))
