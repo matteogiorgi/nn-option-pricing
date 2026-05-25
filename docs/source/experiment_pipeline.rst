@@ -63,6 +63,23 @@ The experiment writes:
 The generated data and experiment outputs are intentionally ignored by Git,
 because they can be reproduced from the code and configuration.
 
+Runtime Benchmark
+-----------------
+
+The runtime benchmark compares analytical Black-Scholes pricing, neural network
+inference, and Monte Carlo simulation:
+
+.. code-block:: bash
+
+   python scripts/benchmark_runtime.py \
+     --feature-set with_moneyness \
+     --activation silu \
+     --output-dir outputs/runtime_benchmark
+
+The benchmark also reports the neural network training time separately from
+pricing/inference time. This distinction is important because a neural pricing
+surrogate has an upfront training cost, but can be fast once trained.
+
 Fast Smoke Test
 ---------------
 

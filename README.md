@@ -100,6 +100,15 @@ The run generates:
 - metrics in `outputs/metrics/`;
 - figures in `outputs/figures/`.
 
+Benchmark pricing runtimes:
+
+```bash
+python scripts/benchmark_runtime.py \
+  --feature-set with_moneyness \
+  --activation silu \
+  --output-dir outputs/runtime_benchmark
+```
+
 ## Testing
 
 Run the automated test suite:

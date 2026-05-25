@@ -1,0 +1,65 @@
+{
+  "config": {
+    "n_samples": 50000,
+    "n_options": 1000,
+    "feature_set": "with_moneyness",
+    "activation": "silu",
+    "max_epochs": 100,
+    "batch_size": 1024,
+    "learning_rate": 0.001,
+    "seed": 42,
+    "repeats": 5,
+    "mc_repeats": 1,
+    "mc_n_paths": 20000,
+    "mc_option_batch_size": 512,
+    "mc_path_batch_size": 10000,
+    "mc_seed": 123
+  },
+  "training": {
+    "seconds": 359.16672096299953,
+    "epochs_ran": 100
+  },
+  "pricing": {
+    "black_scholes": {
+      "times_seconds": [
+        0.0018841809996956727,
+        0.0012284959993849043,
+        0.00052274299923738,
+        0.0004588859992509242,
+        0.00044662900108960457
+      ],
+      "mean_seconds": 0.0009081869997316971,
+      "median_seconds": 0.00052274299923738,
+      "min_seconds": 0.00044662900108960457,
+      "max_seconds": 0.0018841809996956727,
+      "options_per_second_mean": 1101094.8189034052,
+      "options_per_second_median": 1912985.925127417
+    },
+    "neural_network_inference": {
+      "times_seconds": [
+        0.049407223999878624,
+        0.013408835000518593,
+        0.0408029299996997,
+        0.02866915900085587,
+        0.02719757600061712
+      ],
+      "mean_seconds": 0.031897144800313984,
+      "median_seconds": 0.02866915900085587,
+      "min_seconds": 0.013408835000518593,
+      "max_seconds": 0.049407223999878624,
+      "options_per_second_mean": 31350.768423327856,
+      "options_per_second_median": 34880.68833725282
+    },
+    "monte_carlo": {
+      "times_seconds": [
+        1.2823542269998143
+      ],
+      "mean_seconds": 1.2823542269998143,
+      "median_seconds": 1.2823542269998143,
+      "min_seconds": 1.2823542269998143,
+      "max_seconds": 1.2823542269998143,
+      "options_per_second_mean": 779.8157318353385,
+      "options_per_second_median": 779.8157318353385
+    }
+  }
+}
