@@ -161,53 +161,22 @@ Both documents use XeLaTeX.
 
 
 
-## ToDo / Possible Extensions
+## Project Status and Future Work
 
-Questi punti sono promemoria di lavoro per eventuali estensioni. Il progetto
-principale rimane focalizzato sulla domanda: una rete neurale feed-forward
-riesce ad approssimare accuratamente la funzione di pricing Black-Scholes?
+The core experimental extensions have been implemented:
 
-### Core Extensions
+- moneyness can be included as an engineered feature with
+  `--feature-set with_moneyness`;
+- hidden-layer activations can be selected with `--activation`;
+- runtime benchmarking is available through `scripts/benchmark_runtime.py`.
 
-1. **Moneyness as engineered feature**
-   Valutare se includere `moneyness = s0 / k` anche tra gli input della rete,
-   oltre che usarla come variabile diagnostica per l'analisi degli errori.
-   La variabile non aggiunge informazione nuova rispetto a `s0` e `k`, ma rende
-   esplicita una relazione finanziariamente rilevante.
+The final selected configuration uses `with_moneyness + silu`. Final metrics,
+figures, and configuration snapshots are tracked in `results/final/`.
 
-2. **Alternative activation functions**
-   Confrontare ReLU con una o due funzioni di attivazione alternative, ad
-   esempio `Tanh`, `LeakyReLU`, `SiLU` o `GELU`, mantenendo invariata la pipeline
-   sperimentale.
+Possible future extensions:
 
-3. **Runtime comparison**
-   Confrontare i tempi di pricing della formula Black-Scholes analitica, della
-   neural network e del benchmark Monte Carlo. Il confronto dovrebbe distinguere
-   tra training time e inference time: la rete ha un costo iniziale di
-   addestramento, ma una volta addestrata puo' prezzare molte opzioni tramite
-   una semplice forward pass. Monte Carlo, invece, richiede simulazioni per ogni
-   nuova valutazione.
-
-### Additional Machine Learning Baselines
-
-4. **SVR benchmark**
-   Aggiungere una Support Vector Regression come baseline classica di machine
-   learning. Poiche' SVR puo' essere computazionalmente costosa su dataset
-   grandi, l'esperimento potrebbe essere eseguito su un sottoinsieme del dataset
-   o con una configurazione dedicata.
-
-### Future / Robustness Work
-
-5. **Noisy Black-Scholes targets**
-   Studiare un dataset sintetico in cui al prezzo Black-Scholes viene aggiunto
-   rumore controllato, per analizzare la robustezza della rete al variare del
-   signal-to-noise ratio. Questo esperimento cambia leggermente il problema: da
-   approssimazione di una funzione deterministica a regressione con target
-   rumorosi.
-
-6. **Pseudo-real or exchange-traded option data**
-   Valutare, come estensione futura, dati pseudo-reali o exchange-traded
-   options. Questa direzione richiede cautela perche' i prezzi di mercato
-   incorporano bid-ask spread, liquidita', dividendi, microstruttura e volatilita'
-   implicita; quindi la rete non approssimerebbe piu' soltanto la funzione
-   Black-Scholes.
+- add a Support Vector Regression benchmark on a reduced dataset;
+- study noisy Black-Scholes targets as a robustness experiment;
+- explore pseudo-real or exchange-traded option data, making clear that this
+  changes the research question from Black-Scholes approximation to market-price
+  modeling.

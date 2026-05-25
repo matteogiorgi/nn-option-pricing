@@ -139,6 +139,8 @@
         y = C_{\mathrm{BS}}(S_0,K,T,r,\sigma).
     \]
 
+    The final model also includes moneyness \(S_0/K\) as an engineered feature.
+
     \vspace{0.5em}
     \begin{center}
         \begin{tabular}{ll}
@@ -158,7 +160,7 @@
 \begin{frame}{Neural Network as Pricing Surrogate}
     The neural network learns the pricing map
     \[
-        f_\theta: (S_0, K, T, r, \sigma) \mapsto C_{\mathrm{BS}}.
+        f_\theta: (S_0, K, T, r, \sigma, S_0/K) \mapsto C_{\mathrm{BS}}.
     \]
 
     \vspace{0.5em}
@@ -275,7 +277,7 @@
 
 \begin{frame}{Limitations}
     \begin{itemize}
-        \item The first version uses synthetic data generated under Black-Scholes assumptions.
+        \item The project uses synthetic data generated under Black-Scholes assumptions.
         \item The model prices European calls only.
         \item The target function is known analytically, so the neural network is evaluated as a surrogate rather than as a replacement for financial theory.
         \item Generalization outside the sampled parameter ranges is not guaranteed.
