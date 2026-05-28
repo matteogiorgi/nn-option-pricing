@@ -1011,6 +1011,34 @@ delle neural network quando il numero di osservazioni cresce. Per questo non lo
 eseguiamo sulla run finale da 100000 osservazioni, ma su dataset piu' piccoli e
 con piu' seed.
 
+Perche' non facciamo tuning SVR?
+
+Il motivo principale e' metodologico: SVR non e' il modello centrale del
+progetto. La research question riguarda la capacita' di una feed-forward neural
+network di approssimare la funzione Black-Scholes. SVR e' stato aggiunto come
+baseline classica, non come secondo modello da ottimizzare in profondita'.
+
+Un tuning serio di SVR richiederebbe una procedura dedicata:
+
+- grid search o random search su `C`, `epsilon`, `gamma` ed eventualmente
+  kernel diversi;
+- train/validation/test split o cross-validation;
+- ripetizione su piu' seed;
+- analisi del costo computazionale;
+- discussione del rischio di overfitting sugli iperparametri.
+
+Questo renderebbe SVR un esperimento autonomo e sposterebbe attenzione dalla
+domanda principale. Inoltre, anche una configurazione SVR ottimizzata su 5000
+campioni non sarebbe direttamente comparabile alla run finale della neural
+network su 100000 campioni.
+
+La scelta prudente e':
+
+```text
+SVR = baseline classica ragionevole, documentata e multi-seed su dataset ridotti.
+NN  = modello principale da analizzare e ottimizzare.
+```
+
 Comando usato:
 
 ```bash
