@@ -175,6 +175,98 @@ Punti importanti:
 - chiama `nn_option_pricing.pipeline.run_experiment(config)`;
 - stampa le metriche finali in formato JSON.
 
+### 4.1 Perche' usiamo `argparse`
+
+`argparse` e' la libreria standard di Python per costruire interfacce da riga di comando.
+Nel nostro progetto serve a trasformare `scripts/run_experiment.py` in un comando configurabile da terminale.
+
+Senza `argparse`, per cambiare `n_samples`, `activation`, `output_dir` o altri parametri dovremmo modificare direttamente il codice sorgente.
+Con `argparse`, invece, lo script resta sempre lo stesso e gli esperimenti cambiano solo attraverso parametri espliciti da terminale.
+
+La funzione `parse_args()` definita nel nostro file non va confusa con `parser.parse_args()`.
+
+```text
+parse_args() del nostro file:
+    1. crea il parser;
+    2. dichiara gli argomenti accettati;
+    3. chiama parser.parse_args();
+    4. restituisce args.
+```
+
+In forma grafica:
+
+```mermaid
+flowchart TD
+    A["main()"] --> B["parse_args()<br/>funzione nostra"]
+    B --> C["ArgumentParser"]
+    C --> D["add_argument(...)"]
+    D --> E["parser.parse_args()<br/>metodo argparse"]
+    E --> F["args"]
+    F --> G["ExperimentConfig"]
+    G --> H["run_experiment(config)"]
+```
+
+Nel codice:
+
+```python
+parser = argparse.ArgumentParser(
+    description="Run the Black-Scholes neural pricing experiment."
+)
+```
+
+crea il parser. L'argomento `description` serve soprattutto per il messaggio mostrato con:
+
+```bash
+python scripts/run_experiment.py --help
+```
+
+Ogni chiamata a `add_argument` dichiara un parametro accettato dalla CLI:
+
+```python
+parser.add_argument("--n-samples", type=int, default=100_000)
+```
+
+In questo esempio:
+
+- il parametro da terminale si chiama `--n-samples`;
+- il valore viene convertito a `int`;
+- se non viene passato, vale `100000`;
+- il valore sara' disponibile come `args.n_samples`.
+
+Il nome `args.n_samples` viene generato automaticamente da `argparse`: rimuove i trattini iniziali e sostituisce i trattini interni con underscore.
+
+```text
+--n-samples -> args.n_samples
+--max-epochs -> args.max_epochs
+--data-dir -> args.data_dir
+```
+
+Per alcuni parametri usiamo anche `choices`:
+
+```python
+parser.add_argument(
+    "--activation",
+    choices=["relu", "tanh", "leaky_relu", "silu", "gelu"],
+    default="relu",
+)
+```
+
+Questo evita valori non validi. Per esempio, `--activation banana` viene rifiutato subito con un errore chiaro.
+
+Alla fine, la riga:
+
+```python
+return parser.parse_args()
+```
+
+e' quella che legge davvero gli argomenti passati da terminale, applica i default, valida i valori e restituisce l'oggetto `args`.
+
+Da spiegare oralmente:
+
+> `argparse` e' il livello di interfaccia utente da terminale. Le dataclass sono invece il livello di configurazione interna del progetto.
+
+### 4.2 Costruzione della configurazione e lancio della pipeline
+
 Frammento chiave:
 
 ```python

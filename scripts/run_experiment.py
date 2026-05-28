@@ -18,6 +18,9 @@ from nn_option_pricing.pipeline import run_experiment
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line options into experiment overrides."""
+
+    # first thing is to create a parser object from the argparse module
+    # and then we can add arguments to the parser object that we want to accept from
     parser = argparse.ArgumentParser(
         description="Run the Black-Scholes neural pricing experiment."
     )
@@ -42,12 +45,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--data-dir", type=Path, default=Path("data"))
     parser.add_argument("--output-dir", type=Path, default=Path("outputs"))
+
+    # now with parse_args method from the parser object we can parse
+    # the command line arguments and return them as a Namespace object
     return parser.parse_args()
 
 
 def main() -> None:
     """Build the experiment configuration, run the pipeline, and print metrics."""
+
+    # first we parse the command line arguments
     args = parse_args()
+
+    # then we create an ExperimentConfig object that contains
+    # all the settings for the experiment
     config = ExperimentConfig(
         dataset=DatasetConfig(n_samples=args.n_samples, seed=args.seed),
         training=TrainingConfig(
@@ -64,6 +75,9 @@ def main() -> None:
         ),
         paths=make_path_config(data_dir=args.data_dir, output_dir=args.output_dir),
     )
+
+    # now we can run the experiment pipeline with the given configuration
+    # and print the resulting metrics in a nicely formatted JSON structure
     metrics = run_experiment(config)
     print(json.dumps(metrics, indent=2))
 

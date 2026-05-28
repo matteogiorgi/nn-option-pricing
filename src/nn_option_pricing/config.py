@@ -116,6 +116,10 @@ def make_path_config(
 
 def config_to_dict(config: Any) -> Any:
     """Convert experiment configuration objects into JSON-serializable values."""
+
+    # the problem we have is that dataclasses and Path objects are not directly JSON-serializable, so
+    # we use this function to recursively convert dataclass instances into dictionaries, and also
+    # convert Path objects to strings, so that the entire configuration can be easily serialized to JSON
     if is_dataclass(config) and not isinstance(config, type):
         return {key: config_to_dict(value) for key, value in asdict(config).items()}
     if isinstance(config, Path):
