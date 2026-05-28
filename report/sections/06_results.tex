@@ -158,14 +158,6 @@ The SVR baseline also approximates the Black-Scholes pricing function well on re
 However, its absolute error is higher than that of the final neural network configuration.
 This supports the interpretation of SVR as a useful classical baseline, while the neural network remains the main scalable surrogate model in the project.
 
-\section{Discussion}
-
-The final results indicate that the neural network performs better than the Monte Carlo benchmark in terms of MAE, RMSE, and MAPE on the reported experiment.
-This comparison should be interpreted carefully because the two methods are evaluated differently: the neural network is evaluated on the full held-out test set, whereas Monte Carlo is evaluated on a deterministic subset due to computational cost.
-
-The SVR benchmark should also be interpreted with caution because it is evaluated on reduced datasets.
-Its purpose is to provide an additional classical machine learning reference point, not to change the main experimental comparison.
-
 \section{Noisy Target Robustness}
 
 Table~\ref{tab:noisy-targets} reports the robustness experiment in which the
@@ -194,6 +186,14 @@ the supervised labels.
 This should not be interpreted as evidence of market-price modeling ability:
 the experiment is a controlled robustness test with a known analytical ground
 truth.
+
+\section{Discussion}
+
+The final results indicate that the neural network performs better than the Monte Carlo benchmark in terms of MAE, RMSE, and MAPE on the reported experiment.
+This comparison should be interpreted carefully because the two methods are evaluated differently: the neural network is evaluated on the full held-out test set, whereas Monte Carlo is evaluated on a deterministic subset due to computational cost.
+
+The SVR benchmark should also be interpreted with caution because it is evaluated on reduced datasets.
+Its purpose is to provide an additional classical machine learning reference point, not to change the main experimental comparison.
 
 The most important conclusion is qualitative rather than competitive.
 In a controlled Black-Scholes environment, a feed-forward network can learn the mapping from option and market parameters to theoretical prices with high accuracy.
