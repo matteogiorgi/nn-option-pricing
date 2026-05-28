@@ -251,11 +251,11 @@
     \begin{center}
         \begin{tabular}{lrr}
             \toprule
-            Method & Time & Options/s \\
+            Method           & Time      & Options/s \\
             \midrule
-            Black-Scholes & 0.00091 s & 1,101,095 \\
-            Neural inference & 0.03190 s & 31,351 \\
-            Monte Carlo & 1.28235 s & 780 \\
+            Black-Scholes    & 0.00091 s & 1,101,095 \\
+            Neural inference & 0.03190 s & 31,351    \\
+            Monte Carlo      & 1.28235 s & 780       \\
             \bottomrule
         \end{tabular}
     \end{center}
@@ -266,10 +266,32 @@
     \end{block}
 \end{frame}
 
+\begin{frame}{Additional ML Baseline: SVR}
+    A reduced-scale Support Vector Regression benchmark was added as a classical ML reference.
+
+    \vspace{0.4em}
+    \begin{center}
+        \begin{tabular}{lrr}
+            \toprule
+            Metric  & Mean     & Std      \\
+            \midrule
+            MAE     & 0.15088  & 0.00732  \\
+            RMSE    & 0.23100  & 0.00592  \\
+            \(R^2\) & 0.999905 & 0.000005 \\
+            MAPE    & 1.8253\% & 0.2422\% \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+
+    \vspace{0.3em}
+    \small Evaluated on 5,000 synthetic samples over three seeds. SVR is useful as a classical baseline, while the neural network remains the main scalable surrogate model.
+\end{frame}
+
 \begin{frame}{Discussion}
     \begin{itemize}
         \item The network accurately learns the Black-Scholes pricing map in the sampled domain.
         \item Monte Carlo is also accurate, but remains simulation-based and stochastic.
+        \item The SVR baseline gives an additional non-neural comparison on reduced datasets.
         \item The neural network is best interpreted as a pricing surrogate after training.
         \item The experiment validates the controlled Black-Scholes setting before moving to richer dynamics.
     \end{itemize}

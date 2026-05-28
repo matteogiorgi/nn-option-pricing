@@ -51,6 +51,25 @@ This restriction keeps the numerical benchmark computationally bounded while sti
 The main metrics are mean absolute error, root mean squared error, coefficient of determination, and MAPE computed only on prices greater than 1.
 The MAPE restriction avoids unstable percentage errors for options whose theoretical price is close to zero.
 
+\section{Support Vector Regression Baseline}
+
+As an additional classical machine learning baseline, the project includes a reduced-scale Support Vector Regression experiment with an RBF kernel.
+This benchmark is not intended to replace the main neural network experiment.
+Instead, it provides a useful comparison with a non-neural supervised regression method.
+
+The SVR benchmark is evaluated on smaller synthetic datasets because kernel methods scale less favorably than neural networks as the number of training observations increases.
+For this reason, the experiment uses 5,000 synthetic samples per run and is repeated over three random seeds.
+The same engineered feature set used in the final neural network experiment, including moneyness $S_0/K$, is used for the SVR baseline.
+Both input features and target prices are standardized before fitting, and predictions are transformed back to original price units before evaluation.
+
+\begin{lstlisting}[style=pythonstyle, caption={Command used for the SVR benchmark.}]
+.venv/bin/python scripts/run_svr_benchmark.py \
+  --n-samples 5000 \
+  --seeds 11 42 73 \
+  --feature-set with_moneyness \
+  --output-dir results/experiments/svr_benchmark
+\end{lstlisting}
+
 \section{Diagnostic Visualizations}
 
 The experiment produces the following diagnostic plots:

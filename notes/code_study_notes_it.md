@@ -994,6 +994,128 @@ Il punto concettuale e':
 
 > La rete ha un costo iniziale di training, ma dopo l'addestramento produce prezzi con una forward pass molto piu' veloce del Monte Carlo. Black-Scholes analitico resta comunque il piu' veloce quando la formula chiusa e' disponibile.
 
+## 13.2 SVR benchmark: `svr.py` e `scripts/run_svr_benchmark.py`
+
+Abbiamo aggiunto anche una baseline classica di Machine Learning basata su
+Support Vector Regression.
+
+Il punto non e' sostituire la rete neurale, ma avere un confronto aggiuntivo:
+
+> Oltre a confrontare la neural network con Black-Scholes e Monte Carlo, testiamo
+> anche un modello ML classico su dataset ridotti.
+
+Perche' dataset ridotti?
+
+SVR con kernel RBF puo' funzionare bene su dataset tabellari, ma scala peggio
+delle neural network quando il numero di osservazioni cresce. Per questo non lo
+eseguiamo sulla run finale da 100000 osservazioni, ma su dataset piu' piccoli e
+con piu' seed.
+
+Comando usato:
+
+```bash
+.venv/bin/python scripts/run_svr_benchmark.py \
+  --n-samples 5000 \
+  --seeds 11 42 73 \
+  --feature-set with_moneyness \
+  --output-dir results/experiments/svr_benchmark
+```
+
+### 13.2.1 Configurazione SVR
+
+La configurazione e' definita in `SVRBenchmarkConfig`:
+
+```python
+@dataclass(frozen=True)
+class SVRBenchmarkConfig:
+    n_samples: int = 5_000
+    seeds: tuple[int, ...] = (11, 42, 73)
+    feature_set: str = "with_moneyness"
+    test_size: float = 0.2
+    c: float = 100.0
+    epsilon: float = 0.01
+    gamma: float | Literal["scale", "auto"] = "scale"
+```
+
+I parametri principali sono:
+
+- `n_samples`: dimensione del dataset per ogni run;
+- `seeds`: semi diversi per ripetere l'esperimento;
+- `feature_set`: feature usate dal modello;
+- `test_size`: quota di test set;
+- `c`, `epsilon`, `gamma`: iperparametri principali di `sklearn.svm.SVR`.
+
+### 13.2.2 Flusso di una singola run SVR
+
+La funzione centrale e' `run_single_svr_benchmark`.
+
+Flusso logico:
+
+```mermaid
+flowchart TD
+    A["seed + SVRBenchmarkConfig"] --> B["DatasetConfig"]
+    B --> C["generate_synthetic_dataset"]
+    C --> D["select feature columns"]
+    D --> E["train/test split"]
+    E --> F["StandardScaler on X"]
+    E --> G["StandardScaler on y"]
+    F --> H["SVR RBF fit"]
+    G --> H
+    H --> I["predict on test set"]
+    I --> J["inverse target scaling"]
+    J --> K["clip negative prices"]
+    K --> L["regression_metrics"]
+```
+
+Punti importanti:
+
+- le feature vengono scalate con `StandardScaler`;
+- anche il target `call_price` viene scalato prima del fit;
+- dopo la predizione, i prezzi vengono riportati nelle unita' originali;
+- i prezzi predetti vengono tagliati a zero dal basso, per rispettare il vincolo
+  finanziario di non negativita';
+- le metriche sono le stesse usate per neural network e Monte Carlo.
+
+### 13.2.3 Perche' piu' seed
+
+Una singola run puo' dipendere dal seed usato per generare il dataset e fare lo
+split train/test. Per questo lo script esegue piu' run e poi aggrega i risultati
+con media e deviazione standard.
+
+La funzione `run_svr_benchmark` produce:
+
+```text
+{
+  "config": ...,
+  "runs": [...],
+  "summary": ...
+}
+```
+
+Dove:
+
+- `config` contiene la configurazione dell'esperimento;
+- `runs` contiene le metriche di ogni seed;
+- `summary` contiene media e deviazione standard.
+
+Risultati aggregati ottenuti:
+
+```text
+MAE  mean: 0.1509
+RMSE mean: 0.2310
+R2   mean: 0.9999049
+MAPE mean: 1.8253%
+Fit time mean: 12.32 s
+Prediction time mean: 0.030 s
+```
+
+Interpretazione prudente:
+
+> SVR approssima bene la funzione Black-Scholes su dataset ridotti, ma l'errore
+> e' superiore alla configurazione finale della neural network. Rimane quindi
+> una baseline classica utile, mentre la neural network resta il surrogate model
+> principale e piu' scalabile.
+
 ## 14. Test
 
 I test stanno in `tests/`.
@@ -1004,7 +1126,8 @@ File principali:
 - `test_dataset.py`: controlla colonne, range e forma del dataset;
 - `test_model.py`: controlla activation factory e shape del modello;
 - `test_monte_carlo.py`: controlla che Monte Carlo converga ragionevolmente verso Black-Scholes;
-- `test_pipeline.py`: smoke test della pipeline end-to-end.
+- `test_pipeline.py`: smoke test della pipeline end-to-end;
+- `test_svr.py`: controlla che il benchmark SVR produca risultati aggregati e salvi il JSON.
 
 Il comando e':
 
@@ -1016,7 +1139,7 @@ Per l'esposizione:
 
 > I test non servono a dimostrare la teoria finanziaria, ma a evitare regressioni nel codice e a verificare che i pezzi principali funzionino assieme.
 
-Al momento la suite contiene 18 test.
+Al momento la suite contiene 19 test.
 
 ## 15. Risultati finali
 
@@ -1129,9 +1252,10 @@ Ordine consigliato:
 4. spiegare `dataset.py` e `black_scholes.py`;
 5. spiegare `model.py` e `training.py`;
 6. spiegare Monte Carlo;
-7. spiegare metriche e grafici;
-8. mostrare `results/final/`;
-9. chiudere con limiti e prossimi passi.
+7. spiegare runtime benchmark e SVR benchmark;
+8. spiegare metriche e grafici;
+9. mostrare `results/final/` e `results/experiments/svr_benchmark/`;
+10. chiudere con limiti e prossimi passi.
 
 Frase conclusiva utile:
 

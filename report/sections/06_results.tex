@@ -130,10 +130,41 @@ As expected, the analytical Black-Scholes formula is the fastest method when ava
 The relevant surrogate-pricing comparison is therefore between neural network inference and Monte Carlo simulation.
 In this benchmark, neural inference is roughly 40 times faster than Monte Carlo after the model has been trained.
 
+\section{Support Vector Regression Baseline}
+
+The reduced-scale SVR benchmark provides an additional comparison with a classical supervised regression model.
+The experiment was repeated over three random seeds, using 5,000 synthetic contracts per run and the same engineered moneyness feature used by the final neural network.
+Aggregate results are reported in Table~\ref{tab:svr-benchmark}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lrr}
+        \toprule
+        Metric & Mean & Standard deviation \\
+        \midrule
+        MAE & 0.15088 & 0.00732 \\
+        RMSE & 0.23100 & 0.00592 \\
+        $R^2$ & 0.999905 & 0.000005 \\
+        MAPE, prices $> 1$ & 1.8253\% & 0.2422\% \\
+        Fit time & 12.3198 s & 0.7977 s \\
+        Prediction time & 0.0301 s & 0.0029 s \\
+        \bottomrule
+    \end{tabular}
+    \caption{Reduced-scale SVR benchmark aggregated over three random seeds.}
+    \label{tab:svr-benchmark}
+\end{table}
+
+The SVR baseline also approximates the Black-Scholes pricing function well on reduced datasets, as indicated by its high $R^2$.
+However, its absolute error is higher than that of the final neural network configuration.
+This supports the interpretation of SVR as a useful classical baseline, while the neural network remains the main scalable surrogate model in the project.
+
 \section{Discussion}
 
 The final results indicate that the neural network performs better than the Monte Carlo benchmark in terms of MAE, RMSE, and MAPE on the reported experiment.
 This comparison should be interpreted carefully because the two methods are evaluated differently: the neural network is evaluated on the full held-out test set, whereas Monte Carlo is evaluated on a deterministic subset due to computational cost.
+
+The SVR benchmark should also be interpreted with caution because it is evaluated on reduced datasets.
+Its purpose is to provide an additional classical machine learning reference point, not to change the main experimental comparison.
 
 The most important conclusion is qualitative rather than competitive.
 In a controlled Black-Scholes environment, a feed-forward network can learn the mapping from option and market parameters to theoretical prices with high accuracy.

@@ -8,6 +8,7 @@ The comparison with Monte Carlo also clarifies the role of the neural network.
 Monte Carlo is a classical numerical estimator and remains useful as a benchmark, while the trained neural network acts as a deterministic pricing surrogate.
 The purpose of the network is therefore not to replace the analytical Black-Scholes formula, but to demonstrate that a supervised model can accurately learn a well-defined pricing map.
 The runtime benchmark further supports the surrogate interpretation: after training, neural inference is substantially faster than Monte Carlo simulation for repeated pricing queries.
+The additional SVR experiment provides a classical machine learning reference point on reduced datasets and supports the choice of the neural network as the main scalable surrogate model.
 
 The main limitations are:
 
@@ -22,6 +23,7 @@ Natural next steps are:
 
 \begin{itemize}
     \item compare additional neural network architectures beyond the selected MLP;
+    \item tune and evaluate further classical machine learning baselines on controlled reduced datasets;
     \item study the error in specific regions of the parameter space, for instance deep in-the-money or out-of-the-money options;
     \item extend the framework to stochastic volatility models such as Heston;
     \item estimate Greeks using either automatic differentiation or finite differences.
