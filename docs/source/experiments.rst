@@ -70,6 +70,12 @@ The codebase already supports two controlled experimental switches:
 * ``--activation`` to compare hidden-layer activation functions such as ReLU,
   Tanh, LeakyReLU, SiLU, and GELU.
 
+The repository also includes a reduced-scale Support Vector Regression
+benchmark through ``scripts/run_svr_benchmark.py``. SVR is evaluated on smaller
+synthetic datasets and over multiple random seeds because kernel methods do not
+scale as naturally to the full 100,000-sample setting used by the neural
+network experiment.
+
 For the final project report, additional useful experiments include:
 
 * increasing the synthetic dataset size;

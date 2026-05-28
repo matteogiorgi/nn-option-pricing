@@ -15,5 +15,5 @@ This section is generated from the Python docstrings.
    nn_option_pricing.monte_carlo
    nn_option_pricing.pipeline
    nn_option_pricing.plots
+   nn_option_pricing.svr
    nn_option_pricing.training
-

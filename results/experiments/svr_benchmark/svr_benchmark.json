@@ -1,0 +1,83 @@
+{
+  "config": {
+    "n_samples": 5000,
+    "seeds": [
+      11,
+      42,
+      73
+    ],
+    "feature_set": "with_moneyness",
+    "test_size": 0.2,
+    "c": 100.0,
+    "epsilon": 0.01,
+    "gamma": "scale"
+  },
+  "runs": [
+    {
+      "seed": 11,
+      "n_samples": 5000,
+      "test_samples": 1000,
+      "mae": 0.15205148627423545,
+      "rmse": 0.23218429357340006,
+      "r2": 0.9999100646670168,
+      "mape_percent_price_gt_1": 1.8397270599941187,
+      "fit_time_seconds": 13.06090393999989,
+      "prediction_time_seconds": 0.026750447000040367,
+      "total_time_seconds": 13.08765438699993
+    },
+    {
+      "seed": 42,
+      "n_samples": 5000,
+      "test_samples": 1000,
+      "mae": 0.143048760225985,
+      "rmse": 0.22457830077442725,
+      "r2": 0.9999043428462338,
+      "mape_percent_price_gt_1": 1.5761781601026081,
+      "fit_time_seconds": 12.422985388999905,
+      "prediction_time_seconds": 0.03126610999993318,
+      "total_time_seconds": 12.454251498999838
+    },
+    {
+      "seed": 73,
+      "n_samples": 5000,
+      "test_samples": 1000,
+      "mae": 0.15754409972035813,
+      "rmse": 0.23624608605405847,
+      "r2": 0.9999004167545561,
+      "mape_percent_price_gt_1": 2.059973839535357,
+      "fit_time_seconds": 11.475464726999917,
+      "prediction_time_seconds": 0.03214797999999064,
+      "total_time_seconds": 11.507612706999907
+    }
+  ],
+  "summary": {
+    "mae": {
+      "mean": 0.15088144874019285,
+      "std": 0.007318159443301619
+    },
+    "rmse": {
+      "mean": 0.23100289346729527,
+      "std": 0.005922928582291287
+    },
+    "r2": {
+      "mean": 0.9999049414226021,
+      "std": 4.8517289664712695e-06
+    },
+    "mape_percent_price_gt_1": {
+      "mean": 1.8252930198773614,
+      "std": 0.24222060398532969
+    },
+    "fit_time_seconds": {
+      "mean": 12.319784685333238,
+      "std": 0.7977419153193999
+    },
+    "prediction_time_seconds": {
+      "mean": 0.030054845666654728,
+      "std": 0.002895463967172172
+    },
+    "total_time_seconds": {
+      "mean": 12.349839530999892,
+      "std": 0.7951787987179609
+    }
+  }
+}

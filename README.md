@@ -109,6 +109,16 @@ python scripts/benchmark_runtime.py \
   --output-dir outputs/runtime_benchmark
 ```
 
+Run the reduced-scale Support Vector Regression baseline:
+
+```bash
+python scripts/run_svr_benchmark.py \
+  --n-samples 5000 \
+  --seeds 11 42 73 \
+  --feature-set with_moneyness \
+  --output-dir results/experiments/svr_benchmark
+```
+
 ## Testing
 
 Run the automated test suite:
@@ -169,13 +179,14 @@ The core experimental extensions have been implemented:
   `--feature-set with_moneyness`;
 - hidden-layer activations can be selected with `--activation`;
 - runtime benchmarking is available through `scripts/benchmark_runtime.py`.
+- a reduced-scale Support Vector Regression baseline is available through
+  `scripts/run_svr_benchmark.py`.
 
 The final selected configuration uses `with_moneyness + silu`. Final metrics,
 figures, and configuration snapshots are tracked in `results/final/`.
 
 Possible future extensions:
 
-- add a Support Vector Regression benchmark on a reduced dataset;
 - study noisy Black-Scholes targets as a robustness experiment;
 - explore pseudo-real or exchange-traded option data, making clear that this
   changes the research question from Black-Scholes approximation to market-price
