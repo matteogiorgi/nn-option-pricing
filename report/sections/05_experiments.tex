@@ -70,6 +70,48 @@ Both input features and target prices are standardized before fitting, and predi
   --output-dir results/experiments/svr_benchmark
 \end{lstlisting}
 
+\section{Noisy Black-Scholes Targets}
+
+The project also includes a controlled robustness experiment in which the
+training targets are perturbed by Gaussian noise.
+The input variables are unchanged, while the Black-Scholes prices used for
+training are replaced by noisy prices.
+The clean analytical Black-Scholes prices are kept as the evaluation reference.
+
+For each clean price $C_{\mathrm{BS}}$, the noisy target is generated as
+\[
+    \widetilde{C}
+    =
+    \max\left(
+        C_{\mathrm{BS}} + \varepsilon,
+        0
+    \right),
+    \qquad
+    \varepsilon \sim
+    \mathcal{N}\left(
+        0,
+        \left(\ell \max(C_{\mathrm{BS}}, 1)\right)^2
+    \right),
+\]
+where $\ell$ is the noise level.
+The clipping at zero enforces the non-negativity constraint of call prices.
+
+The experiment uses noise levels $0\%$, $1\%$, and $5\%$, with 50,000 synthetic
+contracts per level.
+It should be interpreted as a robustness test with controlled label noise, not
+as a model of real exchange-traded option prices.
+
+\begin{lstlisting}[style=pythonstyle, caption={Command used for the noisy-target experiment.}]
+.venv/bin/python scripts/run_noisy_targets_experiment.py \
+  --n-samples 50000 \
+  --noise-levels 0.0 0.01 0.05 \
+  --max-epochs 100 \
+  --batch-size 1024 \
+  --feature-set with_moneyness \
+  --activation silu \
+  --results-dir results/experiments/noisy_targets
+\end{lstlisting}
+
 \section{Diagnostic Visualizations}
 
 The experiment produces the following diagnostic plots:

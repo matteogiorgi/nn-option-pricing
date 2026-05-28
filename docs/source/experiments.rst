@@ -76,6 +76,12 @@ synthetic datasets and over multiple random seeds because kernel methods do not
 scale as naturally to the full 100,000-sample setting used by the neural
 network experiment.
 
+The noisy-target robustness experiment is available through
+``scripts/run_noisy_targets_experiment.py``. It perturbs only the training
+labels with controlled Gaussian noise and evaluates predictions against the
+clean analytical Black-Scholes prices. This keeps the experiment focused on
+robustness to imperfect labels rather than on market-price modeling.
+
 For the final project report, additional useful experiments include:
 
 * increasing the synthetic dataset size;

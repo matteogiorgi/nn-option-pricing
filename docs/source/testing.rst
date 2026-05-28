@@ -19,9 +19,13 @@ The current tests cover:
   case and vectorized inputs;
 * synthetic dataset generation, including schema, parameter ranges,
   non-negative prices, moneyness, reproducibility, and CSV round trips;
+* controlled noisy-target generation, including zero-noise consistency,
+  reproducibility, non-negative noisy targets, and experiment output writing;
 * Monte Carlo pricing, including output shape, non-negative estimates,
   reproducibility, and approximate convergence to the analytical
   Black-Scholes price;
+* model construction and activation-function selection;
+* reduced-scale Support Vector Regression benchmarking;
 * a small end-to-end pipeline smoke test, which verifies that a minimal
   experiment can run successfully and write the expected metrics, figures, and
   model artifacts.

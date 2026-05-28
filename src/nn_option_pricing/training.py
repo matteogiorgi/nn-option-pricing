@@ -35,6 +35,8 @@ class TrainingArtifacts:
         Scaled test features, ready for model inference.
     y_test
         Original-scale Black-Scholes test prices.
+    test_indices
+        Row indices of the held-out test set relative to the input DataFrame.
     feature_columns
         Ordered input columns used by the model.
     """
@@ -45,6 +47,7 @@ class TrainingArtifacts:
     history: dict[str, list[float]]
     x_test: np.ndarray
     y_test: np.ndarray
+    test_indices: np.ndarray
     feature_columns: list[str]
 
 
@@ -97,15 +100,19 @@ def train_model(
     feature_columns = get_feature_columns(config.feature_set)
     x = df[feature_columns].to_numpy(dtype=np.float32)
     y = df[TARGET_COLUMN].to_numpy(dtype=np.float32)
+    indices = np.arange(len(df))
 
     # First reserve the test set. The remaining data are split again into
     # training and validation sets, so the test set stays completely untouched
     # until final evaluation.
-    x_train_val, x_test, y_train_val, y_test = train_test_split(
-        x,
-        y,
-        test_size=config.test_size,
-        random_state=config.seed,
+    x_train_val, x_test, y_train_val, y_test, _train_val_indices, test_indices = (
+        train_test_split(
+            x,
+            y,
+            indices,
+            test_size=config.test_size,
+            random_state=config.seed,
+        )
     )
 
     validation_fraction = config.validation_size / (1.0 - config.test_size)
@@ -210,6 +217,7 @@ def train_model(
         history=history,
         x_test=x_test_scaled,
         y_test=y_test,
+        test_indices=test_indices,
         feature_columns=feature_columns,
     )
 

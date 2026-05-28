@@ -1,0 +1,122 @@
+{
+  "config": {
+    "dataset": {
+      "n_samples": 50000,
+      "seed": 42,
+      "s0_min": 50.0,
+      "s0_max": 150.0,
+      "k_min": 50.0,
+      "k_max": 150.0,
+      "t_min": 0.1,
+      "t_max": 2.0,
+      "r_min": 0.0,
+      "r_max": 0.05,
+      "sigma_min": 0.1,
+      "sigma_max": 0.6
+    },
+    "training": {
+      "seed": 42,
+      "feature_set": "with_moneyness",
+      "test_size": 0.15,
+      "validation_size": 0.15,
+      "batch_size": 1024,
+      "max_epochs": 100,
+      "patience": 20,
+      "learning_rate": 0.001,
+      "weight_decay": 1e-06,
+      "hidden_layers": [
+        64,
+        64,
+        32
+      ],
+      "activation": "silu"
+    },
+    "noise_levels": [
+      0.0,
+      0.01,
+      0.05
+    ],
+    "noise_seed": 123,
+    "price_floor": 1.0,
+    "data_dir": "data/experiments/noisy_targets",
+    "output_dir": "outputs/experiments/noisy_targets",
+    "results_dir": "results/experiments/noisy_targets"
+  },
+  "runs": [
+    {
+      "noise_level": 0.0,
+      "slug": "noise_0.00",
+      "dataset_path": "data/experiments/noisy_targets/noise_0.00/synthetic_options.csv",
+      "metrics_vs_clean": {
+        "mae": 0.10254493447422693,
+        "rmse": 0.15168923420176708,
+        "r2": 0.9999580020708883,
+        "mape_percent_price_gt_1": 1.3213085809496092
+      },
+      "metrics_vs_noisy": {
+        "mae": 0.10254494100809097,
+        "rmse": 0.15168924832525163,
+        "r2": 0.9999579787254333,
+        "mape_percent_price_gt_1": 1.3213086128234863
+      },
+      "noise_summary": {
+        "mean_noise": 0.0,
+        "mean_abs_noise": 0.0,
+        "std_noise": 0.0,
+        "clipped_fraction": 0.0
+      },
+      "training_time_seconds": 169.80912729700003,
+      "epochs_ran": 100
+    },
+    {
+      "noise_level": 0.01,
+      "slug": "noise_0.01",
+      "dataset_path": "data/experiments/noisy_targets/noise_0.01/synthetic_options.csv",
+      "metrics_vs_clean": {
+        "mae": 0.11083721791914357,
+        "rmse": 0.1610538330931089,
+        "r2": 0.9999526564860065,
+        "mape_percent_price_gt_1": 1.3960243887143002
+      },
+      "metrics_vs_noisy": {
+        "mae": 0.2398890256881714,
+        "rmse": 0.36580519515134435,
+        "r2": 0.9997555613517761,
+        "mape_percent_price_gt_1": 1.807259440422058
+      },
+      "noise_summary": {
+        "mean_noise": 0.0025185954797883672,
+        "mean_abs_noise": 0.18652601386162318,
+        "std_noise": 0.3298802737339602,
+        "clipped_fraction": 0.03014
+      },
+      "training_time_seconds": 145.15542802400023,
+      "epochs_ran": 100
+    },
+    {
+      "noise_level": 0.05,
+      "slug": "noise_0.05",
+      "dataset_path": "data/experiments/noisy_targets/noise_0.05/synthetic_options.csv",
+      "metrics_vs_clean": {
+        "mae": 0.17826522905049164,
+        "rmse": 0.24166573909113342,
+        "r2": 0.9998934021296285,
+        "mape_percent_price_gt_1": 2.094325308431881
+      },
+      "metrics_vs_noisy": {
+        "mae": 0.9813642501831055,
+        "rmse": 1.6579291990231033,
+        "r2": 0.9949809312820435,
+        "mape_percent_price_gt_1": 4.97155237197876
+      },
+      "noise_summary": {
+        "mean_noise": 0.012949422383379776,
+        "mean_abs_noise": 0.9322736243236781,
+        "std_noise": 1.6493904666671593,
+        "clipped_fraction": 0.03956
+      },
+      "training_time_seconds": 167.96858422100013,
+      "epochs_ran": 100
+    }
+  ]
+}

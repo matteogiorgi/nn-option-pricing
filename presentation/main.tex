@@ -287,11 +287,32 @@
     \small Evaluated on 5,000 synthetic samples over three seeds. SVR is useful as a classical baseline, while the neural network remains the main scalable surrogate model.
 \end{frame}
 
+\begin{frame}{Noisy Target Robustness}
+    The network is trained on noisy Black-Scholes targets and evaluated against clean analytical prices.
+
+    \vspace{0.4em}
+    \begin{center}
+        \begin{tabular}{lccc}
+            \toprule
+            Noise & MAE & RMSE & \(R^2\) \\
+            \midrule
+            0\% & 0.10254 & 0.15169 & 0.999958 \\
+            1\% & 0.11084 & 0.16105 & 0.999953 \\
+            5\% & 0.17827 & 0.24167 & 0.999893 \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+
+    \vspace{0.3em}
+    \small Accuracy degrades as label noise increases, but the model remains close to the clean Black-Scholes function under moderate perturbations.
+\end{frame}
+
 \begin{frame}{Discussion}
     \begin{itemize}
         \item The network accurately learns the Black-Scholes pricing map in the sampled domain.
         \item Monte Carlo is also accurate, but remains simulation-based and stochastic.
         \item The SVR baseline gives an additional non-neural comparison on reduced datasets.
+        \item Noisy-target experiments test robustness to imperfect labels in a controlled setting.
         \item The neural network is best interpreted as a pricing surrogate after training.
         \item The experiment validates the controlled Black-Scholes setting before moving to richer dynamics.
     \end{itemize}

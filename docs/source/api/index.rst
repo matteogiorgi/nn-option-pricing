@@ -13,6 +13,8 @@ This section is generated from the Python docstrings.
    nn_option_pricing.evaluation
    nn_option_pricing.model
    nn_option_pricing.monte_carlo
+   nn_option_pricing.noise
+   nn_option_pricing.noisy_experiment
    nn_option_pricing.pipeline
    nn_option_pricing.plots
    nn_option_pricing.svr

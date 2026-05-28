@@ -119,6 +119,18 @@ python scripts/run_svr_benchmark.py \
   --output-dir results/experiments/svr_benchmark
 ```
 
+Run the noisy-target robustness experiment:
+
+```bash
+python scripts/run_noisy_targets_experiment.py \
+  --n-samples 50000 \
+  --noise-levels 0.0 0.01 0.05 \
+  --max-epochs 100 \
+  --feature-set with_moneyness \
+  --activation silu \
+  --results-dir results/experiments/noisy_targets
+```
+
 ## Testing
 
 Run the automated test suite:
@@ -128,7 +140,8 @@ pytest
 ```
 
 The tests cover analytical Black-Scholes pricing, synthetic dataset generation,
-Monte Carlo pricing, and a small end-to-end pipeline smoke test.
+Monte Carlo pricing, model construction, target-noise generation, SVR
+benchmarking, and small end-to-end smoke tests.
 
 ## Documentation
 
@@ -181,13 +194,14 @@ The core experimental extensions have been implemented:
 - runtime benchmarking is available through `scripts/benchmark_runtime.py`.
 - a reduced-scale Support Vector Regression baseline is available through
   `scripts/run_svr_benchmark.py`.
+- a controlled noisy-target robustness experiment is available through
+  `scripts/run_noisy_targets_experiment.py`.
 
 The final selected configuration uses `with_moneyness + silu`. Final metrics,
 figures, and configuration snapshots are tracked in `results/final/`.
 
 Possible future extensions:
 
-- study noisy Black-Scholes targets as a robustness experiment;
 - explore pseudo-real or exchange-traded option data, making clear that this
   changes the research question from Black-Scholes approximation to market-price
   modeling.

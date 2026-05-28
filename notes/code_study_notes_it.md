@@ -1144,6 +1144,112 @@ Interpretazione prudente:
 > una baseline classica utile, mentre la neural network resta il surrogate model
 > principale e piu' scalabile.
 
+## 13.3 Noisy targets experiment: `noise.py` e `scripts/run_noisy_targets_experiment.py`
+
+L'esperimento noisy targets e' un test di robustezza.
+Non cambia la research question principale e non sostituisce la run finale
+pulita. L'idea e':
+
+> alleniamo la rete su target Black-Scholes perturbati, ma valutiamo sempre
+> contro il prezzo Black-Scholes pulito.
+
+Questo permette di studiare quanto la rete sia robusta a label imperfette,
+mantenendo comunque un ground truth analitico noto.
+
+### 13.3.1 Come viene generato il rumore
+
+Gli input non vengono modificati:
+
+```text
+s0, k, t, r, sigma, moneyness
+```
+
+Il rumore viene aggiunto solo al target.
+
+Per ogni prezzo pulito `C_BS`, generiamo:
+
+```text
+noise ~ Normal(0, noise_level * max(C_BS, price_floor))
+noisy_call_price = max(C_BS + noise, 0)
+```
+
+Dove:
+
+- `noise_level = 0.01` corrisponde a rumore circa 1%;
+- `noise_level = 0.05` corrisponde a rumore circa 5%;
+- `price_floor = 1.0` evita che opzioni quasi senza valore ricevano rumore
+  praticamente nullo;
+- il clipping a zero impone che i prezzi noisy non diventino negativi.
+
+Nel dataset noisy manteniamo colonne esplicite:
+
+```text
+clean_call_price
+noisy_call_price
+price_noise
+price_noise_std
+call_price
+```
+
+In questo esperimento `call_price` viene impostato uguale a
+`noisy_call_price`, cosi' possiamo riusare il training esistente.
+Il target pulito resta pero' disponibile in `clean_call_price`.
+
+### 13.3.2 Perche' abbiamo aggiunto `test_indices` in `TrainingArtifacts`
+
+La pipeline standard restituisce il test set gia' scalato e il target del test
+set. Nel caso noisy, pero', il target usato per il training e' rumoroso, mentre
+la valutazione principale deve essere fatta contro il target pulito.
+
+Per recuperare i prezzi puliti delle stesse righe finite nel test set, abbiamo
+aggiunto agli artifact:
+
+```python
+test_indices: np.ndarray
+```
+
+Questo rende l'allineamento corretto:
+
+```text
+predizioni sul test set
+    vs
+clean_call_price delle stesse righe
+```
+
+### 13.3.3 Comando e risultati
+
+Comando usato:
+
+```bash
+.venv/bin/python scripts/run_noisy_targets_experiment.py \
+  --n-samples 50000 \
+  --noise-levels 0.0 0.01 0.05 \
+  --max-epochs 100 \
+  --batch-size 1024 \
+  --feature-set with_moneyness \
+  --activation silu \
+  --seed 42 \
+  --noise-seed 123 \
+  --data-dir data/experiments/noisy_targets \
+  --output-dir outputs/experiments/noisy_targets \
+  --results-dir results/experiments/noisy_targets
+```
+
+Risultati contro il target Black-Scholes pulito:
+
+```text
+noise 0%: MAE 0.1025, RMSE 0.1517, R2 0.999958, MAPE 1.3213%
+noise 1%: MAE 0.1108, RMSE 0.1611, R2 0.999953, MAPE 1.3960%
+noise 5%: MAE 0.1783, RMSE 0.2417, R2 0.999893, MAPE 2.0943%
+```
+
+Interpretazione prudente:
+
+> La rete rimane accurata anche con rumore moderato nei target, ma l'errore
+> rispetto alla funzione Black-Scholes pulita aumenta al crescere del rumore.
+> Questo e' un esperimento controllato di robustezza, non una simulazione
+> realistica dei prezzi di mercato.
+
 ## 14. Test
 
 I test stanno in `tests/`.
@@ -1154,6 +1260,7 @@ File principali:
 - `test_dataset.py`: controlla colonne, range e forma del dataset;
 - `test_model.py`: controlla activation factory e shape del modello;
 - `test_monte_carlo.py`: controlla che Monte Carlo converga ragionevolmente verso Black-Scholes;
+- `test_noise.py`: controlla generazione del rumore e smoke test noisy targets;
 - `test_pipeline.py`: smoke test della pipeline end-to-end;
 - `test_svr.py`: controlla che il benchmark SVR produca risultati aggregati e salvi il JSON.
 
@@ -1167,7 +1274,7 @@ Per l'esposizione:
 
 > I test non servono a dimostrare la teoria finanziaria, ma a evitare regressioni nel codice e a verificare che i pezzi principali funzionino assieme.
 
-Al momento la suite contiene 19 test.
+Al momento la suite contiene 23 test.
 
 ## 15. Risultati finali
 
@@ -1280,9 +1387,9 @@ Ordine consigliato:
 4. spiegare `dataset.py` e `black_scholes.py`;
 5. spiegare `model.py` e `training.py`;
 6. spiegare Monte Carlo;
-7. spiegare runtime benchmark e SVR benchmark;
+7. spiegare runtime benchmark, SVR benchmark e noisy targets experiment;
 8. spiegare metriche e grafici;
-9. mostrare `results/final/` e `results/experiments/svr_benchmark/`;
+9. mostrare `results/final/`, `results/experiments/svr_benchmark/` e `results/experiments/noisy_targets/`;
 10. chiudere con limiti e prossimi passi.
 
 Frase conclusiva utile:

@@ -166,6 +166,35 @@ This comparison should be interpreted carefully because the two methods are eval
 The SVR benchmark should also be interpreted with caution because it is evaluated on reduced datasets.
 Its purpose is to provide an additional classical machine learning reference point, not to change the main experimental comparison.
 
+\section{Noisy Target Robustness}
+
+Table~\ref{tab:noisy-targets} reports the robustness experiment in which the
+neural network is trained on noisy Black-Scholes prices and evaluated against
+the clean analytical Black-Scholes target.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lrrrr}
+        \toprule
+        Noise level & MAE & RMSE & $R^2$ & MAPE, prices $> 1$ \\
+        \midrule
+        0\% & 0.10254 & 0.15169 & 0.999958 & 1.3213\% \\
+        1\% & 0.11084 & 0.16105 & 0.999953 & 1.3960\% \\
+        5\% & 0.17827 & 0.24167 & 0.999893 & 2.0943\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Noisy-target robustness results evaluated against clean Black-Scholes prices.}
+    \label{tab:noisy-targets}
+\end{table}
+
+The results show the expected degradation as label noise increases.
+Nevertheless, the model remains accurate even under moderate target noise,
+which suggests that the neural network can smooth some of the perturbation in
+the supervised labels.
+This should not be interpreted as evidence of market-price modeling ability:
+the experiment is a controlled robustness test with a known analytical ground
+truth.
+
 The most important conclusion is qualitative rather than competitive.
 In a controlled Black-Scholes environment, a feed-forward network can learn the mapping from option and market parameters to theoretical prices with high accuracy.
 This validates the use of the Black-Scholes setting as a clean benchmark for studying neural-network pricing surrogates before moving to more complex models.
