@@ -187,6 +187,31 @@ This should not be interpreted as evidence of market-price modeling ability:
 the experiment is a controlled robustness test with a known analytical ground
 truth.
 
+The same noisy-target experiment was also repeated with the reduced-scale SVR
+baseline. Table~\ref{tab:noisy-svr-targets} reports aggregate metrics against
+clean Black-Scholes prices.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lrrrr}
+        \toprule
+        Noise level & MAE & RMSE & $R^2$ & MAPE, prices $> 1$ \\
+        \midrule
+        0\% & 0.15088 & 0.23100 & 0.999905 & 1.8253\% \\
+        1\% & 0.19284 & 0.30765 & 0.999830 & 1.8705\% \\
+        5\% & 0.56185 & 1.05057 & 0.998025 & 3.4903\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Noisy-target SVR benchmark evaluated against clean Black-Scholes prices.}
+    \label{tab:noisy-svr-targets}
+\end{table}
+
+SVR remains accurate under mild label noise, but the degradation is stronger at
+the 5\% noise level.
+Since the SVR benchmark is run on reduced datasets, this comparison is best
+interpreted as an additional classical robustness reference rather than as a
+direct replacement for the neural network experiment.
+
 \section{Discussion}
 
 The final results indicate that the neural network performs better than the Monte Carlo benchmark in terms of MAE, RMSE, and MAPE on the reported experiment.

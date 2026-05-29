@@ -82,6 +82,11 @@ labels with controlled Gaussian noise and evaluates predictions against the
 clean analytical Black-Scholes prices. This keeps the experiment focused on
 robustness to imperfect labels rather than on market-price modeling.
 
+The same controlled noisy-target setting is also repeated for the reduced-scale
+SVR baseline through ``scripts/run_noisy_svr_benchmark.py``. This provides a
+classical ML robustness reference while keeping SVR experiments computationally
+bounded.
+
 For the final project report, additional useful experiments include:
 
 * increasing the synthetic dataset size;

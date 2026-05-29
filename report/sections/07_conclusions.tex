@@ -9,7 +9,7 @@ Monte Carlo is a classical numerical estimator and remains useful as a benchmark
 The purpose of the network is therefore not to replace the analytical Black-Scholes formula, but to demonstrate that a supervised model can accurately learn a well-defined pricing map.
 The runtime benchmark further supports the surrogate interpretation: after training, neural inference is substantially faster than Monte Carlo simulation for repeated pricing queries.
 The additional SVR experiment provides a classical machine learning reference point on reduced datasets and supports the choice of the neural network as the main scalable surrogate model.
-The noisy-target experiment further shows that the network remains accurate under controlled label perturbations, although approximation quality decreases as the noise level increases.
+The noisy-target experiments further show that both the neural network and the SVR baseline remain accurate under controlled label perturbations, although approximation quality decreases as the noise level increases.
 
 The main limitations are:
 

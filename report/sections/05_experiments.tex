@@ -101,6 +101,12 @@ contracts per level.
 It should be interpreted as a robustness test with controlled label noise, not
 as a model of real exchange-traded option prices.
 
+The same noisy-target mechanism is also applied to the reduced-scale SVR
+baseline, using 5,000 synthetic contracts, three random seeds, and the same
+noise levels.
+This provides a classical machine learning robustness reference while keeping
+the kernel-based benchmark computationally bounded.
+
 \begin{lstlisting}[style=pythonstyle, caption={Command used for the noisy-target experiment.}]
 .venv/bin/python scripts/run_noisy_targets_experiment.py \
   --n-samples 50000 \

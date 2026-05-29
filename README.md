@@ -131,6 +131,17 @@ python scripts/run_noisy_targets_experiment.py \
   --results-dir results/experiments/noisy_targets
 ```
 
+Run the noisy-target SVR baseline:
+
+```bash
+python scripts/run_noisy_svr_benchmark.py \
+  --n-samples 5000 \
+  --seeds 11 42 73 \
+  --noise-levels 0.0 0.01 0.05 \
+  --feature-set with_moneyness \
+  --output-dir results/experiments/noisy_svr_benchmark
+```
+
 ## Testing
 
 Run the automated test suite:
@@ -196,6 +207,8 @@ The core experimental extensions have been implemented:
   `scripts/run_svr_benchmark.py`.
 - a controlled noisy-target robustness experiment is available through
   `scripts/run_noisy_targets_experiment.py`.
+- a reduced-scale noisy-target SVR benchmark is available through
+  `scripts/run_noisy_svr_benchmark.py`.
 
 The final selected configuration uses `with_moneyness + silu`. Final metrics,
 figures, and configuration snapshots are tracked in `results/final/`.

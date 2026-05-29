@@ -288,23 +288,23 @@
 \end{frame}
 
 \begin{frame}{Noisy Target Robustness}
-    The network is trained on noisy Black-Scholes targets and evaluated against clean analytical prices.
+    Models are trained on noisy Black-Scholes targets and evaluated against clean analytical prices.
 
     \vspace{0.4em}
     \begin{center}
-        \begin{tabular}{lccc}
+        \begin{tabular}{lcc}
             \toprule
-            Noise & MAE & RMSE & \(R^2\) \\
+            Noise & NN MAE & SVR MAE \\
             \midrule
-            0\% & 0.10254 & 0.15169 & 0.999958 \\
-            1\% & 0.11084 & 0.16105 & 0.999953 \\
-            5\% & 0.17827 & 0.24167 & 0.999893 \\
+            0\% & 0.10254 & 0.15088 \\
+            1\% & 0.11084 & 0.19284 \\
+            5\% & 0.17827 & 0.56185 \\
             \bottomrule
         \end{tabular}
     \end{center}
 
     \vspace{0.3em}
-    \small Accuracy degrades as label noise increases, but the model remains close to the clean Black-Scholes function under moderate perturbations.
+    \small Both models degrade as label noise increases. SVR is evaluated on reduced datasets, so it is used as a classical robustness reference rather than a direct full-scale competitor.
 \end{frame}
 
 \begin{frame}{Discussion}

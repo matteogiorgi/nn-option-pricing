@@ -1250,6 +1250,56 @@ Interpretazione prudente:
 > Questo e' un esperimento controllato di robustezza, non una simulazione
 > realistica dei prezzi di mercato.
 
+## 13.4 Noisy SVR benchmark: `noisy_svr_experiment.py`
+
+Per completare il confronto richiesto, abbiamo ripetuto l'esperimento noisy
+targets anche con SVR.
+
+Il principio e' lo stesso dell'esperimento noisy sulla neural network:
+
+```text
+training target = noisy_call_price
+evaluation target = clean_call_price
+```
+
+La differenza e' che SVR viene mantenuto su scala ridotta:
+
+```text
+n_samples = 5000
+seeds = [11, 42, 73]
+noise_levels = [0.00, 0.01, 0.05]
+```
+
+Non salviamo i CSV noisy per SVR: i dataset sono generati in memoria e sono
+riproducibili da configurazione e seed. Questo mantiene l'esperimento leggero e
+coerente con lo SVR benchmark pulito.
+
+Comando usato:
+
+```bash
+.venv/bin/python scripts/run_noisy_svr_benchmark.py \
+  --n-samples 5000 \
+  --seeds 11 42 73 \
+  --noise-levels 0.0 0.01 0.05 \
+  --feature-set with_moneyness \
+  --output-dir results/experiments/noisy_svr_benchmark
+```
+
+Risultati medi contro il target Black-Scholes pulito:
+
+```text
+noise 0%: MAE 0.1509, RMSE 0.2310, R2 0.999905, MAPE 1.8253%
+noise 1%: MAE 0.1928, RMSE 0.3076, R2 0.999830, MAPE 1.8705%
+noise 5%: MAE 0.5619, RMSE 1.0506, R2 0.998025, MAPE 3.4903%
+```
+
+Interpretazione prudente:
+
+> Anche SVR resta accurato con rumore moderato, ma degrada in modo piu'
+> evidente al 5%. Questo benchmark fornisce un riferimento classico per la
+> robustezza, mentre la neural network resta il modello principale e piu'
+> scalabile.
+
 ## 14. Test
 
 I test stanno in `tests/`.
@@ -1261,6 +1311,7 @@ File principali:
 - `test_model.py`: controlla activation factory e shape del modello;
 - `test_monte_carlo.py`: controlla che Monte Carlo converga ragionevolmente verso Black-Scholes;
 - `test_noise.py`: controlla generazione del rumore e smoke test noisy targets;
+- `test_noisy_svr.py`: controlla il benchmark SVR con target rumorosi;
 - `test_pipeline.py`: smoke test della pipeline end-to-end;
 - `test_svr.py`: controlla che il benchmark SVR produca risultati aggregati e salvi il JSON.
 
@@ -1274,7 +1325,7 @@ Per l'esposizione:
 
 > I test non servono a dimostrare la teoria finanziaria, ma a evitare regressioni nel codice e a verificare che i pezzi principali funzionino assieme.
 
-Al momento la suite contiene 23 test.
+Al momento la suite contiene 24 test.
 
 ## 15. Risultati finali
 
@@ -1387,9 +1438,9 @@ Ordine consigliato:
 4. spiegare `dataset.py` e `black_scholes.py`;
 5. spiegare `model.py` e `training.py`;
 6. spiegare Monte Carlo;
-7. spiegare runtime benchmark, SVR benchmark e noisy targets experiment;
+7. spiegare runtime benchmark, SVR benchmark, noisy targets e noisy SVR;
 8. spiegare metriche e grafici;
-9. mostrare `results/final/`, `results/experiments/svr_benchmark/` e `results/experiments/noisy_targets/`;
+9. mostrare `results/final/`, `results/experiments/svr_benchmark/`, `results/experiments/noisy_targets/` e `results/experiments/noisy_svr_benchmark/`;
 10. chiudere con limiti e prossimi passi.
 
 Frase conclusiva utile:

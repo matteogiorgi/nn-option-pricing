@@ -26,6 +26,7 @@ The current tests cover:
   Black-Scholes price;
 * model construction and activation-function selection;
 * reduced-scale Support Vector Regression benchmarking;
+* reduced-scale noisy-target SVR benchmarking;
 * a small end-to-end pipeline smoke test, which verifies that a minimal
   experiment can run successfully and write the expected metrics, figures, and
   model artifacts.
