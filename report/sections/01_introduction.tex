@@ -1,21 +1,61 @@
 \chapter{Introduction}
 
-Derivative pricing is one of the classical problems in quantitative finance.
-For European options, the Black-Scholes model provides a closed-form price under precise assumptions on the dynamics of the underlying asset, the market, and volatility \cite{black1973pricing}.
-The availability of an analytical solution makes Black-Scholes an ideal controlled environment for evaluating the accuracy of numerical methods and machine learning models.
+\section{Motivation}
 
-The research question of the project is:
+Derivative pricing is one of the classical problems in quantitative finance.
+For European options, the Black-Scholes model provides a closed-form price under precise assumptions on the dynamics of the underlying asset, market completeness, and constant volatility \cite{black1973pricing}.
+The availability of an analytical solution makes Black-Scholes an ideal controlled environment for evaluating numerical methods and machine learning models.
+
+At the same time, many relevant pricing problems do not admit simple closed-form solutions.
+In such cases, classical numerical methods such as Monte Carlo simulation can become computationally expensive, especially when prices must be evaluated repeatedly across many contracts or parameter configurations.
+This motivates the study of neural networks as pricing surrogate models: after training, a neural network can approximate a pricing map through fast inference.
+
+\section{Project Goal}
+
+The goal of this project is to study whether a feed-forward neural network can approximate the Black-Scholes pricing function for European call options.
+The project is not intended to build a trading system or to predict real market prices.
+Instead, it focuses on a mathematically controlled supervised learning problem where the target function is known exactly.
+
+\section{Research Question}
+
+The main research question is:
 
 \begin{quote}
-Can a feed-forward neural network accurately approximate the Black-Scholes pricing function for European call options?
+    Can a feed-forward neural network accurately approximate the Black-Scholes pricing function for European call options?
 \end{quote}
 
-The project compares three approaches:
+The project compares three main pricing approaches:
 \begin{itemize}
     \item the analytical Black-Scholes formula, used as the ground truth;
-    \item Monte Carlo simulation, used as a numerical benchmark;
+    \item Monte Carlo simulation, used as a classical numerical benchmark;
     \item a feed-forward neural network, used as a supervised learning model and pricing surrogate.
 \end{itemize}
 
-The main objective is not to replace Black-Scholes in a setting where a closed-form formula is available, but to verify whether a neural network can learn a known pricing function.
-This is a useful first step for understanding neural pricing methods in more complex settings, where analytical formulas are unavailable or computationally expensive.
+Additional experiments consider feature engineering, activation functions, runtime performance, a Support Vector Regression baseline, and robustness to controlled label noise.
+
+\section{Contributions}
+
+The main contributions of the project are:
+
+\begin{itemize}
+    \item construction of a reproducible synthetic Black-Scholes dataset;
+    \item implementation of an analytical Black-Scholes benchmark and a Monte Carlo benchmark;
+    \item training and evaluation of a feed-forward neural network pricing surrogate;
+    \item comparison of model variants based on moneyness and activation functions;
+    \item evaluation of runtime differences between analytical pricing, neural inference, and Monte Carlo simulation;
+    \item inclusion of a reduced-scale SVR baseline;
+    \item robustness experiments with controlled noisy Black-Scholes targets;
+    \item modular Python implementation with tests, documentation, and reproducible experiment artifacts.
+\end{itemize}
+
+\section{Report Structure}
+
+The report is organized as follows.
+Chapter~2 introduces the financial and mathematical background.
+Chapter~3 summarizes the machine learning concepts used in the project.
+Chapter~4 describes the dataset and experimental design.
+Chapter~5 presents the methodology and benchmark models.
+Chapter~6 describes the software implementation.
+Chapter~7 reports the experimental results.
+Chapter~8 discusses the interpretation and limitations of the results.
+Chapter~9 concludes and outlines possible future extensions.

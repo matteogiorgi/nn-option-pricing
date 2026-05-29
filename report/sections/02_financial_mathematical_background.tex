@@ -1,0 +1,82 @@
+\chapter{Financial and Mathematical Background}
+
+\section{European Call Options}
+
+A European call option gives its holder the right, but not the obligation, to buy an underlying asset at a fixed strike price $K$ at maturity $T$.
+If the terminal asset price is $S_T$, the payoff is:
+
+\begin{equation}
+    \max(S_T - K, 0).
+\end{equation}
+
+The option value depends on the current asset price, the strike price, time to maturity, the risk-free rate, and the volatility of the underlying asset.
+General arbitrage-pricing principles for derivative securities can be introduced in discrete-time models before moving to continuous-time diffusion models \cite{shreve2004stochastic1,pascucci2009finanza}.
+In this project, only European call options are considered.
+
+\section{Stochastic Differential Equations}
+
+Continuous-time asset price models are often described by stochastic differential equations.
+An SDE combines a deterministic drift component with a random diffusion component driven by Brownian motion.
+This framework is standard in financial modeling because asset prices evolve continuously but are subject to uncertainty \cite{shreve2004stochastic}.
+
+\section{Geometric Brownian Motion}
+
+In the Black-Scholes model, the underlying asset follows a geometric Brownian motion under the risk-neutral measure:
+
+\begin{equation}
+    dS_t = r S_t dt + \sigma S_t dW_t,
+\end{equation}
+
+where $S_t$ is the asset price at time $t$, $r$ is the risk-free interest rate, $\sigma$ is the constant volatility, and $W_t$ is a standard Brownian motion.
+
+The solution at maturity $T$ is:
+
+\begin{equation}
+    S_T = S_0 \exp\left[\left(r - \frac{1}{2}\sigma^2\right)T + \sigma \sqrt{T} Z\right],
+    \qquad Z \sim \mathcal{N}(0,1).
+\end{equation}
+
+\section{Black-Scholes Model}
+
+The Black-Scholes model assumes frictionless markets, constant volatility, a constant risk-free rate, no arbitrage, and continuous trading.
+Under these assumptions, the price of a European option can be derived from risk-neutral valuation.
+
+For a European call, the value is the discounted expected payoff:
+
+\begin{equation}
+    C = e^{-rT}\mathbb{E}^{\mathbb{Q}}\left[\max(S_T - K, 0)\right].
+\end{equation}
+
+\section{Black-Scholes Formula}
+
+The analytical Black-Scholes price of a European call option is:
+
+\begin{equation}
+    C_{BS} = S_0 N(d_1) - K e^{-rT} N(d_2),
+\end{equation}
+
+where $N(\cdot)$ is the cumulative distribution function of a standard normal random variable and:
+
+\begin{align}
+    d_1 & = \frac{\ln(S_0/K) + \left(r + \frac{1}{2}\sigma^2\right)T}{\sigma\sqrt{T}}, \\
+    d_2 & = d_1 - \sigma\sqrt{T}.
+\end{align}
+
+In this project, $C_{BS}$ is used both as the supervised learning target and as the reference value for evaluation.
+This is what makes the experiment controlled: the true target function is known analytically.
+
+\section{Monte Carlo Pricing}
+
+Monte Carlo simulation approximates the risk-neutral expectation by generating many realizations of $S_T$:
+
+\begin{equation}
+    \hat{C}_{MC} =
+    e^{-rT}
+    \frac{1}{M}
+    \sum_{i=1}^{M}
+    \max(S_T^{(i)} - K, 0).
+\end{equation}
+
+For sufficiently large $M$, $\hat{C}_{MC}$ converges to $C_{BS}$.
+In this project, Monte Carlo is used as a numerical benchmark and as a comparison point for the neural network.
+Since the terminal distribution of $S_T$ is known exactly under Black-Scholes, the implementation simulates terminal prices directly rather than discretizing the full path.

@@ -3,7 +3,9 @@
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
 \usepackage{fontspec}
-\setmainfont{Latin Modern Roman}
+\setmainfont{Latin Modern Roman}[
+    SmallCapsFont={Latin Modern Roman Caps}
+]
 \setmonofont{Cascadia Code}[Scale=0.88]
 \usepackage{geometry}
 \usepackage{microtype}
@@ -13,43 +15,192 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage[skins,listings]{tcolorbox}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{float}
-\usepackage{titlesec}
+\usepackage[explicit]{titlesec}
+\usepackage{enumitem}
+\usepackage{mdframed}
 
 \geometry{margin=2.6cm}
+\colorlet{projectQuoteAccent}{violet!65!black}
+\colorlet{projectListingAccent}{orange!75!black}
+\colorlet{projectBlockBackground}{black!3}
+\newlength{\projectBlockRule}
+\setlength{\projectBlockRule}{1.2pt}
+\newlength{\projectListingRule}
+\setlength{\projectListingRule}{0.85pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\captionsetup{font=footnotesize, labelfont=bf}
+\captionsetup[figure]{justification=centering, singlelinecheck=true}
+\captionsetup[table]{justification=centering, singlelinecheck=true}
+\captionsetup[lstlisting]{justification=centering, singlelinecheck=true}
+\setlist{itemsep=0.2em, topsep=0.35em, parsep=0pt, partopsep=0pt, rightmargin=1.5em, after=\vspace{0.15em}}
+\newmdenv[
+    linewidth=\projectBlockRule,
+    linecolor=projectQuoteAccent,
+    backgroundcolor=projectBlockBackground,
+    topline=false,
+    rightline=false,
+    bottomline=false,
+    leftmargin=1.5em,
+    rightmargin=1.5em,
+    innerleftmargin=0.45cm,
+    innerrightmargin=0.45cm,
+    innertopmargin=0.45em,
+    innerbottommargin=0.45em,
+    skipabove=0.65em,
+    skipbelow=0.65em
+]{projectquote}
+\renewenvironment{quote}
+    {\begin{projectquote}\itshape}
+    {\end{projectquote}}
 
-\titleformat{\chapter}[hang]
-    {\normalfont\huge\bfseries}
-    {\thechapter}
-    {1em}
+\newcommand{\projectchapterheading}[2]{%
+    \begin{tcolorbox}[
+        enhanced,
+        sharp corners,
+        colback=white,
+        colframe=projectQuoteAccent,
+        boxrule=0.9pt,
+        width=\linewidth,
+        left=0.8cm,
+        right=0.8cm,
+        top=1.0cm,
+        bottom=1.0cm,
+        before skip=0pt,
+        after skip=0pt,
+        overlay={
+            \node[
+                fill=white,
+                inner xsep=0.35em,
+                text=projectListingAccent
+            ] at (frame.north) {\fontsize{30}{34}\selectfont\bfseries #1};
+        }
+    ]
+        \centering
+        {\LARGE\scshape #2\par}
+    \end{tcolorbox}%
+}
+\titleformat{\chapter}[block]
+    {\normalfont}
     {}
-\titlespacing*{\chapter}{0pt}{-0.5em}{1.8em}
+    {0pt}
+    {\projectchapterheading{\thechapter}{#1}}
+\titleformat{name=\chapter,numberless}[block]
+    {\normalfont\huge\bfseries\centering}
+    {}
+    {0pt}
+    {#1}
+\titlespacing*{\chapter}{0pt}{-0.2em}{2.1em}
 
 \hypersetup{
     colorlinks=true,
-    linkcolor=blue!50!black,
-    citecolor=blue!50!black,
-    urlcolor=blue!50!black
+    linkcolor=projectQuoteAccent,
+    citecolor=projectListingAccent,
+    urlcolor=projectListingAccent
 }
 
 \lstdefinestyle{pythonstyle}{
     language=Python,
-    basicstyle=\ttfamily\small,
+    basicstyle=\ttfamily\footnotesize,
     keywordstyle=\color{blue!60!black},
     commentstyle=\color{green!40!black},
     stringstyle=\color{red!50!black},
     showstringspaces=false,
     breaklines=true,
     columns=fullflexible,
-    keepspaces=true,
-    frame=single,
-    rulecolor=\color{black!20},
-    backgroundcolor=\color{black!2}
+    keepspaces=true
+}
+\lstdefinestyle{shellstyle}{
+    language={},
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{black},
+    commentstyle=\color{black},
+    stringstyle=\color{black},
+    showstringspaces=false,
+    breaklines=true,
+    columns=fullflexible,
+    keepspaces=true
+}
+\newtcblisting{projectlistingbox}[1][pythonstyle]{
+    listing only,
+    listing engine=listings,
+    listing options={style=#1, aboveskip=0pt, belowskip=0pt, xleftmargin=0pt, framexleftmargin=0pt, framesep=0pt},
+    enhanced,
+    sharp corners,
+    boxrule=0pt,
+    boxsep=0pt,
+    colback=projectBlockBackground,
+    colframe=projectBlockBackground,
+    borderline west={\projectListingRule}{0pt}{projectListingAccent},
+    left=0.45cm,
+    right=0.45cm,
+    top=0.45em,
+    bottom=0.45em,
+    width=\dimexpr\linewidth-3em\relax,
+    enlarge left by=1.5em,
+    before skip=0.65em,
+    after skip=0.1em
+}
+\newcommand{\projectlistingcaption}[1]{%
+    \par\vspace{1.10em}%
+    \begingroup
+        \captionsetup{type=lstlisting,hypcap=false}%
+        \captionof{lstlisting}{#1}%
+    \endgroup
+    \vspace{0.5em}%
 }
 
 \newcommand{\projecttitle}{Neural Network-Based European Option Pricing under Black-Scholes SDE Dynamics}
+\newcommand{\projectcourse}{Machine Learning for Finance}
+\newcommand{\projectsubtitle}{Project Report}
+\newcommand{\projectacademicyear}{Academic Year 2025--2026}
+\newcommand{\projectmembers}{%
+    Matteo Giorgi\\
+    Lorenzo Ghiotti\\
+    Nalumansi Anne Frances\\
+    Alice Pedron%
+}
+\newcommand{\makeprojecttitlepage}{%
+    \begin{titlepage}
+        \thispagestyle{empty}
+        \vspace*{1.2cm}
+        \hspace*{0.7cm}
+        \begin{minipage}[t]{0.08\textwidth}
+            \color{projectQuoteAccent}\rule{1.6pt}{0.68\textheight}
+            \hspace{0.25cm}
+            \color{projectListingAccent}\rule{1.1pt}{0.68\textheight}
+        \end{minipage}
+        \hspace{0.75cm}
+        \begin{minipage}[t]{0.78\textwidth}
+            \vspace*{0.4cm}
+            {\Large \projectcourse\par}
+            \vspace{0.25cm}
+            {\large \projectsubtitle\par}
+
+            \vspace{2.0cm}
+            {\Huge\bfseries\scshape Neural Network Based\par}
+            \vspace{0.10cm}
+            {\Huge\bfseries\scshape European Option Pricing\par}
+            \vspace{0.45cm}
+            {\Large\bfseries\scshape under Black-Scholes SDE Dynamics\par}
+
+            \vspace{1.0cm}
+            {\large\itshape A supervised learning study of neural networks\par}
+            \vspace{0.15cm}
+            {\large\itshape as pricing surrogate models\par}
+
+            \vspace{4.00cm}
+            {\large\scshape \projectmembers\par}
+
+            \vspace{1.0cm}
+            {\today\par}
+        \end{minipage}
+    \end{titlepage}
+}
 \newenvironment{projectabstract}
     {\chapter*{Abstract}\addcontentsline{toc}{chapter}{Abstract}}
     {\clearpage}
@@ -76,7 +227,7 @@
 \begin{document}
 
 \pagenumbering{roman}
-\maketitle
+\makeprojecttitlepage
 \setcounter{page}{2}
 
 \begin{projectabstract}
@@ -91,12 +242,14 @@
 \pagenumbering{arabic}
 
 \input{sections/01_introduction}
-\input{sections/02_theoretical_framework}
-\input{sections/03_methodology}
-\input{sections/04_implementation}
-\input{sections/05_experiments}
-\input{sections/06_results}
-\input{sections/07_conclusions}
+\input{sections/02_financial_mathematical_background}
+\input{sections/03_machine_learning_background}
+\input{sections/04_dataset_experimental_design}
+\input{sections/05_methodology}
+\input{sections/06_software_implementation}
+\input{sections/07_experimental_results}
+\input{sections/08_discussion}
+\input{sections/09_conclusions_future_work}
 
 \bibliographystyle{plain}
 \bibliography{references}

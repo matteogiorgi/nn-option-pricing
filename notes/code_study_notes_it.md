@@ -80,6 +80,21 @@ In piu', e' stato aggiunto uno script separato:
 
 che confronta i tempi di pricing di Black-Scholes analitico, neural network inference e Monte Carlo.
 
+Esistono poi tre entry point sperimentali separati, aggiunti per non
+appesantire la pipeline principale:
+
+```bash
+.venv/bin/python scripts/run_svr_benchmark.py
+.venv/bin/python scripts/run_noisy_targets_experiment.py
+.venv/bin/python scripts/run_noisy_svr_benchmark.py
+```
+
+Questi script servono rispettivamente per:
+
+- baseline SVR pulita su dataset ridotti;
+- robustezza della neural network con target Black-Scholes rumorosi;
+- robustezza della baseline SVR con target Black-Scholes rumorosi.
+
 Diagramma principale:
 
 ```mermaid
@@ -106,8 +121,11 @@ La struttura concettuale e':
 ```text
 .
 ├── scripts/
+│   ├── benchmark_runtime.py
 │   ├── run_experiment.py
-│   └── benchmark_runtime.py
+│   ├── run_noisy_svr_benchmark.py
+│   ├── run_noisy_targets_experiment.py
+│   └── run_svr_benchmark.py
 ├── src/
 │   └── nn_option_pricing/
 │       ├── black_scholes.py
@@ -116,8 +134,12 @@ La struttura concettuale e':
 │       ├── evaluation.py
 │       ├── model.py
 │       ├── monte_carlo.py
+│       ├── noise.py
+│       ├── noisy_experiment.py
+│       ├── noisy_svr_experiment.py
 │       ├── pipeline.py
 │       ├── plots.py
+│       ├── svr.py
 │       └── training.py
 ├── tests/
 ├── docs/
@@ -141,9 +163,16 @@ flowchart LR
     MC["monte_carlo.py<br/>GBM terminal simulation"]
     EVAL["evaluation.py<br/>MAE, RMSE, R2, MAPE"]
     PLOTS["plots.py<br/>diagnostic figures"]
+    NOISE["noise.py<br/>controlled target noise"]
+    NOISYNN["noisy_experiment.py<br/>NN noisy-target experiment"]
+    SVR["svr.py<br/>SVR benchmark"]
+    NOISYSVR["noisy_svr_experiment.py<br/>SVR noisy-target benchmark"]
     PIPE["pipeline.py<br/>end-to-end orchestration"]
     CLI["scripts/run_experiment.py<br/>experiment CLI"]
     BENCH["scripts/benchmark_runtime.py<br/>runtime benchmark CLI"]
+    SVRCLI["scripts/run_svr_benchmark.py<br/>SVR CLI"]
+    NOISYCLI["scripts/run_noisy_targets_experiment.py<br/>noisy NN CLI"]
+    NOISYSVRCLI["scripts/run_noisy_svr_benchmark.py<br/>noisy SVR CLI"]
 
     CLI --> CFG
     CLI --> PIPE
@@ -159,6 +188,17 @@ flowchart LR
     BENCH --> BS
     BENCH --> TRAIN
     BENCH --> MC
+    SVRCLI --> SVR
+    SVR --> DATA
+    SVR --> EVAL
+    NOISYCLI --> NOISYNN
+    NOISYNN --> NOISE
+    NOISYNN --> TRAIN
+    NOISYNN --> EVAL
+    NOISYSVRCLI --> NOISYSVR
+    NOISYSVR --> DATA
+    NOISYSVR --> NOISE
+    NOISYSVR --> EVAL
 ```
 
 Lo stesso diagramma e' salvato anche in `notes/assets/module_map.mmd`.
@@ -499,13 +539,13 @@ Il modello e' una rete feed-forward fully connected, chiamata `PricingMLP`.
 > z = W x + b
 > ```
 >
-> dove `x` e' il vettore in ingresso, `W` e' la matrice dei pesi, `b` e' il bias e `z` e' l'output lineare del layer. Dopo i layer nascosti viene applicata una funzione non lineare, nel nostro caso ReLU:
+> dove `x` e' il vettore in ingresso, `W` e' la matrice dei pesi, `b` e' il bias e `z` e' l'output lineare del layer. Dopo i layer nascosti viene applicata una funzione non lineare. Nella baseline storica era ReLU:
 >
 > ```text
 > ReLU(z) = max(z, 0)
 > ```
 >
-> La non linearita' e' fondamentale: senza funzioni di attivazione, una sequenza di layer lineari sarebbe equivalente a un solo layer lineare. Con le ReLU, invece, la rete puo' approssimare funzioni non lineari complesse.
+> La non linearita' e' fondamentale: senza funzioni di attivazione, una sequenza di layer lineari sarebbe equivalente a un solo layer lineare. Con activation non lineari, invece, la rete puo' approssimare funzioni complesse. Nella configurazione finale usiamo `SiLU`, scelta dopo il confronto sperimentale tra activation functions.
 >
 > Una MLP e' adatta a questo progetto perche' il nostro problema e' una regressione tabellare: abbiamo variabili numeriche di input (`s0`, `k`, `t`, `r`, `sigma`, e nella final anche `moneyness`) e vogliamo predire un singolo valore continuo (`call_price`). Non abbiamo immagini, testi o sequenze temporali da modellare direttamente; quindi non serve una CNN, una RNN o un Transformer. La funzione Black-Scholes e' una funzione deterministica e non lineare degli input, e una MLP e' una scelta naturale per approssimare questo tipo di mappa.
 

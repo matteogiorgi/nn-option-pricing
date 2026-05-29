@@ -1,0 +1,103 @@
+\chapter{Software Implementation}
+
+\section{Repository Structure}
+
+The project is implemented in Python with a modular structure.
+The main libraries are NumPy, pandas, SciPy, scikit-learn, matplotlib, and PyTorch.
+
+\begin{projectlistingbox}[shellstyle]
+src/nn_option_pricing/
+    black_scholes.py          # analytical formula and payoff
+    config.py                 # experiment configuration dataclasses
+    dataset.py                # synthetic data generation and storage
+    evaluation.py             # regression metrics
+    model.py                  # PyTorch feed-forward neural network
+    monte_carlo.py            # efficient Monte Carlo simulation
+    noise.py                  # controlled target-noise generation
+    noisy_experiment.py       # neural-network noisy-target experiment
+    noisy_svr_experiment.py   # noisy-target SVR benchmark
+    pipeline.py               # end-to-end experiment
+    plots.py                  # visualizations
+    svr.py                    # reduced-scale SVR benchmark
+    training.py               # training loop, scaling, early stopping
+scripts/
+    run_experiment.py             # main experiment CLI
+    benchmark_runtime.py          # runtime benchmark CLI
+    run_svr_benchmark.py          # SVR benchmark CLI
+    run_noisy_targets_experiment.py
+    run_noisy_svr_benchmark.py
+\end{projectlistingbox}
+\projectlistingcaption{Main project structure.}
+
+The reusable scientific and machine learning logic is contained in the package \path{src/nn_option_pricing/}.
+The files in \texttt{scripts/} are command-line entry points that build configurations and call functions from the package.
+
+\section{Configuration System}
+
+The project uses dataclasses to keep experiment parameters explicit.
+The configuration includes dataset ranges, training parameters, Monte Carlo parameters, and output paths.
+This avoids hard-coded constants scattered across the codebase and makes experiments easier to reproduce.
+
+Each experiment saves a configuration snapshot in JSON format.
+This makes it possible to recover the exact settings used to produce a given result.
+
+\section{Experimental Pipeline}
+
+The main pipeline performs the following steps:
+
+\begin{enumerate}
+    \item create output directories;
+    \item generate the synthetic dataset;
+    \item save the dataset and configuration;
+    \item split the data into training, validation, and test sets;
+    \item fit input and target scalers;
+    \item train the neural network with early stopping;
+    \item predict on the held-out test set;
+    \item compute neural-network metrics;
+    \item run the Monte Carlo benchmark;
+    \item save metrics and diagnostic figures.
+\end{enumerate}
+
+The final experiment is run through:
+
+\begin{projectlistingbox}[shellstyle]
+.venv/bin/python scripts/run_experiment.py \
+    --n-samples 100000 \
+    --max-epochs 200 \
+    --batch-size 1024 \
+    --mc-n-paths 50000 \
+    --mc-evaluation-samples 512 \
+    --feature-set with_moneyness \
+    --activation silu \
+    --seed 42 \
+    --data-dir data/final_improved \
+    --output-dir outputs/final_improved
+\end{projectlistingbox}
+\projectlistingcaption{Command used for the final experiment.}
+
+\section{Testing and Documentation}
+
+The test suite covers:
+
+\begin{itemize}
+    \item analytical Black-Scholes pricing;
+    \item synthetic dataset generation;
+    \item model construction;
+    \item Monte Carlo pricing;
+    \item target-noise generation;
+    \item SVR benchmarks;
+    \item end-to-end pipeline smoke tests.
+\end{itemize}
+
+The project also includes Sphinx documentation generated from narrative documentation and Python docstrings.
+This supports code readability and makes the implementation easier to inspect.
+
+\section{Computational Efficiency}
+
+The Black-Scholes formula and dataset generation are vectorized with NumPy.
+The Monte Carlo method uses the exact terminal distribution of the geometric Brownian motion, avoiding unnecessary time discretization.
+Monte Carlo simulation is batched both over options and over simulated paths, which keeps memory usage under control.
+
+The neural network training uses PyTorch \texttt{DataLoader}, mini-batch gradient descent, input standardization, and target scaling.
+Prediction is performed in batches under \texttt{torch.no\_grad()}.
+These choices make the code suitable both for quick development runs and for larger experiments.

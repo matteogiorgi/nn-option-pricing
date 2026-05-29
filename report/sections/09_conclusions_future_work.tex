@@ -1,15 +1,19 @@
-\chapter{Conclusions and Next Steps}
+\chapter{Conclusions and Future Work}
+
+\section{Conclusions}
 
 The final experiment confirms that a feed-forward neural network can approximate the Black-Scholes pricing function for European call options with high accuracy in a controlled synthetic environment.
 With 100,000 synthetic contracts, the network achieves an MAE of 0.04290, an RMSE of 0.06208, and an $R^2$ of 0.999993 on the held-out test set.
 These results answer the research question positively within the assumptions and parameter ranges considered in the project.
 
-The comparison with Monte Carlo also clarifies the role of the neural network.
+The comparison with Monte Carlo clarifies the role of the neural network.
 Monte Carlo is a classical numerical estimator and remains useful as a benchmark, while the trained neural network acts as a deterministic pricing surrogate.
-The purpose of the network is therefore not to replace the analytical Black-Scholes formula, but to demonstrate that a supervised model can accurately learn a well-defined pricing map.
 The runtime benchmark further supports the surrogate interpretation: after training, neural inference is substantially faster than Monte Carlo simulation for repeated pricing queries.
-The additional SVR experiment provides a classical machine learning reference point on reduced datasets and supports the choice of the neural network as the main scalable surrogate model.
-The noisy-target experiments further show that both the neural network and the SVR baseline remain accurate under controlled label perturbations, although approximation quality decreases as the noise level increases.
+
+The additional SVR experiment provides a classical machine learning reference point on reduced datasets.
+The noisy-target experiments show that both the neural network and the SVR baseline remain accurate under controlled label perturbations, although approximation quality decreases as the noise level increases.
+
+\section{Limitations}
 
 The main limitations are:
 
@@ -21,14 +25,21 @@ The main limitations are:
     \item generalization outside the sampled parameter ranges is not guaranteed.
 \end{itemize}
 
-Natural next steps are:
+These limitations are not flaws in the experiment, but boundaries of the research question.
+The project deliberately studies a controlled approximation problem before moving to more complex financial settings.
+
+\section{Future Extensions}
+
+Natural future extensions include:
 
 \begin{itemize}
     \item compare additional neural network architectures beyond the selected MLP;
     \item tune and evaluate further classical machine learning baselines on controlled reduced datasets;
     \item study the error in specific regions of the parameter space, for instance deep in-the-money or out-of-the-money options;
     \item extend the framework to stochastic volatility models such as Heston;
-    \item estimate Greeks using either automatic differentiation or finite differences.
+    \item price more complex derivatives such as basket options or American options;
+    \item estimate Greeks using either automatic differentiation or finite differences;
+    \item investigate real or pseudo-real option data while explicitly changing the research question to market-price modeling.
 \end{itemize}
 
-These extensions are outside the scope of the current implementation, but they represent natural directions for generalizing the approach beyond the Black-Scholes benchmark.
+These extensions would generalize the approach beyond the Black-Scholes benchmark while preserving the experimental discipline developed in the current project.
