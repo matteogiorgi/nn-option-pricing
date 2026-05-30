@@ -1,0 +1,79 @@
+\chapter{Code Navigation}
+
+\section{How to Read the Codebase}
+
+The implementation is organized as a reusable Python package plus a small set of command-line scripts.
+For a reader who wants to inspect the code without reading every file line by line, the most useful path is:
+
+\begin{enumerate}
+    \item start from \path{scripts/run_experiment.py}, which defines the command-line interface for the main experiment;
+    \item inspect \path{src/nn_option_pricing/config.py}, where experiment parameters are represented as immutable configuration objects;
+    \item follow \path{src/nn_option_pricing/pipeline.py}, which connects the main experimental stages;
+    \item inspect the specialized modules only when needed.
+\end{enumerate}
+This gives a top-down view of the project before moving into the individual numerical and machine-learning components.
+
+\section{Main Code Entry Points}
+
+Table~\ref{tab:appendix-code-entry-points} summarizes the most important files for understanding the implementation.
+Except for \path{run_experiment.py}, which is in \path{scripts/}, the listed modules are located in \path{src/nn_option_pricing/}.
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{@{}
+        >{\raggedright\arraybackslash}p{0.34\linewidth}
+        >{\raggedright\arraybackslash}p{0.51\linewidth}
+    @{}}
+        \toprule
+        File & Role \\
+        \midrule
+        \path{run_experiment.py} & main experiment command-line interface \\
+        \path{config.py} & experiment configuration dataclasses and output paths \\
+        \path{pipeline.py} & end-to-end clean-target neural-network experiment \\
+        \path{black_scholes.py} & analytical Black-Scholes pricing and payoff functions \\
+        \path{dataset.py} & synthetic dataset generation and feature construction \\
+        \path{training.py} & neural-network training, scaling, prediction, and early stopping \\
+        \path{monte_carlo.py} & batched Monte Carlo benchmark \\
+        \path{evaluation.py} & regression metrics used in the experiments \\
+        \path{plots.py} & diagnostic plots saved by the pipeline \\
+        \path{svr.py} & reduced-scale Support Vector Regression benchmark \\
+        \path{noise.py} & controlled target-noise generation \\
+        \bottomrule
+    \end{tabular}
+    \caption{Suggested code entry points for project inspection.}
+    \label{tab:appendix-code-entry-points}
+\end{table}
+
+\section{Experiment Scripts}
+
+The repository contains separate scripts for the main experiment and for additional benchmarks.
+This keeps the main pipeline focused while making each extension reproducible.
+
+\begin{projectlistingbox}
+scripts/
+    run_experiment.py               # main neural-network experiment
+    benchmark_runtime.py            # pricing runtime comparison
+    run_svr_benchmark.py            # clean-target SVR benchmark
+    run_noisy_targets_experiment.py # noisy-target neural-network experiment
+    run_noisy_svr_benchmark.py      # noisy-target SVR benchmark
+\end{projectlistingbox}
+\projectlistingcaption{Main experiment and benchmark scripts.}
+
+\section{GitHub Code Links}
+
+When the report is read together with the GitHub repository, code links can be used to inspect specific implementation details.
+For stable references, it is preferable to link to a fixed commit rather than to a moving branch.
+This avoids broken or misleading line references if the code changes later.
+
+The most useful targets for direct GitHub links are:
+
+\begin{itemize}
+    \item the analytical pricing implementation in \path{black_scholes.py};
+    \item the synthetic dataset generator in \path{dataset.py};
+    \item the training loop in \path{training.py};
+    \item the end-to-end pipeline in \path{pipeline.py};
+    \item the Monte Carlo benchmark in \path{monte_carlo.py};
+    \item the SVR and noisy-target extensions in \path{svr.py}, \path{noise.py}, and the noisy experiment modules.
+\end{itemize}
+These links are not a substitute for the report, but they make it easier for a reader to verify how the mathematical and experimental choices are implemented in code.

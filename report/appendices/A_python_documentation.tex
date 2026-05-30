@@ -1,0 +1,118 @@
+\chapter{Python Documentation}
+
+\section{Purpose of the Documentation}
+
+The project includes a separate Python documentation site built with Sphinx.
+The purpose of this documentation is to make the implementation inspectable at module and API level, without overloading the main report with low-level interface details.
+The report and the Sphinx documentation therefore have complementary roles:
+
+\begin{itemize}
+    \item the report explains the mathematical model, experimental design, software architecture, and empirical results;
+    \item the Sphinx documentation exposes the package structure, module-level documentation, function signatures, class interfaces, and docstrings.
+\end{itemize}
+This separation keeps the report focused on the scientific content while still making the codebase auditable.
+
+\section{Sphinx Documentation Structure}
+
+The documentation sources are stored in:
+
+\begin{projectlistingbox}
+docs/source/
+\end{projectlistingbox}
+\projectlistingcaption{Source directory for the Sphinx documentation.}
+
+The API reference is generated from the docstrings contained in the Python package:
+
+\begin{projectlistingbox}
+src/nn_option_pricing/
+\end{projectlistingbox}
+\projectlistingcaption{Main Python package documented through Sphinx autodoc.}
+
+The most important documentation entry points are summarized in Table~\ref{tab:appendix-sphinx-entry-points}.
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{@{}
+        >{\raggedright\arraybackslash}p{0.33\linewidth}
+        >{\raggedright\arraybackslash}p{0.52\linewidth}
+    @{}}
+        \toprule
+        File or directory & Role \\
+        \midrule
+        \path{docs/source/index.rst} & main documentation index \\
+        \path{docs/source/overview.rst} & project orientation and repository overview \\
+        \path{docs/source/methodology.rst} & methodological description of the experiment \\
+        \path{docs/source/experiment_pipeline.rst} & end-to-end experiment pipeline \\
+        \path{docs/source/experiments.rst} & additional experiment descriptions \\
+        \path{docs/source/testing.rst} & testing and verification strategy \\
+        \path{docs/source/api/} & generated API reference for the Python package \\
+        \bottomrule
+    \end{tabular}
+    \caption{Main Sphinx documentation entry points.}
+    \label{tab:appendix-sphinx-entry-points}
+\end{table}
+
+\section{Local Documentation Build}
+
+The documentation can be built locally from the repository root after installing the project and documentation dependencies:
+
+\begin{projectlistingbox}[shellstyle]
+pip install -r requirements.txt
+pip install -r requirements-docs.txt
+pip install -e . --no-build-isolation
+\end{projectlistingbox}
+\projectlistingcaption{Installation commands for local documentation builds.}
+
+The standard HTML build command is:
+
+\begin{projectlistingbox}[shellstyle]
+sphinx-build -b html docs/source docs/build/html
+\end{projectlistingbox}
+\projectlistingcaption{Local Sphinx HTML build command.}
+
+The generated documentation can then be opened from:
+
+\begin{projectlistingbox}
+docs/build/html/index.html
+\end{projectlistingbox}
+\projectlistingcaption{Local HTML documentation entry point.}
+
+\section{Strict Documentation Build}
+
+During development, it is useful to treat documentation warnings as errors.
+This makes missing references, malformed directives, or broken API documentation visible immediately:
+
+\begin{projectlistingbox}[shellstyle]
+sphinx-build -W -b html docs/source docs/build/html
+\end{projectlistingbox}
+\projectlistingcaption{Strict Sphinx build command.}
+
+The same strict build is used in the automatic documentation workflow described below.
+
+\section{Automatic Deployment with GitHub Actions and GitHub Pages}
+
+The generated HTML documentation is not tracked in the repository.
+This is intentional: \path{docs/build/html/} is a generated artifact, and keeping it out of version control avoids unnecessary file churn.
+Instead, the documentation can be built automatically through GitHub Actions and published with GitHub Pages.
+
+The workflow is stored in:
+
+\begin{projectlistingbox}
+.github/workflows/docs.yml
+\end{projectlistingbox}
+\projectlistingcaption{GitHub Actions workflow for building and publishing the documentation.}
+
+At each push to the main branch, the workflow performs the following operations:
+
+\begin{enumerate}
+    \item checks out the repository;
+    \item installs Python and the project dependencies;
+    \item installs the documentation dependencies;
+    \item builds the Sphinx documentation using the strict \texttt{-W} option;
+    \item uploads the generated HTML site as a GitHub Pages artifact;
+    \item deploys the artifact to GitHub Pages.
+\end{enumerate}
+This approach keeps the repository clean while still providing an online version of the documentation.
+Once GitHub Pages is enabled for the repository, the documentation is available through the repository Pages URL.
+
