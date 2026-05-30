@@ -34,7 +34,7 @@ templates_path = ["_templates"]
 exclude_patterns = []
 
 html_theme = "pydata_sphinx_theme"
-html_static_path = ["_static"]
+html_static_path: list[str] = []
 html_title = "Neural Network Option Pricing"
 
 html_theme_options = {
@@ -43,4 +43,3 @@ html_theme_options = {
     "collapse_navigation": False,
     "navbar_align": "left",
 }
-
