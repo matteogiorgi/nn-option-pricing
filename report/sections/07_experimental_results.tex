@@ -34,7 +34,8 @@ The final supervised learning map is:
     \hat{C}_{NN}.
 \end{equation}
 
-The results on the held-out test set are reported in Table~\ref{tab:nn-final-metrics}.
+The four metrics in Table~\ref{tab:nn-final-metrics} evaluate complementary aspects of the approximation:
+absolute error, squared-error sensitivity, explained variance, and relative error on economically meaningful prices.
 
 \begin{table}[H]
     \centering
@@ -75,7 +76,7 @@ This is important because the goal is to approximate the pricing function on uns
 \end{figure}
 
 Figure~\ref{fig:final-true-vs-predicted} compares analytical prices with neural-network predictions.
-The points are tightly concentrated around the diagonal identity line, which visually confirms the high $R^2$ reported in Table~\ref{tab:nn-final-metrics}.
+The points are tightly concentrated around the diagonal identity line, which visually supports the near-perfect coefficient of determination.
 
 \section{Monte Carlo Comparison}
 
@@ -130,7 +131,7 @@ By contrast, once trained, the neural network produces deterministic forward-pas
     \label{tab:nn-mc-summary}
 \end{table}
 
-Table~\ref{tab:nn-mc-summary} should be interpreted with care because the two methods are evaluated on different test-set sizes.
+The side-by-side comparison in Table~\ref{tab:nn-mc-summary} should be interpreted with care because the two methods are evaluated on different test-set sizes.
 Nevertheless, it shows that the neural network surrogate reaches at least the same order of accuracy as the Monte Carlo benchmark in this controlled setting.
 
 \begin{figure}[H]
@@ -140,7 +141,7 @@ Nevertheless, it shows that the neural network surrogate reaches at least the sa
     \label{fig:nn-vs-mc-metrics}
 \end{figure}
 
-Figure~\ref{fig:nn-vs-mc-metrics} provides a visual summary of the same comparison.
+Figure~\ref{fig:nn-vs-mc-metrics} makes the scale of the error differences easier to compare across metrics.
 The neural-network bars are lower for all reported error metrics, while the interpretation remains tied to the different evaluation protocols described above.
 
 \section{Feature Engineering and Activation Function Results}
@@ -163,7 +164,7 @@ with the engineered feature set
     (S_0, K, T, r, \sigma, S_0/K).
 \end{equation}
 
-Table~\ref{tab:moneyness-results} reports the results.
+Table~\ref{tab:moneyness-results} isolates the effect of adding this financial ratio while keeping the activation function fixed.
 
 \begin{table}[H]
     \centering
@@ -186,7 +187,7 @@ However, it exposes a financially meaningful ratio directly to the model, which 
 \subsection{Activation Functions}
 
 The activation-function experiment compares ReLU, Tanh, and SiLU using the same base feature set.
-The results are reported in Table~\ref{tab:activation-results}.
+The three activation choices lead to the metrics in Table~\ref{tab:activation-results}.
 
 \begin{table}[H]
     \centering
@@ -209,7 +210,7 @@ This is consistent with the target being a smooth analytical pricing function ov
 \subsection{Combined Configuration}
 
 The strongest intermediate candidate combines the moneyness feature with SiLU activations.
-Table~\ref{tab:combined-results} summarizes the comparison with the other intermediate configurations.
+Table~\ref{tab:combined-results} places this combined setup alongside the other intermediate configurations.
 
 \begin{table}[H]
     \centering
@@ -238,7 +239,7 @@ This distinction matters because a neural network is expensive to train once, bu
 
 The benchmark uses the improved neural configuration, 50,000 synthetic training samples, 100 epochs, and 1,000 pricing queries.
 The Monte Carlo benchmark uses 20,000 paths.
-Results are reported in Table~\ref{tab:runtime-benchmark}.
+The timing numbers in Table~\ref{tab:runtime-benchmark} separate vectorized analytical pricing, learned inference, and simulation-based pricing.
 
 \begin{table}[H]
     \centering
@@ -341,7 +342,7 @@ The model remains accurate under 1\% noise, while 5\% noise produces a clearer i
 This supports a cautious robustness interpretation: the neural network can partially smooth noisy labels, but noisy supervision still reduces approximation quality.
 
 The same noisy-target experiment is repeated with the reduced-scale SVR baseline.
-Aggregate metrics against clean Black-Scholes prices are reported in Table~\ref{tab:noisy-svr-targets}.
+Table~\ref{tab:noisy-svr-targets} gives the corresponding SVR behavior under the same label-noise levels.
 
 \begin{table}[H]
     \centering
@@ -385,7 +386,7 @@ For this reason, the final experiment includes diagnostic plots of prediction er
     \label{fig:final-error-distribution}
 \end{figure}
 
-The error distribution in Figure~\ref{fig:final-error-distribution} is concentrated near zero, which is consistent with the low MAE and RMSE values reported in Table~\ref{tab:nn-final-metrics}.
+The error distribution in Figure~\ref{fig:final-error-distribution} is concentrated near zero, which is consistent with the low absolute-error metrics of the final model.
 This suggests that the final result is not only an artifact of aggregate averaging, but corresponds to generally small pointwise errors across the test set.
 
 \begin{figure}[H]

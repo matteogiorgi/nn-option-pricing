@@ -51,7 +51,7 @@ def generate_synthetic_dataset(config: DatasetConfig) -> pd.DataFrame:
 
 \section{Input Variables and Target}
 
-The parameter ranges used to generate the dataset are reported in Table~\ref{tab:dataset-ranges}.
+The sampled parameter domain is bounded by the ranges in Table~\ref{tab:dataset-ranges}.
 
 \begin{table}[H]
     \centering
@@ -79,7 +79,7 @@ Therefore, each supervised learning observation has the form:
 
 The generated dataset also stores moneyness as an additional column.
 This column is always available for diagnostics, and it can optionally be included as a model input through the selected feature set.
-Table~\ref{tab:dataset-columns} summarizes the columns saved in the generated CSV file.
+The resulting CSV file therefore contains both learning variables and diagnostic variables, as detailed in Table~\ref{tab:dataset-columns}.
 
 \begin{table}[H]
     \centering
@@ -133,7 +133,7 @@ The test set is kept separate and is used only for final evaluation.
 
 All splits are controlled by fixed random seeds.
 This makes the reported results reproducible and ensures that different model variants can be compared under consistent conditions.
-The default split proportions are reported in Table~\ref{tab:data-split}.
+The default proportions reflect the standard separation between optimization, model selection, and final evaluation:
 
 \begin{table}[H]
     \centering
@@ -196,7 +196,7 @@ noisy_df[TARGET_COLUMN] = noisy_prices
 \end{projectlistingbox}
 \projectlistingcaption{Controlled noisy-target generation used in robustness experiments.}
 
-Table~\ref{tab:noisy-columns} reports the additional columns produced in the noisy-target setting.
+For auditability, the noisy-target datasets keep the perturbation components explicitly rather than storing only the final noisy label.
 
 \begin{table}[H]
     \centering
