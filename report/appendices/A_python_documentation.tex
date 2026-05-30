@@ -36,17 +36,17 @@ The most important documentation entry points are summarized in Table~\ref{tab:a
     \begin{tabular}{@{}
         >{\raggedright\arraybackslash}p{0.33\linewidth}
         >{\raggedright\arraybackslash}p{0.52\linewidth}
-    @{}}
+        @{}}
         \toprule
-        File or directory & Role \\
+        File or directory                          & Role                                           \\
         \midrule
-        \path{docs/source/index.rst} & main documentation index \\
-        \path{docs/source/overview.rst} & project orientation and repository overview \\
-        \path{docs/source/methodology.rst} & methodological description of the experiment \\
-        \path{docs/source/experiment_pipeline.rst} & end-to-end experiment pipeline \\
-        \path{docs/source/experiments.rst} & additional experiment descriptions \\
-        \path{docs/source/testing.rst} & testing and verification strategy \\
-        \path{docs/source/api/} & generated API reference for the Python package \\
+        \path{docs/source/index.rst}               & main documentation index                       \\
+        \path{docs/source/overview.rst}            & project orientation and repository overview    \\
+        \path{docs/source/methodology.rst}         & methodological description of the experiment   \\
+        \path{docs/source/experiment_pipeline.rst} & end-to-end experiment pipeline                 \\
+        \path{docs/source/experiments.rst}         & additional experiment descriptions             \\
+        \path{docs/source/testing.rst}             & testing and verification strategy              \\
+        \path{docs/source/api/}                    & generated API reference for the Python package \\
         \bottomrule
     \end{tabular}
     \caption{Main Sphinx documentation entry points.}
@@ -116,3 +116,22 @@ At each push to the main branch, the workflow performs the following operations:
 This approach keeps the repository clean while still providing an online version of the documentation.
 Once GitHub Pages is enabled for the repository, the documentation is available through the repository Pages URL.
 
+The main online resources are reported in Table~\ref{tab:appendix-online-resources}.
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{@{}
+        >{\raggedright\arraybackslash}p{0.28\linewidth}
+        >{\raggedright\arraybackslash}p{0.57\linewidth}
+        @{}}
+        \toprule
+        Resource             & URL                                                     \\
+        \midrule
+        GitHub repository    & \url{https://github.com/matteogiorgi/nn-option-pricing} \\
+        Online documentation & \url{https://matteogiorgi.github.io/nn-option-pricing}  \\
+        \bottomrule
+    \end{tabular}
+    \caption{Online repository and documentation resources.}
+    \label{tab:appendix-online-resources}
+\end{table}

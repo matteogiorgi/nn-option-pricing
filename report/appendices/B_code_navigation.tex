@@ -24,21 +24,21 @@ Except for \path{run_experiment.py}, which is in \path{scripts/}, the listed mod
     \begin{tabular}{@{}
         >{\raggedright\arraybackslash}p{0.34\linewidth}
         >{\raggedright\arraybackslash}p{0.51\linewidth}
-    @{}}
+        @{}}
         \toprule
-        File & Role \\
+        File                     & Role                                                             \\
         \midrule
-        \path{run_experiment.py} & main experiment command-line interface \\
-        \path{config.py} & experiment configuration dataclasses and output paths \\
-        \path{pipeline.py} & end-to-end clean-target neural-network experiment \\
-        \path{black_scholes.py} & analytical Black-Scholes pricing and payoff functions \\
-        \path{dataset.py} & synthetic dataset generation and feature construction \\
-        \path{training.py} & neural-network training, scaling, prediction, and early stopping \\
-        \path{monte_carlo.py} & batched Monte Carlo benchmark \\
-        \path{evaluation.py} & regression metrics used in the experiments \\
-        \path{plots.py} & diagnostic plots saved by the pipeline \\
-        \path{svr.py} & reduced-scale Support Vector Regression benchmark \\
-        \path{noise.py} & controlled target-noise generation \\
+        \path{run_experiment.py} & main experiment command-line interface                           \\
+        \path{config.py}         & experiment configuration dataclasses and output paths            \\
+        \path{pipeline.py}       & end-to-end clean-target neural-network experiment                \\
+        \path{black_scholes.py}  & analytical Black-Scholes pricing and payoff functions            \\
+        \path{dataset.py}        & synthetic dataset generation and feature construction            \\
+        \path{training.py}       & neural-network training, scaling, prediction, and early stopping \\
+        \path{monte_carlo.py}    & batched Monte Carlo benchmark                                    \\
+        \path{evaluation.py}     & regression metrics used in the experiments                       \\
+        \path{plots.py}          & diagnostic plots saved by the pipeline                           \\
+        \path{svr.py}            & reduced-scale Support Vector Regression benchmark                \\
+        \path{noise.py}          & controlled target-noise generation                               \\
         \bottomrule
     \end{tabular}
     \caption{Suggested code entry points for project inspection.}
