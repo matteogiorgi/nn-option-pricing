@@ -142,45 +142,17 @@ For this reason, keeping the current project synthetic is methodologically consi
 
 \section{Future Work}
 
-Several extensions are possible.
-They can be grouped according to how much they change the current research question.
+Several extensions are possible and they can be grouped according to how much they change the current research question:
 
-\begin{table}[H]
-    \centering
-    \begin{tabular}{
-        >{\raggedright\arraybackslash}p{0.30\linewidth}
-        >{\raggedright\arraybackslash}p{0.27\linewidth}
-        >{\raggedright\arraybackslash}p{0.33\linewidth}
-    }
-        \toprule
-        Extension & Expected difficulty & Effect on the research question \\
-        \midrule
-        Additional neural architectures
-        & moderate
-        & keeps the same Black-Scholes approximation task \\
-        More detailed error analysis by regime
-        & low to moderate
-        & strengthens the current evaluation \\
-        Greeks estimation
-        & moderate
-        & extends the surrogate from prices to sensitivities \\
-        Heston or stochastic-volatility models
-        & high
-        & changes the underlying pricing model \\
-        Basket or path-dependent options
-        & high
-        & increases dimensionality and computational relevance \\
-        American options
-        & high
-        & introduces early-exercise features and a different pricing problem \\
-        Real exchange-traded option data
-        & high
-        & changes the question to market-price modeling \\
-        \bottomrule
-    \end{tabular}
-    \caption{Possible future extensions and their impact on the project scope.}
-    \label{tab:future-work}
-\end{table}
+\begin{itemize}
+    \item Additional neural architectures, such as deeper multilayer perceptrons or residual networks, while keeping the same Black-Scholes approximation task.
+    \item More detailed regime-based error analysis, separating deep out-of-the-money, at-the-money, and deep in-the-money contracts.
+    \item Greeks estimation through automatic differentiation, extending the surrogate from prices to risk sensitivities.
+    \item Heston or other stochastic-volatility models, which would change the underlying pricing dynamics.
+    \item Basket or path-dependent options, where the dimensionality and computational relevance of surrogate pricing become more pronounced.
+    \item American options, which introduce early-exercise features and require a different pricing framework.
+    \item Real exchange-traded option data, which would change the project from approximating Black-Scholes to modeling market prices.
+\end{itemize}
 
 The most natural first extension would be a more detailed regime-based error analysis.
 For example, one could separately study deep out-of-the-money, at-the-money, and deep in-the-money contracts.

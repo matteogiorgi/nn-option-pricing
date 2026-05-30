@@ -15,6 +15,7 @@
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{hyperref}
+\usepackage{fontawesome5}
 \usepackage{listings}
 \usepackage[skins,listings]{tcolorbox}
 \usepackage{caption}
@@ -157,8 +158,10 @@
 
 \newcommand{\projecttitle}{Neural Network-Based European Option Pricing under Black-Scholes SDE Dynamics}
 \newcommand{\projectcourse}{Machine Learning for Finance}
-\newcommand{\projectsubtitle}{Project Report}
+\newcommand{\projectsubtitle}{\today}
 \newcommand{\projectacademicyear}{Academic Year 2025--2026}
+\newcommand{\projectrepository}{https://github.com/matteogiorgi/nn-option-pricing}
+\newcommand{\projectrepositorylabel}{nn-option-pricing}
 \newcommand{\projectmembers}{%
     Matteo Giorgi\\
     Lorenzo Ghiotti\\
@@ -198,7 +201,7 @@
             {\large\scshape \projectmembers\par}
 
             \vspace{1.0cm}
-            {\today\par}
+            {\footnotesize\color{projectListingAccent}\href{\projectrepository}{\faGithub\hspace{0.35em}{\small\texttt{\projectrepositorylabel}}}\par}
         \end{minipage}
     \end{titlepage}
 }

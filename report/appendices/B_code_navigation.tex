@@ -6,74 +6,44 @@ The implementation is organized as a reusable Python package plus a small set of
 For a reader who wants to inspect the code without reading every file line by line, the most useful path is:
 
 \begin{enumerate}
-    \item start from \path{scripts/run_experiment.py}, which defines the command-line interface for the main experiment;
-    \item inspect \path{src/nn_option_pricing/config.py}, where experiment parameters are represented as immutable configuration objects;
-    \item follow \path{src/nn_option_pricing/pipeline.py}, which connects the main experimental stages;
+    \item start from \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/scripts/run_experiment.py}{\path{scripts/run_experiment.py}}, which defines the command-line interface for the main experiment and calls the main pipeline;
+    \item inspect \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/config.py}{\path{src/nn_option_pricing/config.py}}, where experiment parameters are represented as immutable configuration objects;
+    \item follow \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/pipeline.py}{\path{src/nn_option_pricing/pipeline.py}}, which connects the main experimental stages and saves the results;
     \item inspect the specialized modules only when needed.
 \end{enumerate}
 This gives a top-down view of the project before moving into the individual numerical and machine-learning components.
 
 \section{Main Code Entry Points}
 
-Table~\ref{tab:appendix-code-entry-points} summarizes the most important files for understanding the implementation.
+The following list summarizes the most important files for understanding the implementation.
 Except for \path{run_experiment.py}, which is in \path{scripts/}, the listed modules are located in \path{src/nn_option_pricing/}.
+The file names are clickable links to the corresponding GitHub source files.
+For stable archival references, the \texttt{main} branch in these URLs can be replaced by the final commit hash.
 
-\begin{table}[H]
-    \centering
-    \small
-    \begin{tabular}{@{}
-        >{\raggedright\arraybackslash}p{0.34\linewidth}
-        >{\raggedright\arraybackslash}p{0.51\linewidth}
-        @{}}
-        \toprule
-        File                     & Role                                                             \\
-        \midrule
-        \path{run_experiment.py} & main experiment command-line interface                           \\
-        \path{config.py}         & experiment configuration dataclasses and output paths            \\
-        \path{pipeline.py}       & end-to-end clean-target neural-network experiment                \\
-        \path{black_scholes.py}  & analytical Black-Scholes pricing and payoff functions            \\
-        \path{dataset.py}        & synthetic dataset generation and feature construction            \\
-        \path{training.py}       & neural-network training, scaling, prediction, and early stopping \\
-        \path{monte_carlo.py}    & batched Monte Carlo benchmark                                    \\
-        \path{evaluation.py}     & regression metrics used in the experiments                       \\
-        \path{plots.py}          & diagnostic plots saved by the pipeline                           \\
-        \path{svr.py}            & reduced-scale Support Vector Regression benchmark                \\
-        \path{noise.py}          & controlled target-noise generation                               \\
-        \bottomrule
-    \end{tabular}
-    \caption{Suggested code entry points for project inspection.}
-    \label{tab:appendix-code-entry-points}
-\end{table}
+\begin{itemize}
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/scripts/run_experiment.py}{\path{run_experiment.py}}: main experiment command-line interface.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/config.py}{\path{config.py}}: experiment configuration dataclasses and output paths.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/pipeline.py}{\path{pipeline.py}}: end-to-end clean-target neural-network experiment.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/black_scholes.py}{\path{black_scholes.py}}: analytical Black-Scholes pricing and payoff functions.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/dataset.py}{\path{dataset.py}}: synthetic dataset generation and feature construction.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/training.py}{\path{training.py}}: neural-network training, scaling, prediction, and early stopping.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/monte_carlo.py}{\path{monte_carlo.py}}: batched Monte Carlo benchmark.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/evaluation.py}{\path{evaluation.py}}: regression metrics used in the experiments.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/plots.py}{\path{plots.py}}: diagnostic plots saved by the pipeline.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/svr.py}{\path{svr.py}}: reduced-scale Support Vector Regression benchmark.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/noise.py}{\path{noise.py}}: controlled target-noise generation.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/src/nn_option_pricing/noisy_experiment.py}{\path{noisy_experiment.py}}: noisy-target neural-network experiment.
+\end{itemize}
 
 \section{Experiment Scripts}
 
 The repository contains separate scripts for the main experiment and for additional benchmarks.
 This keeps the main pipeline focused while making each extension reproducible.
 
-\begin{projectlistingbox}
-scripts/
-    run_experiment.py               # main neural-network experiment
-    benchmark_runtime.py            # pricing runtime comparison
-    run_svr_benchmark.py            # clean-target SVR benchmark
-    run_noisy_targets_experiment.py # noisy-target neural-network experiment
-    run_noisy_svr_benchmark.py      # noisy-target SVR benchmark
-\end{projectlistingbox}
-\projectlistingcaption{Main experiment and benchmark scripts.}
-
-\section{GitHub Code Links}
-
-When the report is read together with the GitHub repository, code links can be used to inspect specific implementation details.
-For stable references, it is preferable to link to a fixed commit rather than to a moving branch.
-This avoids broken or misleading line references if the code changes later.
-
-The most useful targets for direct GitHub links are:
-
 \begin{itemize}
-    \item the analytical pricing implementation in \path{black_scholes.py};
-    \item the synthetic dataset generator in \path{dataset.py};
-    \item the training loop in \path{training.py};
-    \item the end-to-end pipeline in \path{pipeline.py};
-    \item the Monte Carlo benchmark in \path{monte_carlo.py};
-    \item the SVR and noisy-target extensions in \path{svr.py}, \path{noise.py}, and the noisy experiment modules.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/scripts/run_experiment.py}{\path{run_experiment.py}}: main neural-network experiment.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/scripts/benchmark_runtime.py}{\path{benchmark_runtime.py}}: pricing runtime comparison.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/scripts/run_svr_benchmark.py}{\path{run_svr_benchmark.py}}: clean-target SVR benchmark.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/scripts/run_noisy_targets_experiment.py}{\path{run_noisy_targets_experiment.py}}: noisy-target neural-network experiment.
+    \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/scripts/run_noisy_svr_benchmark.py}{\path{run_noisy_svr_benchmark.py}}: noisy-target SVR benchmark.
 \end{itemize}
-These links are not a substitute for the report, but they make it easier for a reader to verify how the mathematical and experimental choices are implemented in code.
