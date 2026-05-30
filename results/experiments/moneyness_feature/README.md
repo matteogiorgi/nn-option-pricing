@@ -67,6 +67,6 @@ plausible because option prices depend strongly on the relation between spot
 price and strike, and `s0 / k` exposes this relation directly.
 
 The result should still be interpreted carefully: this is an intermediate
-50,000-sample experiment, not yet a final large-scale run. A final comparison
-should repeat the experiment with the selected final training configuration
-before updating the report conclusions.
+50,000-sample experiment, not the final 100,000-sample run. Its role is to
+justify why the selected final configuration includes the engineered moneyness
+feature.

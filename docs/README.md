@@ -1,6 +1,8 @@
 # Project Documentation
 
-The documentation is built with Sphinx.
+The Python and project workflow documentation is built with Sphinx.
+The generated HTML site is not tracked in Git; it is either built locally or
+published automatically through GitHub Pages.
 
 Install the project and documentation dependencies from the repository root:
 
@@ -26,4 +28,16 @@ The generated site will be available at:
 
 ```text
 docs/build/html/index.html
+```
+
+The online documentation is published at:
+
+```text
+https://matteogiorgi.github.io/nn-option-pricing
+```
+
+The GitHub Pages deployment workflow is stored in:
+
+```text
+.github/workflows/docs.yml
 ```

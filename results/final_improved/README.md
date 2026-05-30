@@ -1,15 +1,15 @@
-# Improved Final Candidate Results
+# Improved Final Configuration Results
 
-This directory contains selected artifacts from the improved final candidate
-run. The run uses the strongest configuration identified by the intermediate
-experiments:
+This directory contains selected artifacts from the improved final run. The run
+uses the strongest configuration identified by the intermediate experiments:
 
 - feature set: `with_moneyness`;
 - activation function: `silu`.
 
-The previous final experiment remains available in `results/final/`. This
-directory is kept separate so that the improved configuration can be reviewed
-before deciding whether to promote it as the official final run.
+The same selected artifacts have also been promoted to `results/final/`, which
+is the canonical directory used by the report. This directory is kept as the
+historical improved-run location because the command below writes reproducible
+artifacts to `data/final_improved/` and `outputs/final_improved/`.
 
 ## Command
 
@@ -52,15 +52,15 @@ a deterministic subset of 512 test options.
 }
 ```
 
-## Comparison With Previous Final Run
+## Comparison With Earlier Final Run
 
-| Metric | Previous final | Improved candidate | Relative reduction |
+| Metric | Earlier final | Selected final | Relative reduction |
 |---|---:|---:|---:|
 | MAE | 0.0619787835 | 0.0428955592 | 30.7899% |
 | RMSE | 0.0821850306 | 0.0620807954 | 24.4622% |
 | MAPE, price > 1 | 0.6746048331% | 0.4802504182% | 28.8101% |
 
-The improved candidate is better than the previous final neural network on all
+The selected final run is better than the earlier final neural network on all
 reported neural-network error metrics.
 
 ## Interpretation
@@ -69,9 +69,8 @@ The result supports the intermediate experimental findings: adding moneyness as
 an engineered feature and using the SiLU activation improves the neural network
 surrogate in this controlled Black-Scholes setting.
 
-This candidate is a strong choice for the final reported model. If it is
-promoted, the report and presentation should make clear that the improvement
-comes from two controlled changes:
+This run is the selected final reported model. The improvement comes from two
+controlled changes:
 
 1. exposing `s0 / k` as an additional input feature;
 2. replacing ReLU with the smoother SiLU activation.

@@ -54,7 +54,7 @@ However, the best MAPE on prices greater than 1 is still obtained by
 has lower average absolute and squared errors overall, but does not uniformly
 dominate every metric.
 
-The combined configuration is therefore a strong candidate for a final
-large-scale run, but it should be presented carefully: it improves the main
-absolute-error metrics in this intermediate setup, while the percentage-error
-metric is slightly better for `base + silu`.
+The combined configuration was therefore selected for the final large-scale
+run. It should still be presented carefully: it improves the main absolute-error
+metrics in this intermediate setup, while the percentage-error metric is
+slightly better for `base + silu`.

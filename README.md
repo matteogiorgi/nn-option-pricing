@@ -2,51 +2,50 @@
 
 Project for the Machine Learning for Finance course.
 
-The goal is to test whether a feed-forward neural network can accurately
-approximate the Black-Scholes pricing function for European call options.
+The project studies whether a feed-forward neural network can accurately
+approximate the Black-Scholes pricing function for European call options. The
+neural network is trained on synthetic Black-Scholes data and evaluated against
+the analytical Black-Scholes formula, with Monte Carlo simulation, runtime
+benchmarks, Support Vector Regression, and noisy-target experiments used as
+additional points of comparison.
 
-## Core Question
+## Research Question
 
 Can a feed-forward neural network approximate the Black-Scholes European call
-pricing function with high accuracy, and how does it compare with analytical
-Black-Scholes prices and Monte Carlo estimates?
+pricing function with high accuracy, and can it act as a fast pricing surrogate
+after training?
 
-## Project Structure
+The project is deliberately not a trading or market-price prediction system.
+It is a controlled supervised-learning experiment where the target function is
+known exactly.
+
+## Repository Structure
 
 ```text
 .
-├── docs/
-│   └── source/
-├── presentation/
-│   ├── main.pdf
-│   └── main.tex
-├── report/
-│   ├── main.pdf
-│   ├── main.tex
-│   └── sections/
-├── results/
-│   └── final/
-├── scripts/
-│   └── run_experiment.py
-├── src/
-│   └── nn_option_pricing/
-├── tests/
-├── ISTRUZIONI.md
-├── README.md
+├── data/                       # generated or selected datasets
+├── docs/                       # Sphinx documentation sources
+├── presentation/               # Beamer presentation
+├── report/                     # LaTeX report
+├── results/                    # tracked experiment summaries and figures
+│   ├── experiments/            # additional benchmark and robustness results
+│   └── final/                  # selected final experiment artifacts
+├── scripts/                    # command-line experiment entry points
+├── src/nn_option_pricing/      # reusable Python package
+├── tests/                      # automated test suite
 ├── pyproject.toml
 ├── requirements-docs.txt
 └── requirements.txt
 ```
 
-Generated experiment artifacts are written to `data/` and `outputs/`.
-These directories are ignored by Git because they can be reproduced from the
-code and configuration. The report and presentation PDFs are tracked because
-they are final project deliverables. Selected final metrics and figures are
-tracked in `results/final/`.
+Large reproducible run artifacts are written to `data/` and `outputs/`.
+Generated outputs are ignored by Git unless they are selected final results or
+small experiment summaries needed by the report. The report and presentation
+PDFs are tracked because they are project deliverables.
 
 ## Quick Start
 
-Install dependencies:
+Create a virtual environment and install the package:
 
 ```bash
 python -m venv .venv
@@ -55,30 +54,10 @@ pip install -r requirements.txt
 pip install -e . --no-build-isolation
 ```
 
-Run the complete experiment:
+Run the default experiment:
 
 ```bash
 python scripts/run_experiment.py
-```
-
-Use `--data-dir` and `--output-dir` to keep different runs separate:
-
-```bash
-python scripts/run_experiment.py \
-  --data-dir data/intermediate \
-  --output-dir outputs/intermediate
-```
-
-The baseline uses the primitive Black-Scholes inputs
-`(s0, k, t, r, sigma)` and ReLU activations. Experimental variants can be
-selected from the command line:
-
-```bash
-python scripts/run_experiment.py \
-  --feature-set with_moneyness \
-  --activation silu \
-  --data-dir data/experiments/moneyness_silu \
-  --output-dir outputs/experiments/moneyness_silu
 ```
 
 For a fast smoke test:
@@ -92,24 +71,44 @@ python scripts/run_experiment.py \
   --mc-evaluation-samples 128
 ```
 
+The selected final configuration uses moneyness as an engineered feature and
+SiLU hidden activations:
+
+```bash
+python scripts/run_experiment.py \
+  --n-samples 100000 \
+  --max-epochs 200 \
+  --batch-size 1024 \
+  --mc-n-paths 50000 \
+  --mc-evaluation-samples 512 \
+  --feature-set with_moneyness \
+  --activation silu \
+  --seed 42 \
+  --data-dir data/final_improved \
+  --output-dir outputs/final_improved
+```
+
 The run generates:
 
-- synthetic option data in `data/`;
-- trained model checkpoint in `outputs/`;
-- experiment configuration snapshot in `outputs/experiment_config.json`;
-- metrics in `outputs/metrics/`;
-- figures in `outputs/figures/`.
+- synthetic option data;
+- trained model checkpoint;
+- input and target scalers;
+- experiment configuration snapshot;
+- metrics in JSON format;
+- diagnostic figures.
 
-Benchmark pricing runtimes:
+## Additional Experiments
+
+Runtime benchmark:
 
 ```bash
 python scripts/benchmark_runtime.py \
   --feature-set with_moneyness \
   --activation silu \
-  --output-dir outputs/runtime_benchmark
+  --output-dir results/experiments/runtime_benchmark
 ```
 
-Run the reduced-scale Support Vector Regression baseline:
+Reduced-scale Support Vector Regression baseline:
 
 ```bash
 python scripts/run_svr_benchmark.py \
@@ -119,7 +118,7 @@ python scripts/run_svr_benchmark.py \
   --output-dir results/experiments/svr_benchmark
 ```
 
-Run the noisy-target robustness experiment:
+Noisy-target neural-network robustness experiment:
 
 ```bash
 python scripts/run_noisy_targets_experiment.py \
@@ -131,7 +130,7 @@ python scripts/run_noisy_targets_experiment.py \
   --results-dir results/experiments/noisy_targets
 ```
 
-Run the noisy-target SVR baseline:
+Noisy-target SVR benchmark:
 
 ```bash
 python scripts/run_noisy_svr_benchmark.py \
@@ -141,6 +140,8 @@ python scripts/run_noisy_svr_benchmark.py \
   --feature-set with_moneyness \
   --output-dir results/experiments/noisy_svr_benchmark
 ```
+
+Tracked summaries of these experiments are stored in `results/experiments/`.
 
 ## Testing
 
@@ -156,35 +157,37 @@ benchmarking, and small end-to-end smoke tests.
 
 ## Documentation
 
-Build the Sphinx documentation:
+Build the Sphinx documentation locally:
 
 ```bash
 pip install -r requirements-docs.txt
 sphinx-build -b html docs/source docs/build/html
 ```
 
-For a clean environment, install the runtime requirements and the local package
-before building the API documentation:
+Strict build, treating warnings as errors:
 
 ```bash
-pip install -r requirements.txt
-pip install -r requirements-docs.txt
-pip install -e . --no-build-isolation
+sphinx-build -W -b html docs/source docs/build/html
 ```
 
-Open `docs/build/html/index.html` in a browser to read the generated
-documentation.
+The generated local entry point is `docs/build/html/index.html`.
+
+The documentation is also published through GitHub Pages:
+
+```text
+https://matteogiorgi.github.io/nn-option-pricing
+```
 
 ## Report and Presentation
 
-The technical report is written in LaTeX:
+Build the technical report:
 
 ```bash
 cd report
 latexmk -xelatex main.tex
 ```
 
-The oral presentation is written with Beamer:
+Build the Beamer presentation:
 
 ```bash
 cd presentation
@@ -193,28 +196,32 @@ latexmk -xelatex main.tex
 
 Both documents use XeLaTeX.
 
+## Final Status
 
+The codebase implements the complete experimental pipeline:
 
-## Project Status and Future Work
+- synthetic Black-Scholes dataset generation;
+- analytical Black-Scholes pricing;
+- batched Monte Carlo benchmark;
+- feed-forward neural-network training with scaling and early stopping;
+- feature-set and activation-function comparisons;
+- runtime benchmark;
+- reduced-scale SVR baseline;
+- noisy-target robustness experiments for both NN and SVR;
+- tests, Sphinx documentation, LaTeX report, and Beamer slides.
 
-The core experimental extensions have been implemented:
+The selected final neural-network configuration is:
 
-- moneyness can be included as an engineered feature with
-  `--feature-set with_moneyness`;
-- hidden-layer activations can be selected with `--activation`;
-- runtime benchmarking is available through `scripts/benchmark_runtime.py`.
-- a reduced-scale Support Vector Regression baseline is available through
-  `scripts/run_svr_benchmark.py`.
-- a controlled noisy-target robustness experiment is available through
-  `scripts/run_noisy_targets_experiment.py`.
-- a reduced-scale noisy-target SVR benchmark is available through
-  `scripts/run_noisy_svr_benchmark.py`.
+```text
+feature set: with_moneyness
+activation: silu
+```
 
-The final selected configuration uses `with_moneyness + silu`. Final metrics,
-figures, and configuration snapshots are tracked in `results/final/`.
+Selected final metrics, figures, and configuration snapshots are tracked in
+`results/final/`.
 
-Possible future extensions:
-
-- explore pseudo-real or exchange-traded option data, making clear that this
-  changes the research question from Black-Scholes approximation to market-price
-  modeling.
+Possible future extensions include Greeks estimation, more detailed
+regime-based error analysis, stochastic-volatility models, path-dependent
+options, American options, and real exchange-traded option data. The last
+extension would change the research question from Black-Scholes function
+approximation to market-price modeling.

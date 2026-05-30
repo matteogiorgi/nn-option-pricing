@@ -6,8 +6,8 @@ This benchmark compares pricing runtimes for:
 - neural network inference;
 - Monte Carlo pricing.
 
-The benchmark uses the strongest intermediate neural configuration identified
-so far: `with_moneyness + silu`.
+The benchmark uses the selected final neural configuration:
+`with_moneyness + silu`.
 
 ## Configuration
 
@@ -70,7 +70,7 @@ paths.
 
 This supports the interpretation of the neural network as a fast pricing
 surrogate. The trade-off is the initial training cost, which was about 359
-seconds for this intermediate configuration.
+seconds for this benchmark configuration.
 
 The benchmark should be interpreted as hardware- and configuration-dependent:
 absolute runtimes may change across machines, but the separation between

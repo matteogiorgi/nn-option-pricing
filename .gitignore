@@ -26,6 +26,10 @@ dist/
 .env
 .env.*
 
+# Local project notes
+ISTRUZIONI.md
+notes/
+
 # Generated experiment data and artifacts
 data/*
 !data/code_structure_overview.md

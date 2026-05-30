@@ -86,7 +86,7 @@ Test suite:
 Result:
 
 ```text
-18 passed
+24 passed
 ```
 
 Documentation build:

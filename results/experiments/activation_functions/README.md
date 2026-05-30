@@ -87,6 +87,5 @@ represent the target function more naturally than piecewise-linear ReLU under
 this configuration.
 
 The conclusion should remain cautious: this is an intermediate 50,000-sample
-experiment. Before changing the final model choice in the report, the best
-candidate activation should be confirmed with the final training configuration
-and, ideally, together with the selected feature set.
+experiment, not the final 100,000-sample run. Its role is to motivate the
+selection of SiLU for the final neural-network configuration.
