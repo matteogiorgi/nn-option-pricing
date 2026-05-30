@@ -7,14 +7,37 @@ For European options, the Black-Scholes model provides a closed-form price under
 The availability of an analytical solution makes Black-Scholes an ideal controlled environment for evaluating numerical methods and machine learning models.
 
 At the same time, many relevant pricing problems do not admit simple closed-form solutions.
-In such cases, classical numerical methods such as Monte Carlo simulation can become computationally expensive, especially when prices must be evaluated repeatedly across many contracts or parameter configurations.
-This motivates the study of neural networks as pricing surrogate models: after training, a neural network can approximate a pricing map through fast inference.
+In such cases, classical numerical methods such as Monte Carlo simulation are flexible but can become computationally expensive, especially when prices must be evaluated repeatedly across many contracts, parameter configurations, or risk scenarios \cite{glasserman2004monte}.
+This motivates the study of neural networks as pricing surrogate models.
+The idea is not to replace the mathematical pricing model itself, but to learn a fast approximation of its input-output map.
+After training, a neural network can produce prices through a single forward pass, which is typically much faster than running a new Monte Carlo simulation for each option.
 
 \section{Project Goal}
 
 The goal of this project is to study whether a feed-forward neural network can approximate the Black-Scholes pricing function for European call options.
 The project is not intended to build a trading system or to predict real market prices.
 Instead, it focuses on a mathematically controlled supervised learning problem where the target function is known exactly.
+This controlled setting is important because it allows the approximation error of the neural network to be measured directly against the analytical Black-Scholes price.
+
+Table~\ref{tab:project-scope} summarizes the scope of the project.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lll}
+        \toprule
+        Aspect & Included in the project & Not included in the project \\
+        \midrule
+        Option type & European call options & American or exotic options \\
+        Data source & Synthetic Black-Scholes data & Exchange-traded market option data \\
+        Target value & Analytical Black-Scholes price & Observed market transaction price \\
+        Main model & Feed-forward neural network & Trading or forecasting system \\
+        Benchmarks & Black-Scholes, Monte Carlo, SVR & Production pricing engine \\
+        Main objective & Pricing-function approximation & Market-price prediction \\
+        \bottomrule
+    \end{tabular}
+    \caption{Scope of the project.}
+    \label{tab:project-scope}
+\end{table}
 
 \section{Research Question}
 
@@ -23,6 +46,10 @@ The main research question is:
 \begin{quote}
     Can a feed-forward neural network accurately approximate the Black-Scholes pricing function for European call options?
 \end{quote}
+
+The purpose of the experiment is therefore not to outperform the analytical Black-Scholes formula.
+Since the formula is available in closed form, it remains the exact reference within the model assumptions.
+The relevant question is whether a neural network can learn the same pricing function with high accuracy and then act as a fast surrogate model at inference time.
 
 The project compares three main pricing approaches:
 \begin{itemize}
@@ -47,6 +74,8 @@ The main contributions of the project are:
     \item robustness experiments with controlled noisy Black-Scholes targets;
     \item modular Python implementation with tests, documentation, and reproducible experiment artifacts.
 \end{itemize}
+
+Overall, the project combines a classical financial model, a numerical benchmark, and supervised machine learning within a single reproducible experimental pipeline.
 
 \section{Report Structure}
 

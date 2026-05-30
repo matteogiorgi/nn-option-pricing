@@ -22,3 +22,10 @@ must be compiled with XeLaTeX rather than pdfLaTeX.
 Final figures are loaded from `../results/final/figures/`.
 If the final results have not been generated yet, the PDF remains compilable and
 shows placeholders instead of figures.
+
+Report-specific comparison figures are stored in `figures/` and can be
+regenerated from saved JSON results from the repository root with:
+
+```bash
+.venv/bin/python scripts/generate_report_figures.py
+```

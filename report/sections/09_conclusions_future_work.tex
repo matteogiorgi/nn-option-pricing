@@ -1,45 +1,217 @@
 \chapter{Conclusions and Future Work}
 
-\section{Conclusions}
+\section{Final Answer to the Project Question}
 
-The final experiment confirms that a feed-forward neural network can approximate the Black-Scholes pricing function for European call options with high accuracy in a controlled synthetic environment.
-With 100,000 synthetic contracts, the network achieves an MAE of 0.04290, an RMSE of 0.06208, and an $R^2$ of 0.999993 on the held-out test set.
-These results answer the research question positively within the assumptions and parameter ranges considered in the project.
+The project started from a precise research question:
 
-The comparison with Monte Carlo clarifies the role of the neural network.
-Monte Carlo is a classical numerical estimator and remains useful as a benchmark, while the trained neural network acts as a deterministic pricing surrogate.
-The runtime benchmark further supports the surrogate interpretation: after training, neural inference is substantially faster than Monte Carlo simulation for repeated pricing queries.
+\begin{quote}
+    Can a feed-forward neural network accurately approximate the Black-Scholes pricing function for European call options?
+\end{quote}
 
-The additional SVR experiment provides a classical machine learning reference point on reduced datasets.
-The noisy-target experiments show that both the neural network and the SVR baseline remain accurate under controlled label perturbations, although approximation quality decreases as the noise level increases.
+The answer is positive within the controlled setting studied in the report.
+The final model learns the map
+
+\begin{equation}
+    (S_0, K, T, r, \sigma, S_0/K)
+    \mapsto
+    C_{BS}
+\end{equation}
+
+with high accuracy on held-out synthetic observations.
+Using 100,000 synthetic contracts, the final neural network achieves:
+
+\begin{equation}
+    \mathrm{MAE}=0.04290,
+    \qquad
+    \mathrm{RMSE}=0.06208,
+    \qquad
+    R^2=0.999993.
+\end{equation}
+
+These values show that the neural network reproduces the analytical Black-Scholes price very closely over the sampled parameter domain.
+The result is also supported visually by the true-vs-predicted plot and by the error diagnostics discussed in Chapter~7.
+
+\begin{quote}
+    The project demonstrates that a supervised feed-forward neural network can act as an accurate pricing surrogate for the Black-Scholes pricing function in a controlled synthetic setting.
+\end{quote}
+
+This conclusion is intentionally limited to the scope of the experiment.
+The model is not claimed to price real exchange-traded options, and it is not presented as a replacement for the closed-form Black-Scholes formula.
+Instead, the contribution is to show how a neural network can learn a known pricing map and provide fast inference once trained.
+
+\section{Main Findings}
+
+The main findings can be summarized in Table~\ref{tab:final-findings}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{
+        >{\raggedright\arraybackslash}p{0.31\linewidth}
+        >{\raggedright\arraybackslash}p{0.31\linewidth}
+        >{\raggedright\arraybackslash}p{0.28\linewidth}
+    }
+        \toprule
+        Finding & Evidence & Interpretation \\
+        \midrule
+        The neural network approximates Black-Scholes accurately
+        & Low MAE and RMSE, $R^2$ close to one
+        & The MLP learns the pricing map on the sampled domain \\
+        Moneyness and SiLU improve the final model
+        & Intermediate experiments and improved final run
+        & Financial feature engineering and smooth activations help regression \\
+        Neural inference is faster than Monte Carlo after training
+        & Runtime benchmark on 1,000 pricing queries
+        & The trained model is useful as a repeated-evaluation surrogate \\
+        Noisy labels reduce accuracy but do not destroy the approximation
+        & Controlled noisy-target experiments
+        & The model shows moderate robustness, within a synthetic noise setup \\
+        SVR is a useful classical reference
+        & Reduced-scale SVR benchmark
+        & Classical ML performs well, but is not the scalable main pipeline \\
+        \bottomrule
+    \end{tabular}
+    \caption{Summary of the main project findings.}
+    \label{tab:final-findings}
+\end{table}
+
+The first finding is the core result of the project.
+It answers the research question directly.
+The remaining findings explain why the final model was selected, how it compares with classical methods, and how robust the approach is when the training labels are perturbed.
+
+\section{Role of the Neural Network}
+
+The neural network has a specific role in the project.
+It is not the source of the theoretical price.
+The theoretical price is still given by the Black-Scholes formula:
+
+\begin{equation}
+    C_{BS}
+    =
+    S_0 N(d_1)
+    -
+    K e^{-rT} N(d_2).
+\end{equation}
+
+The neural network is instead a learned approximation:
+
+\begin{equation}
+    \hat{C}_{NN}
+    =
+    f_\theta(x).
+\end{equation}
+
+This distinction matters.
+When the analytical formula is available, Black-Scholes remains exact and faster.
+The neural network becomes interesting as a surrogate-model prototype: it shows how a learned model can approximate a pricing map and then produce repeated predictions through fast inference.
+
+The Monte Carlo comparison clarifies this role.
+Monte Carlo remains a flexible numerical method, especially in settings where closed-form solutions are unavailable.
+However, it requires repeated sampling.
+The neural network requires training first, but after training it produces deterministic predictions without simulating paths.
 
 \section{Limitations}
 
-The main limitations are:
+The main limitations of the project are not accidental weaknesses.
+They define the boundary of the research question.
 
 \begin{itemize}
-    \item the data are synthetic and generated under Black-Scholes assumptions;
-    \item only European call options are considered;
-    \item the target pricing function is known analytically;
-    \item noisy targets are controlled perturbations and should not be interpreted as real market prices;
-    \item generalization outside the sampled parameter ranges is not guaranteed.
+    \item The dataset is synthetic and generated under Black-Scholes assumptions.
+    \item Only European call options are considered.
+    \item The target pricing function is known analytically.
+    \item The input domain is bounded by the sampled parameter ranges.
+    \item No-arbitrage constraints beyond non-negativity are not explicitly enforced.
+    \item Noisy targets are controlled perturbations and should not be interpreted as real market prices.
+    \item Real exchange-traded option data are not used, because that would change the research question from function approximation to market-price modeling.
 \end{itemize}
 
-These limitations are not flaws in the experiment, but boundaries of the research question.
-The project deliberately studies a controlled approximation problem before moving to more complex financial settings.
+The most important limitation is the synthetic setting.
+This project answers a clean mathematical question:
 
-\section{Future Extensions}
+\begin{equation}
+    \text{Can a neural network approximate } C_{BS}?
+\end{equation}
 
-Natural future extensions include:
+It does not answer the different empirical-market question:
 
-\begin{itemize}
-    \item compare additional neural network architectures beyond the selected MLP;
-    \item tune and evaluate further classical machine learning baselines on controlled reduced datasets;
-    \item study the error in specific regions of the parameter space, for instance deep in-the-money or out-of-the-money options;
-    \item extend the framework to stochastic volatility models such as Heston;
-    \item price more complex derivatives such as basket options or American options;
-    \item estimate Greeks using either automatic differentiation or finite differences;
-    \item investigate real or pseudo-real option data while explicitly changing the research question to market-price modeling.
-\end{itemize}
+\begin{equation}
+    \text{Can a neural network explain observed option market prices?}
+\end{equation}
 
-These extensions would generalize the approach beyond the Black-Scholes benchmark while preserving the experimental discipline developed in the current project.
+The second question would require additional variables, careful data cleaning, treatment of bid-ask spreads, dividends, liquidity effects, and implied-volatility structure.
+For this reason, keeping the current project synthetic is methodologically consistent.
+
+\section{Future Work}
+
+Several extensions are possible.
+They can be grouped according to how much they change the current research question.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{
+        >{\raggedright\arraybackslash}p{0.30\linewidth}
+        >{\raggedright\arraybackslash}p{0.27\linewidth}
+        >{\raggedright\arraybackslash}p{0.33\linewidth}
+    }
+        \toprule
+        Extension & Expected difficulty & Effect on the research question \\
+        \midrule
+        Additional neural architectures
+        & moderate
+        & keeps the same Black-Scholes approximation task \\
+        More detailed error analysis by regime
+        & low to moderate
+        & strengthens the current evaluation \\
+        Greeks estimation
+        & moderate
+        & extends the surrogate from prices to sensitivities \\
+        Heston or stochastic-volatility models
+        & high
+        & changes the underlying pricing model \\
+        Basket or path-dependent options
+        & high
+        & increases dimensionality and computational relevance \\
+        American options
+        & high
+        & introduces early-exercise features and a different pricing problem \\
+        Real exchange-traded option data
+        & high
+        & changes the question to market-price modeling \\
+        \bottomrule
+    \end{tabular}
+    \caption{Possible future extensions and their impact on the project scope.}
+    \label{tab:future-work}
+\end{table}
+
+The most natural first extension would be a more detailed regime-based error analysis.
+For example, one could separately study deep out-of-the-money, at-the-money, and deep in-the-money contracts.
+This would keep the current research question unchanged while improving the understanding of where the neural surrogate is most reliable.
+
+A second extension would be Greeks estimation.
+Since the neural network is differentiable, sensitivities could be estimated by automatic differentiation:
+
+\begin{equation}
+    \Delta_{NN}
+    =
+    \frac{\partial f_\theta}{\partial S_0},
+    \qquad
+    \mathcal{V}_{NN}
+    =
+    \frac{\partial f_\theta}{\partial \sigma}.
+\end{equation}
+
+These quantities could then be compared with analytical Black-Scholes Greeks.
+This would be a natural continuation because option pricing is often used together with risk sensitivities.
+
+More ambitious extensions include stochastic volatility, basket options, American options, and real market data.
+These are valuable directions, but they would move beyond the initial purpose of this project.
+They should therefore be treated as new research questions rather than small modifications of the current experiment.
+
+\section{Final Remarks}
+
+The project combines stochastic modeling, option pricing, Monte Carlo simulation, supervised learning, and reproducible software engineering.
+The final result is a complete experimental pipeline: synthetic data generation, analytical pricing, Monte Carlo benchmarking, neural-network training, SVR comparison, noisy-target robustness, runtime analysis, plots, tests, documentation, and a LaTeX report.
+
+The main lesson is that neural networks can be useful in quantitative finance when their role is clearly defined.
+In this project, the neural network is not a black-box trading model.
+It is a controlled function approximator trained to reproduce a known pricing rule.
+This makes the experiment mathematically interpretable, computationally reproducible, and suitable as a foundation for more complex pricing problems.

@@ -3,31 +3,72 @@
 \section{European Call Options}
 
 A European call option gives its holder the right, but not the obligation, to buy an underlying asset at a fixed strike price $K$ at maturity $T$.
-If the terminal asset price is $S_T$, the payoff is:
+The term European means that the option can be exercised only at maturity, not before.
+If the terminal asset price is $S_T$, the payoff of a European call is:
 
 \begin{equation}
-    \max(S_T - K, 0).
+    \Phi(S_T) = \max(S_T - K, 0) = (S_T - K)^+.
 \end{equation}
 
+The payoff is positive only when the option finishes in the money, namely when $S_T > K$.
+If $S_T \leq K$, exercising the option would not be convenient and the payoff is zero.
 The option value depends on the current asset price, the strike price, time to maturity, the risk-free rate, and the volatility of the underlying asset.
-General arbitrage-pricing principles for derivative securities can be introduced in discrete-time models before moving to continuous-time diffusion models \cite{shreve2004stochastic1,pascucci2009finanza}.
+General arbitrage-pricing principles for derivative securities can be introduced in discrete-time models before moving to continuous-time diffusion models \cite{shreve2004stochastic1,pascucci2012financial}.
 In this project, only European call options are considered.
+
+Table~\ref{tab:financial-notation} summarizes the main notation used throughout the report.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ll}
+        \toprule
+        Symbol & Meaning \\
+        \midrule
+        $S_0$ & initial price of the underlying asset \\
+        $S_t$ & price of the underlying asset at time $t$ \\
+        $K$ & strike price of the option \\
+        $T$ & time to maturity, expressed in years \\
+        $r$ & continuously compounded risk-free interest rate \\
+        $\sigma$ & volatility of the underlying asset \\
+        $W_t$ & standard Brownian motion \\
+        $\mathbb{Q}$ & risk-neutral probability measure \\
+        $\Phi(S_T)$ & payoff of the option at maturity \\
+        $C_{BS}$ & analytical Black-Scholes call price \\
+        $\hat{C}_{MC}$ & Monte Carlo estimate of the call price \\
+        \bottomrule
+    \end{tabular}
+    \caption{Main financial notation used in the report.}
+    \label{tab:financial-notation}
+\end{table}
 
 \section{Stochastic Differential Equations}
 
 Continuous-time asset price models are often described by stochastic differential equations.
 An SDE combines a deterministic drift component with a random diffusion component driven by Brownian motion.
 This framework is standard in financial modeling because asset prices evolve continuously but are subject to uncertainty \cite{shreve2004stochastic}.
+In general form, an Itô diffusion can be written as:
+
+\begin{equation}
+    dX_t = \mu(t, X_t)\,dt + \eta(t, X_t)\,dW_t,
+\end{equation}
+
+where $\mu$ is the drift coefficient, $\eta$ is the diffusion coefficient, and $W_t$ is a Brownian motion.
+The term $\mu(t, X_t)\,dt$ describes the deterministic infinitesimal trend of the process, while $\eta(t, X_t)\,dW_t$ describes the random infinitesimal shock.
+In financial models, this decomposition is useful because asset prices display both systematic growth components and random fluctuations.
 
 \section{Geometric Brownian Motion}
 
-In the Black-Scholes model, the underlying asset follows a geometric Brownian motion under the risk-neutral measure:
+In the Black-Scholes model, the underlying asset follows a geometric Brownian motion.
+Under the risk-neutral measure $\mathbb{Q}$, the discounted asset price is a martingale; equivalently, the asset drift in the pricing dynamics is the risk-free rate $r$.
+The dynamics used for pricing are:
 
 \begin{equation}
     dS_t = r S_t dt + \sigma S_t dW_t,
 \end{equation}
 
 where $S_t$ is the asset price at time $t$, $r$ is the risk-free interest rate, $\sigma$ is the constant volatility, and $W_t$ is a standard Brownian motion.
+The multiplicative structure of the SDE means that both the drift and the volatility scale with the current asset price.
+As a consequence, if $S_0 > 0$, the asset price remains positive under the model.
 
 The solution at maturity $T$ is:
 
@@ -36,16 +77,25 @@ The solution at maturity $T$ is:
     \qquad Z \sim \mathcal{N}(0,1).
 \end{equation}
 
+This explicit terminal distribution is important for the implementation.
+It allows Monte Carlo simulation to sample $S_T$ directly, without simulating all intermediate time steps of the path.
+
 \section{Black-Scholes Model}
 
-The Black-Scholes model assumes frictionless markets, constant volatility, a constant risk-free rate, no arbitrage, and continuous trading.
+The Black-Scholes model assumes frictionless markets, constant volatility, a constant risk-free rate, no arbitrage, and continuous trading \cite{black1973pricing,shreve2004stochastic}.
 Under these assumptions, the price of a European option can be derived from risk-neutral valuation.
+The main idea is that, in an arbitrage-free complete market, the option price is equal to the discounted expected payoff under the risk-neutral measure.
 
 For a European call, the value is the discounted expected payoff:
 
 \begin{equation}
     C = e^{-rT}\mathbb{E}^{\mathbb{Q}}\left[\max(S_T - K, 0)\right].
 \end{equation}
+
+\begin{quote}
+    In this project, Black-Scholes is not treated as an empirical description of all market prices.
+    It is used as a controlled mathematical pricing function that provides exact target values for supervised learning.
+\end{quote}
 
 \section{Black-Scholes Formula}
 
@@ -64,10 +114,18 @@ where $N(\cdot)$ is the cumulative distribution function of a standard normal ra
 
 In this project, $C_{BS}$ is used both as the supervised learning target and as the reference value for evaluation.
 This is what makes the experiment controlled: the true target function is known analytically.
+The neural network is therefore trained to approximate the mapping:
+
+\begin{equation}
+    f_{BS}: (S_0, K, T, r, \sigma) \mapsto C_{BS}.
+\end{equation}
+
+This formulation turns option pricing into a supervised regression problem.
+Each synthetic observation contains a vector of financial parameters as input and the corresponding analytical Black-Scholes price as target.
 
 \section{Monte Carlo Pricing}
 
-Monte Carlo simulation approximates the risk-neutral expectation by generating many realizations of $S_T$:
+Monte Carlo simulation approximates the risk-neutral expectation by generating many realizations of $S_T$ \cite{glasserman2004monte}:
 
 \begin{equation}
     \hat{C}_{MC} =
@@ -77,6 +135,16 @@ Monte Carlo simulation approximates the risk-neutral expectation by generating m
     \max(S_T^{(i)} - K, 0).
 \end{equation}
 
-For sufficiently large $M$, $\hat{C}_{MC}$ converges to $C_{BS}$.
+For sufficiently large $M$, $\hat{C}_{MC}$ converges to $C_{BS}$ by the law of large numbers.
+The statistical error decreases at the standard Monte Carlo rate:
+
+\begin{equation}
+    \operatorname{SE}(\hat{C}_{MC}) =
+    \frac{e^{-rT}}{\sqrt{M}}
+    \operatorname{Std}\left(\max(S_T - K, 0)\right).
+\end{equation}
+
+This $M^{-1/2}$ convergence rate explains why Monte Carlo can become expensive when high accuracy is required.
 In this project, Monte Carlo is used as a numerical benchmark and as a comparison point for the neural network.
 Since the terminal distribution of $S_T$ is known exactly under Black-Scholes, the implementation simulates terminal prices directly rather than discretizing the full path.
+This choice is both mathematically correct under the Black-Scholes assumptions and computationally more efficient than Euler discretization for the same model.

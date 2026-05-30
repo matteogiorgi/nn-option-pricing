@@ -1,31 +1,132 @@
 \chapter{Methodology}
 
+\section{Experimental Pipeline}
+
+The methodology follows a controlled supervised-learning pipeline.
+First, synthetic Black-Scholes contracts are generated.
+Second, analytical Black-Scholes prices are used as reference labels.
+Third, machine-learning models are trained to approximate the pricing map.
+Finally, predictions are evaluated against the analytical reference and compared with Monte Carlo simulation.
+
+The complete experimental logic can be summarized as:
+
+\begin{equation}
+    (S_0, K, T, r, \sigma)
+    \xrightarrow{\text{Black-Scholes}}
+    C_{BS}
+    \xrightarrow{\text{supervised learning}}
+    \hat{C}.
+\end{equation}
+
+The central evaluation question is whether $\hat{C}$ is close to $C_{BS}$ on held-out test observations.
+The test set is never used during training or validation.
+
+\begin{quote}
+    The analytical Black-Scholes formula defines the ground truth.
+    Monte Carlo and machine-learning models are evaluated by how accurately and efficiently they reproduce that reference.
+\end{quote}
+
 \section{Baseline Black-Scholes Pricing}
 
 The analytical Black-Scholes formula is the reference pricing method.
-It is used to generate supervised learning labels and to evaluate prediction errors.
+It has two roles in the methodology:
+
+\begin{itemize}
+    \item it generates the supervised learning labels in the synthetic dataset;
+    \item it provides the exact reference values used to compute prediction errors.
+\end{itemize}
 Because the formula is available in closed form, it provides an exact ground truth for the controlled experiment.
+The baseline price for each option is:
+
+\begin{equation}
+    C_{BS}(S_0, K, T, r, \sigma)
+    =
+    S_0 N(d_1) - K e^{-rT} N(d_2).
+\end{equation}
+
+This reference is not treated as an empirical market price.
+It is a deterministic mathematical target under the assumptions of the Black-Scholes model.
 
 \section{Monte Carlo Benchmark}
 
 Monte Carlo simulation is used as a numerical benchmark.
 For each option, terminal prices are sampled from the exact Black-Scholes terminal distribution and discounted payoffs are averaged.
-The benchmark is evaluated against the same analytical Black-Scholes reference as the neural network.
+For $M$ simulated paths, the estimator is:
+
+\begin{equation}
+    \hat{C}_{MC}
+    =
+    e^{-rT}
+    \frac{1}{M}
+    \sum_{j=1}^{M}
+    (S_T^{(j)} - K)^+.
+\end{equation}
+
+The implementation does not simulate the whole trajectory of the underlying asset.
+Since the option is European and path-independent, it is enough to sample the terminal value:
+
+\begin{equation}
+    S_T^{(j)}
+    =
+    S_0
+    \exp\left[
+        \left(r - \frac{1}{2}\sigma^2\right)T
+        +
+        \sigma \sqrt{T} Z_j
+    \right],
+    \qquad Z_j \sim \mathcal{N}(0,1).
+\end{equation}
 
 The final Monte Carlo benchmark uses 50,000 simulated paths on a deterministic subset of 512 test options.
 The subset restriction keeps the benchmark computationally bounded while still providing a meaningful comparison with a classical simulation-based pricing method.
+The implementation is batched over both options and paths, so memory usage is controlled by the product of option batch size and path batch size.
+
+\begin{projectlistingbox}
+for path_start in range(0, n_paths, path_batch_size):
+    current_paths = min(path_batch_size, n_paths - path_start)
+    z = rng.standard_normal(size=(end - start, current_paths))
+    drift = (r[sl, None] - 0.5 * sigma[sl, None] ** 2) * t[sl, None]
+    diffusion = sigma[sl, None] * np.sqrt(t[sl, None]) * z
+    terminal_price = s0[sl, None] * np.exp(drift + diffusion)
+    payoff_sum += call_payoff(terminal_price, k[sl, None]).sum(axis=1)
+\end{projectlistingbox}
+\projectlistingcaption{Batched exact-terminal Monte Carlo simulation under Black-Scholes dynamics.}
 
 \section{Neural Network Model}
 
-The neural network is a feed-forward MLP for regression.
-The selected final configuration uses:
+The neural network is a feed-forward MLP for scalar regression.
+The selected final configuration uses the engineered feature set with moneyness and SiLU activations.
+Its input-output map is:
 
-\begin{itemize}
-    \item input features $(S_0, K, T, r, \sigma, S_0/K)$;
-    \item hidden layers of widths $64$, $64$, and $32$;
-    \item SiLU activation functions in the hidden layers;
-    \item one scalar output representing the predicted call price.
-\end{itemize}
+\begin{equation}
+    f_\theta(S_0, K, T, r, \sigma, S_0/K)
+    \approx
+    C_{BS}.
+\end{equation}
+
+Table~\ref{tab:nn-methodology-config} reports the main neural-network configuration used in the final experiment.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ll}
+        \toprule
+        Component & Final setting \\
+        \midrule
+        Input features & $(S_0, K, T, r, \sigma, S_0/K)$ \\
+        Hidden layers & $64$, $64$, $32$ \\
+        Hidden activation & SiLU \\
+        Output dimension & one scalar call price \\
+        Loss & mean squared error \\
+        Optimizer & Adam \\
+        Batch size & 1024 \\
+        Maximum epochs & 200 \\
+        Early stopping patience & 20 epochs \\
+        Weight decay & $10^{-6}$ \\
+        \bottomrule
+    \end{tabular}
+    \caption{Final neural-network configuration used in the main experiment.}
+    \label{tab:nn-methodology-config}
+\end{table}
 
 The optimized loss is the mean squared error:
 
@@ -38,26 +139,91 @@ The optimized loss is the mean squared error:
 
 \section{Training Procedure}
 
-Inputs are standardized using \texttt{StandardScaler}.
-The target is also standardized during training to improve numerical stability and convergence.
-Predictions are transformed back to original price units before evaluation.
+Training uses mini-batch gradient-based optimization.
+The procedure contains four important preprocessing and validation choices.
 
-The network is trained with Adam, mini-batches, weight decay, and early stopping based on validation loss.
-The final experiment uses up to 200 epochs and a batch size of 1024.
-After prediction, prices are clipped at zero to avoid financially invalid negative option prices.
+First, input features are standardized using \texttt{StandardScaler}.
+For each feature $j$, the transformed value is:
+
+\begin{equation}
+    x_{ij}^{\mathrm{scaled}}
+    =
+    \frac{x_{ij} - \mu_j}{s_j},
+\end{equation}
+
+where $\mu_j$ and $s_j$ are computed only on the training set.
+The same fitted scaler is then applied to validation and test data.
+
+Second, the target price is also standardized during training.
+This improves the numerical conditioning of MSE optimization because option prices can have a wider scale than the normalized inputs.
+Predictions are transformed back to original price units before metric computation.
+
+Third, early stopping is based on validation loss.
+At each epoch, the model state with the best validation loss is saved.
+If validation loss does not improve for the configured patience window, training stops and the best state is restored.
+
+Fourth, predictions are clipped at zero after inverse target scaling.
+This enforces the financial constraint that European call prices cannot be negative.
+
+\begin{projectlistingbox}
+if val_loss < best_val_loss:
+    best_val_loss = val_loss
+    best_state = {
+        key: value.detach().cpu().clone()
+        for key, value in model.state_dict().items()
+    }
+    epochs_without_improvement = 0
+else:
+    epochs_without_improvement += 1
+
+if epochs_without_improvement >= config.patience:
+    break
+\end{projectlistingbox}
+\projectlistingcaption{Validation-based early stopping used during neural-network training.}
 
 \section{Evaluation Metrics}
 
+All predictive models are evaluated against reference prices on held-out test data.
+Let $y_i$ denote the analytical Black-Scholes price and $\hat{y}_i$ the predicted or simulated price.
 The main metrics are:
 
-\begin{itemize}
-    \item Mean Absolute Error (MAE);
-    \item Root Mean Squared Error (RMSE);
-    \item coefficient of determination $R^2$;
-    \item MAPE computed only on prices greater than 1.
-\end{itemize}
+\begin{align}
+    \mathrm{MAE}
+    &=
+    \frac{1}{n}
+    \sum_{i=1}^{n}
+    |y_i - \hat{y}_i|, \\
+    \mathrm{RMSE}
+    &=
+    \sqrt{
+        \frac{1}{n}
+        \sum_{i=1}^{n}
+        (y_i - \hat{y}_i)^2
+    }, \\
+    R^2
+    &=
+    1
+    -
+    \frac{\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}
+         {\sum_{i=1}^{n}(y_i-\bar{y})^2}.
+\end{align}
 
-The MAPE restriction avoids unstable percentage errors for options whose theoretical price is close to zero.
+The project also reports MAPE, but only for options whose theoretical price is greater than 1:
+
+\begin{equation}
+    \mathrm{MAPE}_{y>1}
+    =
+    \frac{100}{|\mathcal{I}|}
+    \sum_{i \in \mathcal{I}}
+    \left|
+    \frac{y_i-\hat{y}_i}{y_i}
+    \right|,
+    \qquad
+    \mathcal{I} = \{i : |y_i| > 1\}.
+\end{equation}
+
+This restriction avoids unstable percentage errors for options whose theoretical price is close to zero.
+MAE and RMSE are still computed on the full test set.
 
 \section{Runtime Benchmark}
 
@@ -71,6 +237,17 @@ The benchmark compares:
     \item neural network inference after training;
     \item Monte Carlo pricing.
 \end{itemize}
+The reported throughput is computed as:
+
+\begin{equation}
+    \mathrm{throughput}
+    =
+    \frac{\text{number of priced options}}{\text{elapsed seconds}}.
+\end{equation}
+
+The neural-network timing uses a warmup forward pass before repeated inference timings.
+This avoids counting one-off PyTorch setup overhead as part of steady-state inference.
+Monte Carlo timings are repeated fewer times because each run is substantially more expensive.
 
 \section{SVR Baseline}
 
@@ -82,13 +259,37 @@ Both input features and target prices are standardized before fitting.
 Predictions are transformed back to original price units before computing metrics.
 SVR is kept on reduced datasets because kernel methods scale less favorably than neural networks.
 
+The SVR baseline is not intended to replace the neural-network pipeline.
+Its role is to provide a classical nonlinear regression reference, useful for checking whether the neural network performance is competitive with a standard machine-learning model on smaller datasets.
+
 \section{Robustness Experiments with Noisy Targets}
 
 The robustness experiments perturb only the training labels, not the input variables.
 Models are trained on noisy Black-Scholes prices and evaluated against clean analytical Black-Scholes prices.
+This separates label-noise robustness from market-data modeling.
 
 The neural network noisy-target experiment uses 50,000 synthetic contracts per noise level.
 The same noisy-target mechanism is also applied to the reduced-scale SVR baseline, using 5,000 contracts per run and three random seeds.
+
+Table~\ref{tab:methodology-experiments} summarizes the main experimental components.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lll}
+        \toprule
+        Component & Dataset size & Purpose \\
+        \midrule
+        Final neural network & 100,000 & main pricing surrogate \\
+        Monte Carlo benchmark & 512 test options & numerical benchmark \\
+        Runtime benchmark & 1,000 priced options & inference-speed comparison \\
+        SVR benchmark & 5,000 per seed & classical ML baseline \\
+        Noisy-target NN & 50,000 per noise level & label-noise robustness \\
+        Noisy-target SVR & 5,000 per seed & noisy-label classical baseline \\
+        \bottomrule
+    \end{tabular}
+    \caption{Main experimental components and their methodological role.}
+    \label{tab:methodology-experiments}
+\end{table}
 
 These experiments are controlled label-noise tests.
 They should not be interpreted as real market-price modeling, because real exchange-traded options include additional effects such as bid-ask spreads, liquidity, dividends, and implied-volatility structure.

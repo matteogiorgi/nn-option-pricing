@@ -1,8 +1,40 @@
 \chapter{Experimental Results}
 
+\section{Reading Guide}
+
+This chapter reports the empirical results obtained from the experiments described in the previous chapters.
+The main reference target is always the analytical Black-Scholes price $C_{BS}$.
+When a model produces an estimate $\hat{C}$, the reported errors measure the distance between $\hat{C}$ and $C_{BS}$ on held-out observations.
+
+The experiments are organized into four groups:
+
+\begin{itemize}
+    \item the final neural-network experiment, trained on 100,000 synthetic options;
+    \item the Monte Carlo and runtime comparisons, used as quantitative benchmarks;
+    \item intermediate model-selection experiments, used to justify moneyness and SiLU;
+    \item robustness and classical machine-learning checks, based on noisy targets and SVR.
+\end{itemize}
+The different experiments do not all have the same computational scale.
+The final neural network is the main experiment, while SVR benchmarks are intentionally run on reduced datasets because kernel methods scale less favorably with the number of training samples.
+
+\begin{quote}
+    The main empirical conclusion is not that the neural network replaces the analytical Black-Scholes formula.
+    Rather, the experiment shows that a supervised neural network can learn the Black-Scholes pricing map very accurately and can act as a fast pricing surrogate after training.
+\end{quote}
+
 \section{Final Neural Network Performance}
 
-The final neural network results on the held-out test set are reported in Table~\ref{tab:nn-final-metrics}.
+The selected final model uses the engineered moneyness feature and SiLU activations.
+It is trained on 100,000 synthetic contracts generated under the Black-Scholes framework, with a 70\%/15\%/15\% train-validation-test split.
+The final supervised learning map is:
+
+\begin{equation}
+    (S_0, K, T, r, \sigma, S_0/K)
+    \mapsto
+    \hat{C}_{NN}.
+\end{equation}
+
+The results on the held-out test set are reported in Table~\ref{tab:nn-final-metrics}.
 
 \begin{table}[H]
     \centering
@@ -20,8 +52,9 @@ The final neural network results on the held-out test set are reported in Table~
     \label{tab:nn-final-metrics}
 \end{table}
 
-The results show that the feed-forward neural network with moneyness as an engineered feature and SiLU hidden activations approximates the Black-Scholes pricing function with very high accuracy on the sampled parameter domain.
-The coefficient of determination is close to one, while MAE and RMSE are small in absolute price units.
+The error levels are small in absolute price units.
+The coefficient of determination is very close to one, which means that almost all variability in the analytical Black-Scholes prices over the sampled domain is reproduced by the neural network.
+The MAPE value, computed only for options whose theoretical price is greater than 1, confirms that the relative error is also low in economically meaningful price regions.
 
 \begin{figure}[H]
     \centering
@@ -30,8 +63,9 @@ The coefficient of determination is close to one, while MAE and RMSE are small i
     \label{fig:final-loss}
 \end{figure}
 
-Figure~\ref{fig:final-loss} shows that the optimization process remains stable.
-The validation curve follows the training curve closely, suggesting that the model does not simply memorize the training set.
+Figure~\ref{fig:final-loss} shows that the optimization process is stable.
+The validation curve follows the training curve closely, which suggests that the model is not simply memorizing the training set.
+This is important because the goal is to approximate the pricing function on unseen parameter combinations, not only to fit the sampled contracts.
 
 \begin{figure}[H]
     \centering
@@ -40,12 +74,14 @@ The validation curve follows the training curve closely, suggesting that the mod
     \label{fig:final-true-vs-predicted}
 \end{figure}
 
-Figure~\ref{fig:final-true-vs-predicted} confirms that predicted prices are tightly aligned with analytical prices across the observed price range.
+Figure~\ref{fig:final-true-vs-predicted} compares analytical prices with neural-network predictions.
+The points are tightly concentrated around the diagonal identity line, which visually confirms the high $R^2$ reported in Table~\ref{tab:nn-final-metrics}.
 
 \section{Monte Carlo Comparison}
 
-The Monte Carlo benchmark is evaluated against the analytical Black-Scholes price on 512 deterministic test options.
-The results are shown in Table~\ref{tab:mc-final-metrics}.
+Monte Carlo pricing is evaluated against the same analytical Black-Scholes reference, but on a deterministic subset of 512 test options for computational reasons.
+Each option is priced using 50,000 terminal samples.
+The comparison is therefore a numerical benchmark rather than a fully symmetric replacement for the neural-network test-set evaluation.
 
 \begin{table}[H]
     \centering
@@ -63,28 +99,146 @@ The results are shown in Table~\ref{tab:mc-final-metrics}.
     \label{tab:mc-final-metrics}
 \end{table}
 
-The Monte Carlo benchmark also achieves high accuracy, as expected when the number of simulated paths is large.
-However, it remains a simulation-based estimator and therefore has sampling error.
-The neural network, in contrast, produces deterministic forward-pass predictions once trained.
+The Monte Carlo benchmark also reaches high accuracy, as expected with a large number of paths.
+However, Monte Carlo remains a stochastic estimator:
 
-\section{Feature Engineering Results}
+\begin{equation}
+    \hat{C}_{MC}
+    =
+    C_{BS}
+    +
+    \varepsilon_{MC},
+    \qquad
+    \varepsilon_{MC} = O_P(M^{-1/2}),
+\end{equation}
 
-An intermediate experiment compared the baseline feature set with the engineered moneyness feature.
-Adding moneyness reduced MAE from 0.17269 to 0.15417 in the controlled intermediate setting with ReLU activations.
-This suggests that exposing the ratio $S_0/K$ directly can help optimization, even though it does not add information beyond $S_0$ and $K$.
+where $M$ is the number of simulated paths.
+Increasing $M$ reduces sampling error, but also increases runtime.
+By contrast, once trained, the neural network produces deterministic forward-pass predictions.
 
-\section{Activation Function Results}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lrrrr}
+        \toprule
+        Method & MAE & RMSE & $R^2$ & MAPE, prices $> 1$ \\
+        \midrule
+        Neural network & 0.04290 & 0.06208 & 0.999993 & 0.4803\% \\
+        Monte Carlo    & 0.08882 & 0.15790 & 0.999951 & 0.6483\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Summary comparison of the final neural network and Monte Carlo benchmark.}
+    \label{tab:nn-mc-summary}
+\end{table}
 
-Another intermediate experiment compared ReLU, Tanh, and SiLU hidden activations using the same baseline feature set.
-SiLU achieved the lowest MAE and RMSE among the tested activation functions.
-This result is consistent with the smoothness of the Black-Scholes pricing function and motivated the final choice of SiLU.
+Table~\ref{tab:nn-mc-summary} should be interpreted with care because the two methods are evaluated on different test-set sizes.
+Nevertheless, it shows that the neural network surrogate reaches at least the same order of accuracy as the Monte Carlo benchmark in this controlled setting.
+
+\begin{figure}[H]
+    \centering
+    \maybeincludegraphics[width=0.72\linewidth]{figures/nn_vs_monte_carlo_metrics.png}
+    \caption{Final neural-network and Monte Carlo errors against analytical Black-Scholes prices.}
+    \label{fig:nn-vs-mc-metrics}
+\end{figure}
+
+Figure~\ref{fig:nn-vs-mc-metrics} provides a visual summary of the same comparison.
+The neural-network bars are lower for all reported error metrics, while the interpretation remains tied to the different evaluation protocols described above.
+
+\section{Feature Engineering and Activation Function Results}
+
+Before selecting the final configuration, intermediate experiments were used to test two design choices:
+adding the moneyness feature and changing the hidden-layer activation function.
+These experiments use 50,000 synthetic contracts and 100 training epochs.
+
+\subsection{Moneyness Feature}
+
+The moneyness experiment compares the base feature set
+
+\begin{equation}
+    (S_0, K, T, r, \sigma)
+\end{equation}
+
+with the engineered feature set
+
+\begin{equation}
+    (S_0, K, T, r, \sigma, S_0/K).
+\end{equation}
+
+Table~\ref{tab:moneyness-results} reports the results.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lrrrr}
+        \toprule
+        Experiment & MAE & RMSE & $R^2$ & MAPE, prices $> 1$ \\
+        \midrule
+        Base + ReLU             & 0.17269 & 0.22973 & 0.999904 & 1.8687\% \\
+        Moneyness + ReLU        & 0.15417 & 0.20930 & 0.999920 & 1.6670\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Intermediate feature-engineering experiment.}
+    \label{tab:moneyness-results}
+\end{table}
+
+Adding moneyness reduces MAE by approximately 10.7\% in this controlled intermediate setting.
+The feature does not add new theoretical information, because it is computed from $S_0$ and $K$.
+However, it exposes a financially meaningful ratio directly to the model, which can simplify the regression problem.
+
+\subsection{Activation Functions}
+
+The activation-function experiment compares ReLU, Tanh, and SiLU using the same base feature set.
+The results are reported in Table~\ref{tab:activation-results}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lrrrr}
+        \toprule
+        Experiment & MAE & RMSE & $R^2$ & MAPE, prices $> 1$ \\
+        \midrule
+        Base + ReLU & 0.17269 & 0.22973 & 0.999904 & 1.8687\% \\
+        Base + Tanh & 0.11316 & 0.16541 & 0.999950 & 1.2878\% \\
+        Base + SiLU & 0.10775 & 0.15817 & 0.999954 & 1.2488\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Intermediate activation-function experiment.}
+    \label{tab:activation-results}
+\end{table}
+
+Both smooth activations outperform ReLU in this setting, with SiLU giving the lowest MAE and RMSE.
+This is consistent with the target being a smooth analytical pricing function over the sampled parameter domain.
+
+\subsection{Combined Configuration}
+
+The strongest intermediate candidate combines the moneyness feature with SiLU activations.
+Table~\ref{tab:combined-results} summarizes the comparison with the other intermediate configurations.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lrrrr}
+        \toprule
+        Experiment & MAE & RMSE & $R^2$ & MAPE, prices $> 1$ \\
+        \midrule
+        Base + ReLU             & 0.17269 & 0.22973 & 0.999904 & 1.8687\% \\
+        Moneyness + ReLU        & 0.15417 & 0.20930 & 0.999920 & 1.6670\% \\
+        Base + SiLU             & 0.10775 & 0.15817 & 0.999954 & 1.2488\% \\
+        Moneyness + SiLU        & 0.10254 & 0.15169 & 0.999958 & 1.3213\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Combined feature and activation experiment on the intermediate setup.}
+    \label{tab:combined-results}
+\end{table}
+
+The combined configuration gives the best MAE and RMSE among the intermediate experiments.
+It does not dominate every metric: the best MAPE in this table is obtained by Base + SiLU.
+For the final run, the combined configuration was selected because MAE and RMSE are the primary absolute-error metrics in price units.
 
 \section{Runtime Results}
 
-The runtime benchmark separates the initial neural network training cost from pricing time after training.
-Using the improved final configuration, training required approximately 359 seconds in the benchmark environment.
-Once trained, the neural network priced 1,000 options in approximately 0.0319 seconds on average.
-The Monte Carlo benchmark with 20,000 paths required approximately 1.2824 seconds for the same number of options, while the vectorized analytical Black-Scholes formula required approximately 0.00091 seconds.
+The runtime benchmark separates the initial training cost from pricing time after training.
+This distinction matters because a neural network is expensive to train once, but cheap to evaluate many times afterwards.
+
+The benchmark uses the improved neural configuration, 50,000 synthetic training samples, 100 epochs, and 1,000 pricing queries.
+The Monte Carlo benchmark uses 20,000 paths.
+Results are reported in Table~\ref{tab:runtime-benchmark}.
 
 \begin{table}[H]
     \centering
@@ -101,15 +255,26 @@ The Monte Carlo benchmark with 20,000 paths required approximately 1.2824 second
     \label{tab:runtime-benchmark}
 \end{table}
 
-As expected, the analytical Black-Scholes formula is the fastest method when available.
-The relevant surrogate-pricing comparison is therefore between neural network inference and Monte Carlo simulation.
-In this benchmark, neural inference is roughly 40 times faster than Monte Carlo after the model has been trained.
+The analytical formula is the fastest method when it is available.
+The more relevant surrogate-model comparison is therefore between neural-network inference and Monte Carlo simulation.
+In this benchmark, after training, neural inference is approximately 40 times faster than Monte Carlo for the same 1,000 pricing queries.
+The trade-off is the initial training cost, which was approximately 359 seconds in the benchmark environment.
+
+\begin{figure}[H]
+    \centering
+    \maybeincludegraphics[width=0.72\linewidth]{figures/runtime_comparison.png}
+    \caption{Mean pricing time for 1,000 options.}
+    \label{fig:runtime-comparison}
+\end{figure}
+
+Figure~\ref{fig:runtime-comparison} uses a logarithmic vertical axis because the three pricing methods operate on very different time scales.
+This makes the inference-time advantage over Monte Carlo visible without hiding the fact that the analytical Black-Scholes formula remains the fastest method in this specific setting.
 
 \section{SVR Benchmark Results}
 
-The reduced-scale SVR benchmark provides an additional comparison with a classical supervised regression model.
-The experiment was repeated over three random seeds, using 5,000 synthetic contracts per run and the same engineered moneyness feature used by the final neural network.
-Aggregate results are reported in Table~\ref{tab:svr-benchmark}.
+Support Vector Regression provides an additional classical machine-learning baseline.
+The experiment is repeated over three random seeds, using 5,000 synthetic contracts per run and the same engineered moneyness feature used by the final neural network.
+Input features and target prices are standardized before fitting the SVR, and predictions are transformed back to price units before computing metrics.
 
 \begin{table}[H]
     \centering
@@ -129,13 +294,32 @@ Aggregate results are reported in Table~\ref{tab:svr-benchmark}.
     \label{tab:svr-benchmark}
 \end{table}
 
-The SVR baseline also approximates the Black-Scholes pricing function well on reduced datasets.
-This is indicated by its high $R^2$.
+The SVR baseline approximates the Black-Scholes function well on reduced datasets, as shown by its high $R^2$.
 However, its absolute error is higher than that of the final neural network configuration.
+Because the SVR experiment uses smaller datasets, this result should be read as a classical baseline check rather than as a direct large-scale competition.
 
 \section{Noisy Target Robustness Results}
 
-Table~\ref{tab:noisy-targets} reports the robustness experiment in which the neural network is trained on noisy Black-Scholes prices and evaluated against the clean analytical Black-Scholes target.
+The noisy-target experiment tests whether the neural network can still recover the clean analytical pricing function when the training labels are perturbed.
+For each clean price $C_{BS}$, the training target is:
+
+\begin{equation}
+    \tilde{C}
+    =
+    \max\left(
+        C_{BS} + \epsilon,
+        0
+    \right),
+    \qquad
+    \epsilon
+    \sim
+    \mathcal{N}\left(0, \left[\alpha \max(C_{BS}, 1)\right]^2\right),
+\end{equation}
+
+where $\alpha$ is the noise level.
+The model is trained on $\tilde{C}$ but evaluated against the clean $C_{BS}$.
+This keeps the experiment aligned with the original research question while adding controlled label noise.
+The 0\% row in Table~\ref{tab:noisy-targets} is the clean-label control for this robustness setup, not a repetition of the final 100,000-sample experiment.
 
 \begin{table}[H]
     \centering
@@ -152,11 +336,12 @@ Table~\ref{tab:noisy-targets} reports the robustness experiment in which the neu
     \label{tab:noisy-targets}
 \end{table}
 
-The results show the expected degradation as label noise increases.
-Nevertheless, the model remains accurate even under moderate target noise.
+Table~\ref{tab:noisy-targets} shows the expected degradation as label noise increases.
+The model remains accurate under 1\% noise, while 5\% noise produces a clearer increase in both MAE and RMSE.
+This supports a cautious robustness interpretation: the neural network can partially smooth noisy labels, but noisy supervision still reduces approximation quality.
 
-The same noisy-target experiment was also repeated with the reduced-scale SVR baseline.
-Table~\ref{tab:noisy-svr-targets} reports aggregate metrics against clean Black-Scholes prices.
+The same noisy-target experiment is repeated with the reduced-scale SVR baseline.
+Aggregate metrics against clean Black-Scholes prices are reported in Table~\ref{tab:noisy-svr-targets}.
 
 \begin{table}[H]
     \centering
@@ -173,10 +358,25 @@ Table~\ref{tab:noisy-svr-targets} reports aggregate metrics against clean Black-
     \label{tab:noisy-svr-targets}
 \end{table}
 
-SVR remains accurate under mild label noise, but the degradation is stronger at the 5\% noise level.
-Since the SVR benchmark is run on reduced datasets, this comparison is best interpreted as an additional classical robustness reference rather than as a direct replacement for the neural network experiment.
+SVR remains accurate under mild label noise, but it degrades more strongly at the 5\% noise level.
+This comparison is useful because it shows that the noisy-target effect is not specific to the neural-network implementation.
+At the same time, the SVR experiment remains a reduced-scale benchmark and should not be interpreted as a replacement for the final neural-network experiment.
+
+\begin{figure}[H]
+    \centering
+    \maybeincludegraphics[width=0.72\linewidth]{figures/noisy_target_robustness.png}
+    \caption{MAE against clean Black-Scholes prices under increasing label noise.}
+    \label{fig:noisy-target-robustness}
+\end{figure}
+
+Figure~\ref{fig:noisy-target-robustness} highlights the monotone degradation caused by increasing label noise.
+The neural-network curve remains below the SVR curve in this experiment, but the comparison should be interpreted as a robustness reference rather than as a fully symmetric benchmark because the two models are evaluated at different computational scales.
 
 \section{Error Analysis}
+
+Aggregate metrics are necessary but not sufficient.
+Two models with similar MAE may behave differently across moneyness, maturity, or volatility regions.
+For this reason, the final experiment includes diagnostic plots of prediction errors.
 
 \begin{figure}[H]
     \centering
@@ -186,6 +386,7 @@ Since the SVR benchmark is run on reduced datasets, this comparison is best inte
 \end{figure}
 
 The error distribution in Figure~\ref{fig:final-error-distribution} is concentrated near zero, which is consistent with the low MAE and RMSE values reported in Table~\ref{tab:nn-final-metrics}.
+This suggests that the final result is not only an artifact of aggregate averaging, but corresponds to generally small pointwise errors across the test set.
 
 \begin{figure}[H]
     \centering
@@ -208,5 +409,6 @@ The error distribution in Figure~\ref{fig:final-error-distribution} is concentra
     \label{fig:final-error-diagnostics}
 \end{figure}
 
-Figure~\ref{fig:final-error-diagnostics} is used to inspect whether the approximation error changes systematically across the parameter space.
-This is important because aggregate metrics alone may hide localized weaknesses, especially around different moneyness regimes, short maturities, or high-volatility regions.
+Figure~\ref{fig:final-error-diagnostics} checks whether errors are localized in specific regions of the parameter space.
+This diagnostic step is important because a pricing surrogate should not only have good global metrics, but should also behave reliably across financially meaningful regimes.
+The plots therefore complement the numerical metrics and provide a visual check of the approximation quality.

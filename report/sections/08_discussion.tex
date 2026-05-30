@@ -1,48 +1,255 @@
 \chapter{Discussion}
 
-\section{Interpretation of Results}
+\section{Answer to the Research Question}
 
-The final results indicate that the neural network can approximate the Black-Scholes pricing function with high accuracy in the sampled parameter domain.
-This supports the main research question in the controlled synthetic setting considered in the project.
+The research question of the project is whether a feed-forward neural network can approximate the Black-Scholes pricing function for European call options.
+The experimental evidence supports a positive answer within the sampled parameter domain and under the assumptions of the Black-Scholes model.
 
-The comparison with Monte Carlo should be interpreted carefully.
-The neural network is evaluated on the full held-out test set, whereas Monte Carlo is evaluated on a deterministic subset due to computational cost.
-The purpose of the comparison is therefore not to declare a universally superior method, but to clarify the behavior of a learned surrogate relative to a classical simulation-based estimator.
+In mathematical terms, the project studies the approximation problem
 
-\section{When the Neural Network Works Well}
+\begin{equation}
+    f_\theta(x)
+    \approx
+    C_{BS}(x),
+    \qquad
+    x = (S_0, K, T, r, \sigma),
+\end{equation}
 
-The neural network works well when test samples come from the same parameter ranges used during training.
-In this regime, the mapping from option parameters to Black-Scholes prices is smooth and deterministic.
-The engineered moneyness feature and the SiLU activation function further improve the approximation in the experiments.
+or, in the final configuration,
 
-The runtime benchmark also highlights a practical advantage of the surrogate approach.
-After training, neural inference is substantially faster than Monte Carlo simulation for repeated pricing queries in the benchmark setting.
+\begin{equation}
+    f_\theta(S_0, K, T, r, \sigma, S_0/K)
+    \approx
+    C_{BS}(S_0, K, T, r, \sigma).
+\end{equation}
 
-\section{Sources of Error}
+The final test-set results show very low absolute error and an $R^2$ close to one.
+This indicates that, on held-out synthetic contracts sampled from the same distribution as the training data, the trained neural network reproduces the analytical pricing map very accurately.
 
-Prediction errors can arise from finite training data, imperfect optimization, model capacity limits, and numerical scaling choices.
-Errors may also vary across the parameter space.
-For this reason, the project includes diagnostic plots against moneyness, maturity, and volatility.
+\begin{quote}
+    The strongest conclusion of the project is conditional but meaningful:
+    within the Black-Scholes synthetic setting, the neural network is an accurate learned approximation of the analytical pricing function.
+\end{quote}
 
-The noisy-target experiments show another source of error: imperfect labels.
-When training targets are perturbed, the model remains accurate under moderate noise, but approximation quality decreases as the noise level increases.
-This behavior is expected because the model receives less precise supervision.
+This distinction is important.
+The project does not show that a neural network can price arbitrary real market options.
+It shows that, when the target pricing rule is known and deterministic, a supervised neural network can learn that rule with high accuracy and then evaluate it quickly.
+
+\section{What the Results Support}
+
+The results support three main claims.
+Table~\ref{tab:discussion-claims} summarizes each claim together with the corresponding evidence and the required caveat.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{
+        >{\raggedright\arraybackslash}p{0.27\linewidth}
+        >{\raggedright\arraybackslash}p{0.37\linewidth}
+        >{\raggedright\arraybackslash}p{0.26\linewidth}
+    }
+        \toprule
+        Claim & Evidence & Caveat \\
+        \midrule
+        The neural network approximates Black-Scholes accurately
+        & Final MAE, RMSE, $R^2$, true-vs-predicted plot, and error diagnostics
+        & Valid on the sampled parameter domain, not automatically outside it \\
+        Neural inference is useful as a surrogate
+        & Runtime benchmark shows much faster inference than Monte Carlo
+        & Training has an upfront cost and the analytical formula is still faster when available \\
+        Controlled noise degrades performance predictably
+        & Noisy-target experiments show increasing MAE and RMSE with increasing label noise
+        & The noise is synthetic and should not be interpreted as real market microstructure \\
+        \bottomrule
+    \end{tabular}
+    \caption{Interpretation of the main empirical claims.}
+    \label{tab:discussion-claims}
+\end{table}
+
+The first claim is the central one.
+The final model produces predictions that are close to the analytical Black-Scholes prices on the test set.
+This confirms that a relatively small MLP can approximate a smooth financial pricing function when the training data cover the relevant parameter ranges.
+
+The second claim concerns computational role rather than mathematical exactness.
+The neural network is not proposed as a replacement for the closed-form Black-Scholes formula.
+When a closed-form formula exists, it remains exact and extremely fast.
+The more relevant comparison is with simulation-based pricing methods such as Monte Carlo, where repeated evaluation can be more expensive.
+
+The third claim concerns robustness.
+Adding controlled label noise makes the learning problem harder, but the neural network does not collapse under moderate noise.
+This suggests that the model can partially smooth noisy supervision, although the experiment remains deliberately synthetic and controlled.
+
+\section{Role of Monte Carlo}
+
+Monte Carlo simulation plays two roles in the project.
+First, it is a classical quantitative benchmark for option pricing.
+Second, it provides a natural comparison for the surrogate-model idea.
+
+For a European call option under Black-Scholes dynamics, Monte Carlo estimates
+
+\begin{equation}
+    C_{BS}
+    =
+    e^{-rT}
+    \mathbb{E}^{\mathbb{Q}}\left[(S_T-K)^+\right]
+\end{equation}
+
+by the sample average
+
+\begin{equation}
+    \hat{C}_{MC}
+    =
+    e^{-rT}
+    \frac{1}{M}
+    \sum_{j=1}^{M}
+    (S_T^{(j)}-K)^+.
+\end{equation}
+
+Its error decreases at the standard rate $O_P(M^{-1/2})$.
+This convergence rate is robust and model-independent, but it also explains why Monte Carlo can be computationally expensive when many paths or many contracts are required.
+
+The neural network follows a different logic.
+It pays a training cost upfront, then produces prices through a deterministic forward pass:
+
+\begin{equation}
+    \hat{C}_{NN} = f_\theta(x).
+\end{equation}
+
+Therefore, the runtime comparison should be read as a comparison between repeated simulation and learned inference after training.
+It should not be read as evidence that the neural network is better than Black-Scholes itself, because the analytical formula remains the natural method when it is available.
+
+\section{Role of Feature Engineering and Activation Choice}
+
+The intermediate experiments help explain why the final configuration was selected.
+Adding moneyness exposes a financially meaningful ratio:
+
+\begin{equation}
+    m = \frac{S_0}{K}.
+\end{equation}
+
+This ratio does not add new information, since it is computed from $S_0$ and $K$.
+However, it gives the neural network direct access to a quantity that strongly affects the payoff regime of a call option.
+In practical terms, moneyness helps distinguish out-of-the-money, at-the-money, and in-the-money regions.
+
+The activation-function experiment also has a natural interpretation.
+The Black-Scholes price is a smooth function of its inputs over the selected parameter ranges.
+Smooth activations such as Tanh and SiLU can therefore be well suited to this regression task.
+The final choice of SiLU is supported by the intermediate results and by the improved final run.
+
+\section{Error Sources and Diagnostic Plots}
+
+Even in a controlled synthetic setting, the neural network approximation is not exact.
+Errors can arise from several sources:
+
+\begin{itemize}
+    \item finite training data;
+    \item finite model capacity;
+    \item imperfect optimization;
+    \item numerical scaling and inverse-scaling effects;
+    \item local difficulty in specific regions of the input space.
+\end{itemize}
+The diagnostic plots against moneyness, maturity, and volatility are therefore important.
+They check whether the aggregate metrics hide localized weaknesses.
+For example, if errors were systematically larger for short maturities or high volatilities, the global $R^2$ alone would not be sufficient to evaluate the model.
+
+The project also clips negative neural-network predictions to zero after inverse scaling.
+This is financially reasonable because European call prices are non-negative:
+
+\begin{equation}
+    C \geq 0.
+\end{equation}
+
+However, this correction is still a post-processing step.
+It enforces a basic no-negativity constraint, but it does not guarantee all theoretical no-arbitrage properties of option prices, such as monotonicity in $S_0$ or convexity in $S_0$.
+
+\section{Interpretation of Noisy Targets}
+
+The noisy-target experiments should be interpreted carefully.
+The noise model is:
+
+\begin{equation}
+    \tilde{C}
+    =
+    \max(C_{BS}+\epsilon,0),
+    \qquad
+    \epsilon
+    \sim
+    \mathcal{N}\left(0,\left[\alpha \max(C_{BS},1)\right]^2\right).
+\end{equation}
+
+The training target is $\tilde{C}$, while evaluation remains against $C_{BS}$.
+This design answers the following question:
+
+\begin{quote}
+    If the supervised labels are imperfect but still centered around the Black-Scholes price, can the model recover a good approximation of the clean pricing function?
+\end{quote}
+
+The experiments show that performance deteriorates as $\alpha$ increases.
+This is expected: noisy labels reduce the information available to the learner.
+At the same time, moderate noise does not destroy the approximation, which suggests some robustness of the neural-network surrogate.
+
+This experiment should not be confused with real market modeling.
+Real option prices contain bid-ask spreads, liquidity effects, dividend assumptions, early-exercise considerations for some contracts, and implied-volatility structure.
+The controlled noisy-target experiment is therefore a robustness analysis, not a substitute for exchange-traded option data.
 
 \section{Limits of the Synthetic Setting}
 
-The use of synthetic data is appropriate for the research question, because the project aims to approximate the Black-Scholes pricing function itself.
-However, this also limits the scope of the conclusions.
+The use of synthetic data is appropriate for the research question because the target is the Black-Scholes pricing function itself.
+Using real exchange-traded option prices would change the problem.
+The model would no longer learn only the mathematical map $x \mapsto C_{BS}(x)$.
+Instead, it would learn a market-pricing mechanism affected by additional variables that are not present in the current input vector.
 
-Real exchange-traded option prices reflect additional effects such as bid-ask spreads, liquidity, dividends, supply and demand, and implied-volatility structure.
-Training on such data would change the nature of the problem from approximating Black-Scholes to modeling market prices.
-Therefore, the results should not be interpreted as evidence that the model can price real market options.
+This is why the synthetic setting is not a weakness of the project.
+It is a methodological choice that makes the experiment controlled, reproducible, and directly measurable.
+The limitation is that the conclusions remain internal to the Black-Scholes world.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{
+        >{\raggedright\arraybackslash}p{0.32\linewidth}
+        >{\raggedright\arraybackslash}p{0.28\linewidth}
+        >{\raggedright\arraybackslash}p{0.30\linewidth}
+    }
+        \toprule
+        Aspect & Controlled synthetic setting & Real market setting \\
+        \midrule
+        Target & analytical Black-Scholes price & observed market quote \\
+        Ground truth & known exactly & not directly known \\
+        Noise & controlled by design & market microstructure and liquidity \\
+        Evaluation & direct error against $C_{BS}$ & depends on data quality and market assumptions \\
+        Research question & approximation of a known pricing map & modeling market prices \\
+        \bottomrule
+    \end{tabular}
+    \caption{Difference between the project setting and a real-market option-pricing setting.}
+    \label{tab:synthetic-vs-real-discussion}
+\end{table}
 
 \section{Comparison with Classical Methods}
 
-The analytical Black-Scholes formula remains the exact and fastest method in this specific setting.
-Monte Carlo is useful as a numerical benchmark and as a method that generalizes to settings without closed-form solutions.
-SVR provides a classical machine learning baseline on reduced datasets.
+The three main pricing approaches have different roles.
 
-The neural network occupies a different role.
-It is not intended to outperform the closed-form formula when the formula is available.
-Its value lies in demonstrating how a supervised model can learn a known pricing map and act as a fast surrogate after training.
+\begin{itemize}
+    \item Black-Scholes is the analytical reference and ground truth.
+    \item Monte Carlo is a flexible numerical estimator and runtime benchmark.
+    \item The neural network is a learned pricing surrogate after training.
+\end{itemize}
+SVR adds a fourth perspective: a classical machine-learning baseline on reduced datasets.
+It performs well, but its scalability is less favorable than the neural-network approach for larger training sets.
+
+The final interpretation is therefore not a ranking that is valid in every situation.
+It is a role-based comparison:
+
+\begin{align}
+    \text{Black-Scholes}
+    &\rightarrow
+    \text{ground truth}, \\
+    \text{Monte Carlo}
+    &\rightarrow
+    \text{classical numerical benchmark}, \\
+    \text{NN}
+    &\rightarrow
+    \text{fast learned surrogate}.
+\end{align}
+
+This role-based interpretation keeps the conclusion precise.
+The neural network is successful because it approximates the chosen pricing function accurately and evaluates quickly after training.
+It is not presented as universally superior to analytical or numerical methods.

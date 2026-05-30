@@ -1,9 +1,28 @@
 \chapter{Software Implementation}
 
+\section{Implementation Goals}
+
+The project is implemented as a small Python package rather than as a single script.
+This design choice keeps the mathematical components, training logic, benchmarks, plotting functions, and command-line interfaces separated.
+The main implementation goals are:
+
+\begin{itemize}
+    \item reproducibility: experiments are controlled by explicit configuration objects and random seeds;
+    \item modularity: each file has a focused responsibility;
+    \item efficiency: vectorized NumPy operations, batched Monte Carlo simulation, and mini-batch neural-network training are used;
+    \item inspectability: metrics, figures, datasets, models, scalers, and configuration snapshots are saved to disk.
+\end{itemize}
+The main libraries are NumPy, pandas, SciPy, scikit-learn, matplotlib, and PyTorch.
+
+\begin{quote}
+    The codebase is organized around a reusable scientific package.
+    Command-line scripts are thin entry points that configure and execute package functions.
+\end{quote}
+
 \section{Repository Structure}
 
-The project is implemented in Python with a modular structure.
-The main libraries are NumPy, pandas, SciPy, scikit-learn, matplotlib, and PyTorch.
+The reusable scientific and machine-learning logic is contained in \path{src/nn_option_pricing/}.
+The files in \texttt{scripts/} are command-line entry points that build configurations and call functions from the package.
 
 \begin{projectlistingbox}[shellstyle]
 src/nn_option_pricing/
@@ -26,37 +45,87 @@ scripts/
     run_svr_benchmark.py          # SVR benchmark CLI
     run_noisy_targets_experiment.py
     run_noisy_svr_benchmark.py
+tests/
+    test_black_scholes.py
+    test_dataset.py
+    test_model.py
+    test_monte_carlo.py
+    test_noise.py
+    test_noisy_svr.py
+    test_pipeline.py
+    test_svr.py
 \end{projectlistingbox}
-\projectlistingcaption{Main project structure.}
+\projectlistingcaption{Main source, script, and test structure.}
 
-The reusable scientific and machine learning logic is contained in the package \path{src/nn_option_pricing/}.
-The files in \texttt{scripts/} are command-line entry points that build configurations and call functions from the package.
+Table~\ref{tab:software-modules} summarizes the role of the most important implementation modules.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lll}
+        \toprule
+        Module & Main responsibility & Used by \\
+        \midrule
+        \texttt{black\_scholes.py} & analytical pricing and payoff & dataset, benchmarks \\
+        \texttt{dataset.py} & synthetic data generation & pipeline, SVR experiments \\
+        \texttt{training.py} & scaling, training, prediction & main and noisy NN experiments \\
+        \texttt{monte\_carlo.py} & batched Monte Carlo estimator & pipeline, runtime benchmark \\
+        \texttt{evaluation.py} & regression metrics & all experiments \\
+        \texttt{pipeline.py} & end-to-end main run & \texttt{run\_experiment.py} \\
+        \texttt{svr.py} & reduced-scale SVR benchmark & \texttt{run\_svr\_benchmark.py} \\
+        \texttt{noise.py} & controlled label noise & noisy-target experiments \\
+        \bottomrule
+    \end{tabular}
+    \caption{Main Python modules and their responsibilities.}
+    \label{tab:software-modules}
+\end{table}
 
 \section{Configuration System}
 
-The project uses dataclasses to keep experiment parameters explicit.
-The configuration includes dataset ranges, training parameters, Monte Carlo parameters, and output paths.
+The project uses frozen dataclasses to keep experiment parameters explicit.
+The configuration layer includes dataset ranges, training hyperparameters, Monte Carlo settings, and output paths.
 This avoids hard-coded constants scattered across the codebase and makes experiments easier to reproduce.
 
+The top-level configuration groups the main components:
+
+\begin{projectlistingbox}
+@dataclass(frozen=True)
+class ExperimentConfig:
+    dataset: DatasetConfig = DatasetConfig()
+    training: TrainingConfig = TrainingConfig()
+    monte_carlo: MonteCarloConfig = MonteCarloConfig()
+    paths: PathConfig = PathConfig()
+\end{projectlistingbox}
+\projectlistingcaption{Top-level experiment configuration object.}
+
 Each experiment saves a configuration snapshot in JSON format.
-This makes it possible to recover the exact settings used to produce a given result.
+Since dataclasses and \texttt{Path} objects are not directly JSON-serializable, the helper \texttt{config\_to\_dict} recursively converts configuration objects into JSON-compatible values.
+This makes it possible to recover the exact settings used to produce a result.
 
-\section{Experimental Pipeline}
+\section{Command-Line Interfaces}
 
-The main pipeline performs the following steps:
+The project is executed through command-line scripts.
+The main experiment is launched by the script \texttt{run\_experiment.py}.
+It parses command-line arguments, builds an \texttt{ExperimentConfig}, runs the pipeline, and prints the resulting metrics.
 
-\begin{enumerate}
-    \item create output directories;
-    \item generate the synthetic dataset;
-    \item save the dataset and configuration;
-    \item split the data into training, validation, and test sets;
-    \item fit input and target scalers;
-    \item train the neural network with early stopping;
-    \item predict on the held-out test set;
-    \item compute neural-network metrics;
-    \item run the Monte Carlo benchmark;
-    \item save metrics and diagnostic figures.
-\end{enumerate}
+\begin{projectlistingbox}
+config = ExperimentConfig(
+    dataset=DatasetConfig(n_samples=args.n_samples, seed=args.seed),
+    training=TrainingConfig(
+        seed=args.seed,
+        feature_set=args.feature_set,
+        max_epochs=args.max_epochs,
+        batch_size=args.batch_size,
+        learning_rate=args.learning_rate,
+        activation=args.activation,
+    ),
+    monte_carlo=MonteCarloConfig(
+        n_paths=args.mc_n_paths,
+        evaluation_samples=args.mc_evaluation_samples,
+    ),
+    paths=make_path_config(data_dir=args.data_dir, output_dir=args.output_dir),
+)
+\end{projectlistingbox}
+\projectlistingcaption{Construction of the main experiment configuration from CLI arguments.}
 
 The final experiment is run through:
 
@@ -75,29 +144,90 @@ The final experiment is run through:
 \end{projectlistingbox}
 \projectlistingcaption{Command used for the final experiment.}
 
+Additional scripts run the runtime benchmark, the SVR benchmark, the noisy-target neural-network experiment, and the noisy-target SVR benchmark.
+This keeps the main experiment clean while still allowing extensions to be reproduced independently.
+
+\section{End-to-End Pipeline}
+
+The main pipeline connects all core components.
+It is implemented in \texttt{pipeline.py} and performs the following steps:
+
+\begin{enumerate}
+    \item create output directories;
+    \item save the experiment configuration;
+    \item generate and save the synthetic dataset;
+    \item train the neural network;
+    \item predict on the held-out test set;
+    \item compute neural-network metrics;
+    \item save the trained model, input scaler, and target scaler;
+    \item run the Monte Carlo benchmark on a deterministic test subset;
+    \item save metrics and diagnostic plots.
+\end{enumerate}
+This structure ensures that each run leaves behind enough information to inspect, reproduce, and discuss the experiment.
+
+Table~\ref{tab:software-artifacts} reports the main artifacts produced by the pipeline.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lll}
+        \toprule
+        Artifact & Typical location & Purpose \\
+        \midrule
+        Dataset CSV & \texttt{data/.../synthetic\_options.csv} & generated observations \\
+        Configuration JSON & \texttt{outputs/.../experiment\_config.json} & reproducibility \\
+        Model checkpoint & \texttt{outputs/.../model.pt} & trained network state \\
+        Input scaler & \texttt{outputs/.../scaler.joblib} & feature preprocessing \\
+        Target scaler & \texttt{outputs/.../target\_scaler.joblib} & inverse price scaling \\
+        Metrics JSON & \texttt{outputs/.../metrics/} & quantitative evaluation \\
+        Figures & \texttt{outputs/.../figures/} & diagnostic plots \\
+        \bottomrule
+    \end{tabular}
+    \caption{Main artifacts produced by a complete experiment run.}
+    \label{tab:software-artifacts}
+\end{table}
+
 \section{Testing and Documentation}
 
-The test suite covers:
+The test suite checks both low-level mathematical functions and higher-level experiment behavior.
+This is important because numerical projects can fail silently if only final metrics are inspected.
 
-\begin{itemize}
-    \item analytical Black-Scholes pricing;
-    \item synthetic dataset generation;
-    \item model construction;
-    \item Monte Carlo pricing;
-    \item target-noise generation;
-    \item SVR benchmarks;
-    \item end-to-end pipeline smoke tests.
-\end{itemize}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ll}
+        \toprule
+        Test area & Purpose \\
+        \midrule
+        Black-Scholes tests & validate analytical pricing behavior \\
+        Dataset tests & check generated columns, ranges, and shape \\
+        Model tests & verify neural-network construction and outputs \\
+        Monte Carlo tests & check simulation behavior and convergence properties \\
+        Noise tests & validate controlled noisy-target generation \\
+        SVR tests & check reduced-scale benchmark execution \\
+        Noisy-SVR tests & check noisy-label SVR benchmark execution \\
+        Pipeline tests & run small end-to-end smoke tests \\
+        \bottomrule
+    \end{tabular}
+    \caption{Main test areas covered by the project.}
+    \label{tab:test-coverage}
+\end{table}
 
 The project also includes Sphinx documentation generated from narrative documentation and Python docstrings.
-This supports code readability and makes the implementation easier to inspect.
+This supports code readability and makes the implementation easier to inspect independently from the report.
 
 \section{Computational Efficiency}
 
+Several implementation choices are made for computational efficiency.
 The Black-Scholes formula and dataset generation are vectorized with NumPy.
-The Monte Carlo method uses the exact terminal distribution of the geometric Brownian motion, avoiding unnecessary time discretization.
-Monte Carlo simulation is batched both over options and over simulated paths, which keeps memory usage under control.
+This allows prices for many contracts to be computed at once without explicit Python loops.
+
+The Monte Carlo method uses the exact terminal distribution of geometric Brownian motion, avoiding unnecessary time discretization.
+Simulation is batched both over options and over paths, which keeps memory usage bounded.
+If $B_o$ is the option batch size and $B_p$ is the path batch size, the largest simulated terminal-price block has shape approximately:
+
+\begin{equation}
+    B_o \times B_p.
+\end{equation}
 
 The neural network training uses PyTorch \texttt{DataLoader}, mini-batch gradient descent, input standardization, and target scaling.
-Prediction is performed in batches under \texttt{torch.no\_grad()}.
+Prediction is performed in batches under \texttt{torch.no\_grad()}, so gradients are not stored during inference.
 These choices make the code suitable both for quick development runs and for larger experiments.
