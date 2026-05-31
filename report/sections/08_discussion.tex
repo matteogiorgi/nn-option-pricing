@@ -51,14 +51,16 @@ This interpretation is organized in Table~\ref{tab:discussion-claims}.
         Claim & Evidence & Caveat \\
         \midrule
         The neural network approximates Black-Scholes accurately
-        & Final MAE, RMSE, $R^2$, true-vs-predicted plot, and error diagnostics
-        & Valid on the sampled parameter domain, not automatically outside it \\
+        & final MAE, RMSE, $R^2$, true-vs-predicted plot, and error diagnostics
+        & valid on the sampled parameter domain, not automatically outside it \\
+        \projecttablerowsep
         Neural inference is useful as a surrogate
-        & Runtime benchmark shows much faster inference than Monte Carlo
-        & Training has an upfront cost and the analytical formula is still faster when available \\
+        & runtime benchmark shows much faster inference than Monte Carlo
+        & training has an upfront cost and the analytical formula is still faster when available \\
+        \projecttablerowsep
         Controlled noise degrades performance predictably
-        & Noisy-target experiments show increasing MAE and RMSE with increasing label noise
-        & The noise is synthetic and should not be interpreted as real market microstructure \\
+        & noisy-target experiments show increasing MAE and RMSE with increasing label noise
+        & the noise is synthetic and should not be interpreted as real market microstructure \\
         \bottomrule
     \end{tabular}
     \caption{Interpretation of the main empirical claims.}
@@ -210,12 +212,16 @@ The limitation is that the conclusions remain internal to the Black-Scholes worl
         >{\raggedright\arraybackslash}p{0.30\linewidth}
     }
         \toprule
-        Aspect & Controlled synthetic setting & Real market setting \\
+        Aspect & Synthetic setting & Real market setting \\
         \midrule
         Target & analytical Black-Scholes price & observed market quote \\
+        \projecttablerowsep
         Ground truth & known exactly & not directly known \\
+        \projecttablerowsep
         Noise & controlled by design & market microstructure and liquidity \\
+        \projecttablerowsep
         Evaluation & direct error against $C_{BS}$ & depends on data quality and market assumptions \\
+        \projecttablerowsep
         Research question & approximation of a known pricing map & modeling market prices \\
         \bottomrule
     \end{tabular}

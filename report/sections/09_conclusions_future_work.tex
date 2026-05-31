@@ -54,20 +54,24 @@ For compactness, the main findings are collected in Table~\ref{tab:final-finding
         Finding & Evidence & Interpretation \\
         \midrule
         The neural network approximates Black-Scholes accurately
-        & Low MAE and RMSE, $R^2$ close to one
-        & The MLP learns the pricing map on the sampled domain \\
+        & low MAE and RMSE, $R^2$ close to one
+        & the MLP learns the pricing map on the sampled domain \\
+        \projecttablerowsep
         Moneyness and SiLU improve the final model
-        & Intermediate experiments and improved final run
-        & Financial feature engineering and smooth activations help regression \\
+        & intermediate experiments and improved final run
+        & financial feature engineering and smooth activations help regression \\
+        \projecttablerowsep
         Neural inference is faster than Monte Carlo after training
-        & Runtime benchmark on 1,000 pricing queries
-        & The trained model is useful as a repeated-evaluation surrogate \\
+        & runtime benchmark on 1,000 pricing queries
+        & the trained model is useful as a repeated-evaluation surrogate \\
+        \projecttablerowsep
         Noisy labels reduce accuracy but do not destroy the approximation
-        & Controlled noisy-target experiments
-        & The model shows moderate robustness, within a synthetic noise setup \\
+        & controlled noisy-target experiments
+        & the model shows moderate robustness, within a synthetic noise setup \\
+        \projecttablerowsep
         SVR is a useful classical reference
-        & Reduced-scale SVR benchmark
-        & Classical ML performs well, but is not the scalable main pipeline \\
+        & reduced-scale SVR benchmark
+        & classical ML performs well, but is not the scalable main pipeline \\
         \bottomrule
     \end{tabular}
     \caption{Summary of the main project findings.}

@@ -93,7 +93,7 @@ The resulting CSV file therefore contains both learning variables and diagnostic
         \texttt{r} & risk-free rate $r$ & base input \\
         \texttt{sigma} & volatility $\sigma$ & base input \\
         \texttt{call\_price} & analytical Black-Scholes call price & target \\
-        \texttt{moneyness} & ratio $S_0/K$ & diagnostic or engineered input \\
+        \texttt{moneyness} & ratio $S_0/K$ & diagnostic input \\
         \bottomrule
     \end{tabular}
     \caption{Columns contained in the clean synthetic dataset.}
@@ -139,7 +139,7 @@ The default proportions reflect the standard separation between optimization, mo
     \centering
     \begin{tabular}{lll}
         \toprule
-        Split & Default fraction & Purpose \\
+        Split & Fraction & Purpose \\
         \midrule
         Training & $70\%$ & parameter optimization \\
         Validation & $15\%$ & early stopping and model selection \\
