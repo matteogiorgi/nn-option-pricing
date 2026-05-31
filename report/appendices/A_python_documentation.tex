@@ -17,9 +17,9 @@ This separation keeps the report focused on the scientific content while still m
 The Sphinx sources are stored in \path{docs/source/}.
 The API reference is generated from the docstrings contained in the main Python package, \path{src/nn_option_pricing/}.
 
-The online site contains dedicated pages for the experiment pipeline,
-the additional experiments, the testing strategy, and the generated API reference.
-The most important entry points are:
+The generated pages cover the experiment pipeline, the additional experiments,
+the testing strategy, and the generated API reference.
+The main Sphinx source entry points are:
 
 \begin{itemize}
     \item \href{https://github.com/matteogiorgi/nn-option-pricing/blob/main/docs/source/index.rst}{\path{index.rst}}: main documentation index.
@@ -33,7 +33,7 @@ The most important entry points are:
 
 \section{Local Documentation Build}
 
-The HTML site can be built locally from the repository root after installing the project and Sphinx dependencies:
+The HTML pages can be built locally from the repository root after installing the project and Sphinx dependencies:
 
 \begin{projectlistingbox}[shellstyle]
 pip install -r requirements.txt
@@ -42,7 +42,7 @@ pip install -e . --no-build-isolation
 \end{projectlistingbox}
 \projectlistingcaption{Installation commands for local Sphinx builds.}
 
-The site can be built either in standard mode or in strict mode, and the generated HTML entry point can be found locally at \path{docs/build/html/index.html}:
+The build can be run either in standard mode or in strict mode, and the generated HTML entry point can be found locally at \path{docs/build/html/index.html}:
 
 \begin{projectlistingbox}[shellstyle]
 sphinx-build -b html docs/source docs/build/html
@@ -68,7 +68,7 @@ At each push to the main branch, the workflow performs the following operations:
     \item deploys the artifact to GitHub Pages.
 \end{enumerate}
 This approach keeps the repository clean while still providing an online version of the API and project notes.
-Once GitHub Pages is enabled for the repository, the site is available through the repository Pages URL.
+With GitHub Pages enabled for the repository, the site is available through the repository Pages URL.
 
 In summary, the complete project can be inspected through two complementary online resources.
 The repository contains the source code, report sources, scripts, configuration files, and experiment artifacts,

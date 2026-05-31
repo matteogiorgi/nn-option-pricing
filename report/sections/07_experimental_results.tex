@@ -30,7 +30,7 @@ The final supervised learning map is:
 
 \begin{equation}
     (S_0, K, T, r, \sigma, S_0/K)
-    \mapsto
+    \longmapsto
     \hat{C}_{NN}.
 \end{equation}
 
@@ -308,16 +308,16 @@ For each clean price $C_{BS}$, the training target is:
     \tilde{C}
     =
     \max\left(
-        C_{BS} + \epsilon,
+        C_{BS} + \varepsilon,
         0
     \right),
     \qquad
-    \epsilon
+    \varepsilon
     \sim
-    \mathcal{N}\left(0, \left[\alpha \max(C_{BS}, 1)\right]^2\right),
+    \mathcal{N}\left(0, \left[\ell \max(C_{BS}, 1)\right]^2\right),
 \end{equation}
 
-where $\alpha$ is the noise level.
+where $\ell$ is the noise level.
 The model is trained on $\tilde{C}$ but evaluated against the clean $C_{BS}$.
 This keeps the experiment aligned with the original research question while adding controlled label noise.
 The 0\% row in Table~\ref{tab:noisy-targets} is the clean-label control for this robustness setup, not a repetition of the final 100,000-sample experiment.

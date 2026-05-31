@@ -12,9 +12,9 @@ The complete experimental logic can be summarized as:
 
 \begin{equation}
     (S_0, K, T, r, \sigma)
-    \xrightarrow{\text{Black-Scholes}}
+    \xrightarrow{\hspace{0.6cm}\text{Black-Scholes}\hspace{0.6cm}}
     C_{BS}
-    \xrightarrow{\text{supervised learning}}
+    \xrightarrow{\hspace{0.6cm}\text{supervised learning}\hspace{0.6cm}}
     \hat{C}.
 \end{equation}
 
@@ -219,7 +219,7 @@ The project also reports MAPE, but only for options whose theoretical price is g
     \frac{y_i-\hat{y}_i}{y_i}
     \right|,
     \qquad
-    \mathcal{I} = \{i : |y_i| > 1\}.
+    \mathcal{I} = \{i : y_i > 1\}.
 \end{equation}
 
 This restriction avoids unstable percentage errors for options whose theoretical price is close to zero.
@@ -290,6 +290,9 @@ Because the experiments have different purposes and computational scales, Table~
     \caption{Main experimental components and their methodological role.}
     \label{tab:methodology-experiments}
 \end{table}
+
+The different dataset sizes are chosen for computational reasons and for the role of each experiment.
+They should therefore be interpreted as methodological settings, not as perfectly symmetric head-to-head comparisons.
 
 These experiments are controlled label-noise tests.
 They should not be interpreted as real market-price modeling, because real exchange-traded options include additional effects such as bid-ask spreads, liquidity, dividends, and implied-volatility structure.

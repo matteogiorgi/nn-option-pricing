@@ -117,7 +117,7 @@ This is what makes the experiment controlled: the true target function is known 
 The neural network is therefore trained to approximate the mapping:
 
 \begin{equation}
-    f_{BS}: (S_0, K, T, r, \sigma) \mapsto C_{BS}.
+    f_{BS}: (S_0, K, T, r, \sigma) \longmapsto C_{BS}.
 \end{equation}
 
 This formulation turns option pricing into a supervised regression problem.
@@ -135,6 +135,8 @@ Monte Carlo simulation approximates the risk-neutral expectation by generating m
     \max(S_T^{(i)} - K, 0).
 \end{equation}
 
+Here, $M$ is the number of simulated paths and $S_T^{(i)}$ is the $i$-th simulated terminal asset price.
+Under Black-Scholes dynamics, each $S_T^{(i)}$ can be sampled directly from the exact terminal distribution given above.
 For sufficiently large $M$, $\hat{C}_{MC}$ converges to $C_{BS}$ by the law of large numbers.
 The statistical error decreases at the standard Monte Carlo rate:
 

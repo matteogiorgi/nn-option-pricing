@@ -51,6 +51,7 @@ Table~\ref{tab:software-modules} gives the operational map of these package comp
         \midrule
         \texttt{black\_scholes.py} & analytical pricing and payoff & dataset, benchmarks \\
         \texttt{dataset.py} & synthetic data generation & pipeline, SVR experiments \\
+        \texttt{model.py} & neural-network architecture & training pipeline \\
         \texttt{training.py} & scaling, training, prediction & main and noisy NN experiments \\
         \texttt{monte\_carlo.py} & batched Monte Carlo estimator & pipeline, runtime benchmark \\
         \texttt{evaluation.py} & regression metrics & all experiments \\
@@ -129,6 +130,7 @@ The final experiment is run through:
 \projectlistingcaption{Command used for the final experiment.}
 
 Additional scripts run the runtime benchmark, the SVR benchmark, the noisy-target neural-network experiment, and the noisy-target SVR benchmark.
+They follow the same pattern: parse a small set of command-line arguments, build an explicit configuration, execute the corresponding experiment function, and save metrics to disk.
 This keeps the main experiment clean while still allowing extensions to be reproduced independently.
 
 \section{End-to-End Pipeline}

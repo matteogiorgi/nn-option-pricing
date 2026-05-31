@@ -120,6 +120,7 @@ class PricingMLP(nn.Module):
 
 This design makes the architecture configurable without duplicating model code.
 For example, the same class can represent both the baseline five-feature model and the final six-feature model with moneyness.
+The loop over \texttt{hidden\_layers} creates one dense layer and one activation function for each hidden dimension, while the final dense layer maps the last hidden representation to a single predicted price.
 
 \section{Support Vector Regression}
 
@@ -128,6 +129,7 @@ The project uses SVR with an RBF kernel, which is able to model nonlinear relati
 
 SVR is evaluated on reduced datasets because kernel methods generally scale less favorably than neural networks as the number of training observations increases.
 For this reason, the SVR experiments should be interpreted as a classical reference point rather than as a full-scale replacement for the neural network pipeline.
+Its purpose is to answer a narrower question: whether a standard nonlinear machine-learning method gives a reasonable baseline on smaller samples from the same Black-Scholes pricing map.
 The RBF kernel used in the benchmark has the form:
 
 \begin{equation}

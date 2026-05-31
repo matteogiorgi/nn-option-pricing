@@ -18,6 +18,13 @@ The goal of this project is to study whether a feed-forward neural network can a
 The project is not intended to build a trading system or to predict real market prices.
 Instead, it focuses on a mathematically controlled supervised learning problem where the target function is known exactly.
 This controlled setting is important because it allows the approximation error of the neural network to be measured directly against the analytical Black-Scholes price.
+In compact form, the supervised task is to learn the pricing map
+
+\begin{equation}
+    (S_0, K, T, r, \sigma) \longmapsto C_{BS}(S_0, K, T, r, \sigma),
+\end{equation}
+
+where $C_{BS}$ is computed by the analytical Black-Scholes formula.
 
 To make this boundary explicit, Table~\ref{tab:project-scope} separates what is part of the experiment from what is deliberately left outside it.
 

@@ -171,11 +171,11 @@ The noise model is:
 \begin{equation}
     \tilde{C}
     =
-    \max(C_{BS}+\epsilon,0),
+    \max(C_{BS}+\varepsilon,0),
     \qquad
-    \epsilon
+    \varepsilon
     \sim
-    \mathcal{N}\left(0,\left[\alpha \max(C_{BS},1)\right]^2\right).
+    \mathcal{N}\left(0,\left[\ell \max(C_{BS},1)\right]^2\right).
 \end{equation}
 
 The training target is $\tilde{C}$, while evaluation remains against $C_{BS}$.
@@ -185,7 +185,7 @@ This design answers the following question:
     If the supervised labels are imperfect but still centered around the Black-Scholes price, can the model recover a good approximation of the clean pricing function?
 \end{quote}
 
-The experiments show that performance deteriorates as $\alpha$ increases.
+The experiments show that performance deteriorates as $\ell$ increases.
 This is expected: noisy labels reduce the information available to the learner.
 At the same time, moderate noise does not destroy the approximation, which suggests some robustness of the neural-network surrogate.
 

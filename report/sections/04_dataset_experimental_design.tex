@@ -74,7 +74,7 @@ The target variable is the European call option price computed using the analyti
 Therefore, each supervised learning observation has the form:
 
 \begin{equation}
-    (S_0, K, T, r, \sigma) \mapsto C_{BS}.
+    (S_0, K, T, r, \sigma) \longmapsto C_{BS}.
 \end{equation}
 
 The generated dataset also stores moneyness as an additional column.
@@ -87,13 +87,13 @@ The resulting CSV file therefore contains both learning variables and diagnostic
         \toprule
         Column & Meaning & Role \\
         \midrule
-        \texttt{s0} & initial underlying price $S_0$ & base input \\
+        \texttt{s0} & underlying price $S_0$ & base input \\
         \texttt{k} & strike price $K$ & base input \\
         \texttt{t} & maturity $T$ & base input \\
         \texttt{r} & risk-free rate $r$ & base input \\
         \texttt{sigma} & volatility $\sigma$ & base input \\
-        \texttt{call\_price} & analytical Black-Scholes call price & target \\
-        \texttt{moneyness} & ratio $S_0/K$ & diagnostic input \\
+        \texttt{call\_price} & analytical call price & target \\
+        \texttt{moneyness} & ratio $S_0/K$ & diagnostic / optional \\
         \bottomrule
     \end{tabular}
     \caption{Columns contained in the clean synthetic dataset.}
