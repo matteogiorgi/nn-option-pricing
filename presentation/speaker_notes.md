@@ -4,10 +4,6 @@ This file divides the 24 content slides into four blocks of six slides, one
 for each speaker. The opening title slide is common and is not assigned to a
 specific speaker.
 
-The notes are written in English so that they match the language of the Beamer
-presentation. Mathematical expressions use GitHub-flavored Markdown math
-delimiters such as `$S_0/K$` and `$C_{BS}$`.
-
 The expected presentation time is about 20 minutes, followed by about 10
 minutes of questions. Each speaker should therefore aim for about 5 minutes in
 total, roughly 45-50 seconds per slide. These notes are rehearsal prompts, not
