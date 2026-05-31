@@ -10,6 +10,7 @@
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{hyperref}
+\usepackage{fontawesome5}
 
 \usetheme{default}
 \usecolortheme{default}
@@ -17,22 +18,27 @@
 \setbeamertemplate{caption}[numbered]
 \setbeamersize{text margin left=8mm,text margin right=8mm}
 
-\definecolor{projectblue}{RGB}{24, 70, 125}
-\definecolor{projectgray}{RGB}{82, 91, 103}
+\colorlet{projectviolet}{violet!65!black}
+\colorlet{projectorange}{orange!75!black}
+\definecolor{projectgray}{RGB}{78, 84, 94}
+\colorlet{projectlight}{black!3}
 
-\setbeamercolor{structure}{fg=projectblue}
-\setbeamercolor{frametitle}{fg=projectblue}
-\setbeamercolor{title}{fg=projectblue}
+\setbeamercolor{structure}{fg=projectviolet}
+\setbeamercolor{frametitle}{fg=projectviolet}
+\setbeamercolor{title}{fg=projectviolet}
+\setbeamercolor{subtitle}{fg=projectgray}
 \setbeamercolor{normal text}{fg=black}
-\setbeamercolor{block title}{fg=white,bg=projectblue}
-\setbeamercolor{block body}{fg=black,bg=projectblue!5}
+\setbeamercolor{block title}{fg=white,bg=projectviolet}
+\setbeamercolor{block body}{fg=black,bg=projectlight}
+\setbeamercolor{alerted text}{fg=projectorange}
 \setbeamercolor{footline}{fg=projectgray}
 
 \setbeamertemplate{frametitle}{%
-    \vspace{0.45em}
+    \vspace{0.35em}
     \insertframetitle\par
-    \vspace{0.25em}
-    {\color{projectblue!35}\rule{\linewidth}{0.5pt}}
+    \vspace{0.20em}
+    {\color{projectorange}\rule{0.18\linewidth}{1.2pt}%
+    \color{projectviolet!35}\rule{0.82\linewidth}{0.5pt}}
 }
 \setbeamertemplate{footline}{%
     \hfill
@@ -41,14 +47,19 @@
     \hspace{0.8em}\vspace{0.45em}
 }
 
-\newcommand{\projecttitle}{Neural Network Option Pricing}
-\newcommand{\projectsubtitle}{Approximating Black-Scholes European Call Prices with Feed-Forward Neural Networks}
+\setlength{\parskip}{0.25em}
+\setlength{\abovedisplayskip}{0.45em}
+\setlength{\belowdisplayskip}{0.45em}
+
+\newcommand{\projecttitle}{Neural Network-Based European Option Pricing}
+\newcommand{\projectsubtitle}{under Black-Scholes SDE Dynamics}
+\newcommand{\projectrepo}{\href{https://github.com/matteogiorgi/nn-option-pricing}{\faGithub\hspace{0.35em}\texttt{nn-option-pricing}}}
 \newcommand{\placeholderfigure}[1]{%
     \begin{center}
         \fbox{%
-            \begin{minipage}[c][0.46\textheight][c]{0.82\linewidth}
+            \begin{minipage}[c][0.36\textheight][c]{0.78\linewidth}
                 \centering
-                \small Figure not yet available: \texttt{\detokenize{#1}}
+                \small Figure not available: \texttt{\detokenize{#1}}
             \end{minipage}
         }
     \end{center}
@@ -60,217 +71,364 @@
         \placeholderfigure{#2}%
     }%
 }
+\newcommand{\takeaway}[1]{%
+    \begin{block}{Takeaway}
+        #1
+    \end{block}
+}
 
 \title{\projecttitle}
 \subtitle{\projectsubtitle}
-\author{Project group}
+\author{Matteo Giorgi \and Lorenzo Ghiotti \and Nalumansi Anne Frances \and Alice Pedron}
 \institute{Machine Learning for Finance}
-\date{\today}
+\date{May 30, 2026}
 
 \begin{document}
 
-\begin{frame}{Title and Objective}
-    \vspace{0.4em}
-    {\Large\bfseries\color{projectblue}\projecttitle}
+% ------------------------------------------------------------------
+% Title
+% ------------------------------------------------------------------
 
-    \vspace{0.4em}
-    {\large \projectsubtitle}
+\begin{frame}[plain]
+    \vspace*{0.65cm}
+    {\fontsize{25}{30}\selectfont\color{projectviolet} Neural Network-Based\par}
+    \vspace{-0.03cm}
+    {\fontsize{25}{30}\selectfont\color{projectviolet} European Option Pricing\par}
+    \vspace{0.32cm}
+    {\Large under Black-Scholes SDE Dynamics\par}
 
-    \vspace{1.2em}
-    \begin{block}{Objective}
-        Evaluate whether a feed-forward neural network can learn the Black-Scholes European call pricing function and act as an efficient pricing surrogate.
-    \end{block}
+    \vspace{0.75cm}
+    {\large\itshape A supervised learning study of neural networks\par}
+    {\large\itshape as pricing surrogate models\par}
+    \vspace{0.35cm}
+    {\footnotesize\color{projectorange}\projectrepo\par}
 
     \vfill
-    \small Project group \hfill Machine Learning for Finance
+    \hfill
+    \begin{minipage}{0.42\linewidth}
+        \raggedleft
+        \small
+        Matteo Giorgi\par
+        Lorenzo Ghiotti\par
+        Nalumansi Anne Frances\par
+        Alice Pedron\par
+    \end{minipage}
 \end{frame}
 
+% ------------------------------------------------------------------
+% Speaker 1: motivation and theory
+% ------------------------------------------------------------------
+
 \begin{frame}{Research Question}
-    \begin{block}{Research question}
+    \begin{block}{Main question}
         Can a feed-forward neural network accurately approximate the Black-Scholes pricing function for European call options?
     \end{block}
 
-    \vspace{0.5em}
-    The project compares:
+    The project is formulated as a controlled supervised-learning problem:
+    \[
+        (S_0, K, T, r, \sigma)
+        \longmapsto
+        C_{BS}(S_0,K,T,r,\sigma).
+    \]
+
+    \takeaway{Since the target is known exactly, the approximation error can be measured directly.}
+\end{frame}
+
+\begin{frame}{Why This Problem Is Meaningful}
+    Option pricing often requires evaluating many contracts across many parameter configurations.
+
     \begin{itemize}
-        \item the analytical Black-Scholes formula;
-        \item Monte Carlo simulation;
-        \item a supervised neural network pricing surrogate.
+        \item Closed-form formulas are fast but available only in special cases.
+        \item Monte Carlo is flexible but can be expensive when repeated many times.
+        \item A trained neural network can produce prices through a single forward pass.
     \end{itemize}
-\end{frame}
-
-\begin{frame}{Black-Scholes SDE}
-    The underlying asset follows the geometric Brownian motion
-    \[
-        dS_t = r S_t\,dt + \sigma S_t\,dW_t,
-    \]
-    where \(r\) is the risk-free rate, \(\sigma\) is volatility and \(W_t\) is a Brownian motion.
-
-    \vspace{0.7em}
-    The analytical European call price is used as the ground truth:
-    \[
-        S_T = S_0 \exp\left((r-\tfrac{1}{2}\sigma^2)T + \sigma W_T\right).
-    \]
-\end{frame}
-
-\begin{frame}{European Call Option Pricing}
-    A European call option has payoff
-    \[
-        \Phi(S_T) = \max(S_T-K,0).
-    \]
-
-    Under the Black-Scholes model, its analytical price is
-    \[
-        C_{\mathrm{BS}} = S_0 N(d_1) - K e^{-rT}N(d_2),
-    \]
-    with
-    \[
-        d_1 = \frac{\log(S_0/K)+(r+\tfrac{1}{2}\sigma^2)T}{\sigma\sqrt{T}},
-        \qquad
-        d_2 = d_1-\sigma\sqrt{T}.
-    \]
-\end{frame}
-
-\begin{frame}{Synthetic Dataset}
-    Synthetic observations are sampled over the input space:
-    \[
-        x = (S_0, K, T, r, \sigma),
-        \qquad
-        y = C_{\mathrm{BS}}(S_0,K,T,r,\sigma).
-    \]
-
-    The final model also includes moneyness \(S_0/K\) as an engineered feature.
-
-    \vspace{0.5em}
-    \begin{center}
-        \begin{tabular}{ll}
-            \toprule
-            Variable              & Range          \\
-            \midrule
-            Initial price \(S_0\) & \([50, 150]\)  \\
-            Strike \(K\)          & \([50, 150]\)  \\
-            Maturity \(T\)        & \([0.1, 2]\)   \\
-            Risk-free rate \(r\)  & \([0, 0.05]\)  \\
-            Volatility \(\sigma\) & \([0.1, 0.6]\) \\
-            \bottomrule
-        \end{tabular}
-    \end{center}
-\end{frame}
-
-\begin{frame}{Neural Network as Pricing Surrogate}
-    The neural network learns the pricing map
-    \[
-        f_\theta: (S_0, K, T, r, \sigma, S_0/K) \mapsto C_{\mathrm{BS}}.
-    \]
-
-    \vspace{0.5em}
-    Final architecture:
-    \begin{itemize}
-        \item fully connected feed-forward network;
-        \item moneyness \(S_0/K\) included as engineered feature;
-        \item SiLU hidden activations;
-        \item mean squared error loss;
-        \item Adam optimizer;
-        \item train/validation/test split with feature scaling.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Experimental Pipeline}
-    \begin{enumerate}
-        \item Sample synthetic contracts.
-        \item Compute Black-Scholes analytical prices.
-        \item Train the neural network on the supervised pricing task.
-        \item Estimate selected prices with Monte Carlo simulation.
-        \item Compare errors and analyse where approximation is harder.
-    \end{enumerate}
-\end{frame}
-
-\begin{frame}{Evaluation Metrics}
-    The main quantitative metrics are:
-    \begin{itemize}
-        \item Mean Absolute Error;
-        \item Root Mean Squared Error;
-        \item coefficient of determination \(R^2\);
-        \item relative error diagnostics where meaningful.
-    \end{itemize}
-
-    \vspace{0.5em}
-    Error analysis is performed against moneyness \(S_0/K\), maturity \(T\), and volatility \(\sigma\).
-\end{frame}
-
-\begin{frame}{Main Results}
-    Final experiment:
-    \begin{itemize}
-        \item 100,000 synthetic option contracts;
-        \item neural network trained up to 200 epochs with early stopping;
-        \item Monte Carlo benchmark with 50,000 paths on 512 test options.
-    \end{itemize}
-
-    \vspace{0.3em}
-    \begin{center}
-        \begin{tabular}{lccc}
-            \toprule
-            Method         & MAE     & RMSE    & \(R^2\)  \\
-            \midrule
-            Neural network & 0.04290 & 0.06208 & 0.999993 \\
-            Monte Carlo    & 0.08882 & 0.15790 & 0.999951 \\
-            \bottomrule
-        \end{tabular}
-    \end{center}
-\end{frame}
-
-\begin{frame}{Error Analysis}
-    \maybeincludegraphics[width=0.74\linewidth]{../results/final/figures/error_distribution.png}
 
     \vspace{0.2em}
-    \small Errors are concentrated near zero, supporting the low MAE and RMSE values.
+    \takeaway{The neural network is studied as a pricing surrogate: a fast approximation of a known pricing map.}
+\end{frame}
+
+\begin{frame}{Black-Scholes Dynamics}
+    Under the risk-neutral Black-Scholes model:
+    \[
+        dS_t = rS_t\,dt + \sigma S_t\,dW_t.
+    \]
+
+    The exact terminal distribution is:
+    \[
+        S_T =
+        S_0\exp\left[
+            \left(r-\frac{1}{2}\sigma^2\right)T
+            +\sigma\sqrt{T}Z
+            \right],
+        \qquad Z\sim\mathcal{N}(0,1).
+    \]
+
+    \takeaway{This exact expression is also useful computationally, because Monte Carlo can sample \(S_T\) directly.}
+\end{frame}
+
+\begin{frame}{European Call Option}
+    A European call option gives the right to buy the underlying asset at strike \(K\) at maturity \(T\).
+
+    \[
+        \text{payoff} = (S_T-K)^+ = \max(S_T-K,0).
+    \]
+
+    Under risk-neutral pricing:
+    \[
+        C_0 = e^{-rT}\mathbb{E}^{\mathbb{Q}}\left[(S_T-K)^+\right].
+    \]
+
+    \takeaway{All methods in the project are evaluated by how well they recover this price in the Black-Scholes setting.}
+\end{frame}
+
+\begin{frame}{Black-Scholes Formula}
+    The analytical call price is:
+    \[
+        C_{BS}
+        =
+        S_0N(d_1)
+        -
+        Ke^{-rT}N(d_2),
+    \]
+    \[
+        d_1 =
+        \frac{\log(S_0/K)+(r+\frac{1}{2}\sigma^2)T}{\sigma\sqrt{T}},
+        \qquad
+        d_2=d_1-\sigma\sqrt{T}.
+    \]
+
+    \takeaway{The formula provides the clean target variable used for supervised learning.}
 \end{frame}
 
 \begin{frame}{Monte Carlo Benchmark}
-    Simulated terminal prices are generated as
+    Monte Carlo approximates the risk-neutral expectation by simulation:
     \[
-        S_T = S_0 \exp\left((r-\tfrac{1}{2}\sigma^2)T + \sigma\sqrt{T}Z\right),
-        \qquad Z \sim \mathcal{N}(0,1).
+        \widehat{C}_{MC}
+        =
+        e^{-rT}\frac{1}{M}
+        \sum_{i=1}^{M}
+        (S_T^{(i)}-K)^+.
     \]
 
-    The discounted estimator is
-    \[
-        \widehat{C}_{\mathrm{MC}}
-        = e^{-rT}\frac{1}{M}\sum_{m=1}^{M}\max(S_T^{(m)}-K,0).
-    \]
-
-    \vspace{0.4em}
     \begin{itemize}
-        \item Evaluated on 512 deterministic test options.
-        \item Provides a classical numerical benchmark with sampling error.
-        \item The trained neural network gives deterministic forward-pass predictions.
+        \item It is flexible and widely used.
+        \item It is stochastic, so estimates fluctuate.
+        \item The standard error decreases at rate \(M^{-1/2}\).
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Runtime Benchmark}
+% ------------------------------------------------------------------
+% Speaker 2: data and ML methodology
+% ------------------------------------------------------------------
+
+\begin{frame}{Synthetic Dataset}
+    The dataset is generated by sampling option parameters and computing the analytical Black-Scholes price.
+
     \begin{center}
-        \begin{tabular}{lrr}
+        \small
+        \begin{tabular}{lll}
             \toprule
-            Method           & Time      & Options/s \\
+            Variable   & Meaning           & Range         \\
             \midrule
-            Black-Scholes    & 0.00091 s & 1,101,095 \\
-            Neural inference & 0.03190 s & 31,351    \\
-            Monte Carlo      & 1.28235 s & 780       \\
+            \(S_0\)    & underlying price  & \([50,150]\)  \\
+            \(K\)      & strike price      & \([50,150]\)  \\
+            \(T\)      & maturity in years & \([0.1,2]\)   \\
+            \(r\)      & risk-free rate    & \([0,0.05]\)  \\
+            \(\sigma\) & volatility        & \([0.1,0.6]\) \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Why Synthetic Data?}
+    The project does not aim to model observed exchange-traded option quotes.
+
+    \begin{itemize}
+        \item Synthetic labels give a known ground truth: \(C_{BS}\).
+        \item The experiment is controlled and reproducible.
+        \item Real option prices include bid-ask spreads, liquidity, dividends, and implied-volatility effects.
+    \end{itemize}
+
+    \begin{block}{Methodological choice}
+        Real market data would change the research question from approximating Black-Scholes to modeling market prices.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Feature Engineering: Moneyness}
+    The final feature set includes moneyness:
+    \[
+        \frac{S_0}{K}.
+    \]
+
+    The neural network receives:
+    \[
+        (S_0,K,T,r,\sigma,S_0/K).
+    \]
+
+    \begin{itemize}
+        \item \(S_0/K<1\): out-of-the-money region.
+        \item \(S_0/K\approx 1\): at-the-money region.
+        \item \(S_0/K>1\): in-the-money region.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Supervised Learning Setup}
+    Each observation has the form:
+    \[
+        x_i=(S_0,K,T,r,\sigma,S_0/K)_i,
+        \qquad
+        y_i=C_{BS,i}.
+    \]
+
+    The model learns a function:
+    \[
+        f_\theta(x_i)\approx y_i.
+    \]
+
+    Inputs and targets are standardized during training, while metrics are reported in original price units.
+\end{frame}
+
+\begin{frame}{Neural Network Architecture}
+    The selected model is a feed-forward multilayer perceptron.
+
+    \begin{center}
+        \small
+        \begin{tabular}{ll}
+            \toprule
+            Component      & Final choice               \\
+            \midrule
+            Input features & \(S_0,K,T,r,\sigma,S_0/K\) \\
+            Hidden layers  & fully connected MLP        \\
+            Activation     & SiLU                       \\
+            Output         & one scalar price           \\
             \bottomrule
         \end{tabular}
     \end{center}
 
-    \vspace{0.4em}
-    \begin{block}{Surrogate pricing point}
-        After training, neural inference was about \(40\times\) faster than Monte Carlo for pricing 1,000 options in the benchmark.
-    \end{block}
+    \takeaway{The architecture is simple but appropriate for smooth tabular regression.}
 \end{frame}
 
-\begin{frame}{Additional ML Baseline: SVR}
-    A reduced-scale Support Vector Regression benchmark was added as a classical ML reference.
+\begin{frame}{Training and Metrics}
+    The training procedure uses:
+    \begin{itemize}
+        \item 70\% / 15\% / 15\% train-validation-test split;
+        \item MSE loss;
+        \item Adam optimizer;
+        \item early stopping on validation loss.
+    \end{itemize}
 
-    \vspace{0.4em}
+    Main metrics:
+    \[
+        \mathrm{MAE},\qquad
+        \mathrm{RMSE},\qquad
+        R^2,\qquad
+        \mathrm{MAPE}\text{ for prices }>1.
+    \]
+\end{frame}
+
+% ------------------------------------------------------------------
+% Speaker 3: implementation and experiments
+% ------------------------------------------------------------------
+
+\begin{frame}{Software Architecture}
+    The code is organized as a reusable Python package plus command-line experiment scripts.
+
     \begin{center}
+        \scriptsize
+        \begin{tabular}{ll}
+            \toprule
+            Module                     & Responsibility            \\
+            \midrule
+            \texttt{black\_scholes.py} & analytical pricing        \\
+            \texttt{dataset.py}        & synthetic data generation \\
+            \texttt{model.py}          & neural network            \\
+            \texttt{training.py}       & training and prediction   \\
+            \texttt{monte\_carlo.py}   & simulation benchmark      \\
+            \texttt{svr.py}            & classical ML baseline     \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Experiment Pipeline}
+    The main experiment follows a deterministic workflow:
+
+    \begin{enumerate}
+        \item generate synthetic contracts;
+        \item compute analytical prices;
+        \item split and scale the data;
+        \item train the neural network;
+        \item evaluate against \(C_{BS}\);
+        \item save metrics, plots, configuration, and artifacts.
+    \end{enumerate}
+
+    \takeaway{The experiment is reproducible from the command line, not tied to an interactive notebook.}
+\end{frame}
+
+\begin{frame}{Final Experiment Configuration}
+    The final neural-network run uses:
+
+    \begin{center}
+        \small
+        \begin{tabular}{ll}
+            \toprule
+            Setting           & Value                      \\
+            \midrule
+            Dataset size      & 100,000 contracts          \\
+            Feature set       & base variables + moneyness \\
+            Activation        & SiLU                       \\
+            Maximum epochs    & 200                        \\
+            Batch size        & 1024                       \\
+            Monte Carlo paths & 50,000                     \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Model Selection Experiments}
+    Intermediate experiments justify the final configuration.
+
+    \begin{center}
+        \scriptsize
+        \begin{tabular}{lrrr}
+            \toprule
+            Experiment       & MAE     & RMSE    & MAPE     \\
+            \midrule
+            Base + ReLU      & 0.17269 & 0.22973 & 1.8687\% \\
+            Moneyness + ReLU & 0.15417 & 0.20930 & 1.6670\% \\
+            Base + SiLU      & 0.10775 & 0.15817 & 1.2488\% \\
+            Moneyness + SiLU & 0.10254 & 0.15169 & 1.3213\% \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+
+    \takeaway{The combined moneyness + SiLU setup gives the strongest MAE/RMSE candidate in the intermediate experiments.}
+\end{frame}
+
+\begin{frame}{Runtime Benchmark}
+    Runtime is measured after training, for 1,000 pricing queries.
+
+    \begin{center}
+        \scriptsize
+        \begin{tabular}{lrr}
+            \toprule
+            Method                    & Time      & Options/s \\
+            \midrule
+            Black-Scholes formula     & 0.00091 s & 1,101,095 \\
+            Neural inference          & 0.03190 s & 31,351    \\
+            Monte Carlo, 20,000 paths & 1.28235 s & 780       \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+
+    \takeaway{The analytical formula is fastest, but neural inference is about 40 times faster than Monte Carlo in this benchmark.}
+\end{frame}
+
+\begin{frame}{SVR Baseline}
+    Support Vector Regression is included as a classical machine-learning reference.
+
+    \begin{center}
+        \small
         \begin{tabular}{lrr}
             \toprule
             Metric  & Mean     & Std      \\
@@ -283,60 +441,95 @@
         \end{tabular}
     \end{center}
 
-    \vspace{0.3em}
-    \small Evaluated on 5,000 synthetic samples over three seeds. SVR is useful as a classical baseline, while the neural network remains the main scalable surrogate model.
+    \small The benchmark is intentionally reduced to 5,000 samples over three seeds because RBF kernel methods scale less favorably.
 \end{frame}
 
-\begin{frame}{Noisy Target Robustness}
-    Models are trained on noisy Black-Scholes targets and evaluated against clean analytical prices.
+% ------------------------------------------------------------------
+% Speaker 4: results and conclusions
+% ------------------------------------------------------------------
 
-    \vspace{0.4em}
+\begin{frame}{Final Neural Network Results}
     \begin{center}
-        \begin{tabular}{lcc}
+        \small
+        \begin{tabular}{lr}
             \toprule
-            Noise & NN MAE & SVR MAE \\
+            Metric              & Value    \\
             \midrule
-            0\% & 0.10254 & 0.15088 \\
-            1\% & 0.11084 & 0.19284 \\
-            5\% & 0.17827 & 0.56185 \\
+            MAE                 & 0.04290  \\
+            RMSE                & 0.06208  \\
+            \(R^2\)             & 0.999993 \\
+            MAPE, prices \(>1\) & 0.4803\% \\
             \bottomrule
         \end{tabular}
     \end{center}
 
-    \vspace{0.3em}
-    \small Both models degrade as label noise increases. SVR is evaluated on reduced datasets, so it is used as a classical robustness reference rather than a direct full-scale competitor.
+    \takeaway{The final model approximates the Black-Scholes pricing function with very low error on held-out synthetic contracts.}
 \end{frame}
 
-\begin{frame}{Discussion}
+\begin{frame}{Predicted vs Analytical Prices}
+    \centering
+    \maybeincludegraphics[width=0.60\linewidth]{../results/final/figures/true_vs_predicted.png}
+
+    \vspace{0.1em}
+    \small Predictions are concentrated near the identity line, consistently with \(R^2 \approx 1\).
+\end{frame}
+
+\begin{frame}{Error Diagnostics}
+    \centering
+    \maybeincludegraphics[width=0.66\linewidth]{../results/final/figures/error_distribution.png}
+
+    \vspace{0.2em}
+    \small The error distribution checks whether low aggregate metrics hide large systematic deviations.
+\end{frame}
+
+\begin{frame}{Noisy Target Robustness}
+    Training labels are perturbed, while evaluation remains against clean Black-Scholes prices.
+
+    \begin{center}
+        \scriptsize
+        \begin{tabular}{lrr}
+            \toprule
+            Noise level & NN MAE  & SVR MAE \\
+            \midrule
+            0\%         & 0.10254 & 0.15088 \\
+            1\%         & 0.11084 & 0.19284 \\
+            5\%         & 0.17827 & 0.56185 \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+
+    \takeaway{Increasing label noise worsens performance, but the neural network remains reasonably stable under mild perturbations.}
+\end{frame}
+
+\begin{frame}{Interpretation and Limits}
+    The results support a clear but conditional conclusion.
+
     \begin{itemize}
-        \item The network accurately learns the Black-Scholes pricing map in the sampled domain.
-        \item Monte Carlo is also accurate, but remains simulation-based and stochastic.
-        \item The SVR baseline gives an additional non-neural comparison on reduced datasets.
-        \item Noisy-target experiments test robustness to imperfect labels in a controlled setting.
-        \item The neural network is best interpreted as a pricing surrogate after training.
-        \item The experiment validates the controlled Black-Scholes setting before moving to richer dynamics.
+        \item Strong accuracy holds inside the sampled Black-Scholes domain.
+        \item The model is a surrogate, not a replacement for the analytical formula.
+        \item Synthetic data are appropriate for this research question.
+        \item Real market data would define a different problem.
+        \item No-arbitrage constraints are not explicitly enforced.
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Limitations}
-    \begin{itemize}
-        \item The project uses synthetic data generated under Black-Scholes assumptions.
-        \item The model prices European calls only.
-        \item The target function is known analytically, so the neural network is evaluated as a surrogate rather than as a replacement for financial theory.
-        \item Generalization outside the sampled parameter ranges is not guaranteed.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Conclusions and Future Work}
-    The research question is answered positively in the controlled Black-Scholes setting.
-
-    \vspace{0.5em}
-    \begin{block}{Main takeaway}
-        A feed-forward neural network can approximate European call prices generated by the Black-Scholes formula with very high test-set accuracy.
+\begin{frame}{Final Takeaway}
+    \begin{block}{Answer}
+        A feed-forward neural network can accurately approximate European call prices generated by the Black-Scholes formula in a controlled synthetic setting.
     \end{block}
 
-    \vspace{0.4em}
-    Future extensions may include stochastic volatility, Heston dynamics, American options and Greeks estimation.
+    \vspace{0.3em}
+    Future work:
+    \begin{itemize}
+        \item Greeks by automatic differentiation;
+        \item stochastic-volatility models;
+        \item path-dependent or American options;
+        \item real market data as a separate research question.
+    \end{itemize}
+
+    \vfill
+    \centering
+    {\color{projectorange}\projectrepo}
 \end{frame}
 
 \end{document}
