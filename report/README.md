@@ -19,12 +19,13 @@ latexmk -c main.tex
 The report uses `fontspec` and Cascadia Code for monospaced code blocks, so it
 must be compiled with XeLaTeX rather than pdfLaTeX.
 
-Final figures are loaded from `../results/final/figures/`.
-If the final results have not been generated yet, the PDF remains compilable and
-shows placeholders instead of figures.
+Final diagnostic figures are loaded from `../results/final/figures/`.
+Report-specific comparison figures are stored in `figures/`.
+If any expected figure is missing, the PDF remains compilable and shows a
+placeholder instead of the missing image.
 
-Report-specific comparison figures are stored in `figures/` and can be
-regenerated from saved JSON results from the repository root with:
+The report-specific figures can be regenerated from saved JSON results from the
+repository root with:
 
 ```bash
 .venv/bin/python scripts/generate_report_figures.py
