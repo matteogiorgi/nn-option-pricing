@@ -1,0 +1,39 @@
+{
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk-xelatex",
+      "command": "latexmk",
+      "args": [
+        "-xelatex",
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "%DOC%"
+      ]
+    },
+    {
+      "name": "latexmk-xelatex-print",
+      "command": "latexmk",
+      "args": [
+        "-xelatex",
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "-jobname=main_print",
+        "-usepretex=\\def\\printlinks{1}",
+        "%DOC%"
+      ]
+    }
+  ],
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk (XeLaTeX)",
+      "tools": ["latexmk-xelatex"]
+    },
+    {
+      "name": "latexmk (XeLaTeX print)",
+      "tools": ["latexmk-xelatex-print"]
+    }
+  ],
+  "latex-workshop.latex.recipe.default": "latexmk (XeLaTeX)"
+}

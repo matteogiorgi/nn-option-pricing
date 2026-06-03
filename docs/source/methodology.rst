@@ -65,6 +65,17 @@ Inputs are standardized and the target is scaled during training. Target
 scaling improves numerical conditioning because option prices may span a wider
 range than the normalized input features.
 
+The final configuration uses the engineered moneyness feature
+:math:`S_0/K`, so the learned map becomes
+
+.. math::
+
+   f_\theta(S_0, K, T, r, \sigma, S_0/K) \approx C_{BS}.
+
+Moneyness is included because it summarizes the relative position of the
+underlying price with respect to the strike, which is financially informative
+for option-pricing regression.
+
 Monte Carlo Benchmark
 ---------------------
 
@@ -82,3 +93,28 @@ Monte Carlo pricing estimates
 Because the option is European and path-independent, the implementation samples
 the exact terminal distribution instead of simulating intermediate time steps.
 
+Controlled Noisy Targets
+------------------------
+
+The noisy-target experiments perturb only the training labels:
+
+.. math::
+
+   \widetilde{C}_{BS}
+   =
+   \max(C_{BS} + \varepsilon, 0),
+   \qquad
+   \varepsilon \sim \mathcal{N}(0, \tau^2).
+
+The validation and test targets remain clean analytical Black-Scholes prices.
+This design measures robustness to imperfect training labels while preserving a
+known ground truth for evaluation.
+
+SVR Baseline
+------------
+
+Support Vector Regression is used as a classical machine learning reference.
+It is evaluated on reduced synthetic datasets because kernel SVR scales less
+favorably than the neural-network pipeline when the number of training samples
+becomes large. The purpose is therefore comparative and diagnostic, not to
+replace the final neural-network experiment.

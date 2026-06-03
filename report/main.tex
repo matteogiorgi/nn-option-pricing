@@ -99,12 +99,22 @@
     {#1}
 \titlespacing*{\chapter}{0pt}{-0.2em}{2.1em}
 
-\hypersetup{
-    colorlinks=true,
-    linkcolor=projectQuoteAccent,
-    citecolor=projectListingAccent,
-    urlcolor=projectListingAccent
-}
+\ifdefined\printlinks
+    \hypersetup{
+        colorlinks=false,
+        linkbordercolor={1 0 0},
+        citebordercolor={1 0 0},
+        urlbordercolor={1 0 0},
+        pdfborder={0 0 0.8}
+    }
+\else
+    \hypersetup{
+        colorlinks=true,
+        linkcolor=projectQuoteAccent,
+        citecolor=projectListingAccent,
+        urlcolor=projectListingAccent
+    }
+\fi
 
 \lstdefinestyle{pythonstyle}{
     language=Python,
@@ -157,15 +167,20 @@
     \vspace{0.5em}%
 }
 
-\newcommand{\projecttitle}{Neural Network-Based European Option Pricing under Black-Scholes SDE Dynamics}
+\newcommand{\projecttitle}{Neural Network-Based European Option Pricing under Black-Scholes SDE dynamics}
 \newcommand{\projectcourse}{Machine Learning for Finance}
 \newcommand{\projectsubtitle}{\today}
 \newcommand{\projectrepository}{https://github.com/matteogiorgi/nn-option-pricing}
 \newcommand{\projectrepositorylabel}{nn-option-pricing}
+\ifdefined\printlinks
+    \newcommand{\projectrepositorycolor}{black}
+\else
+    \newcommand{\projectrepositorycolor}{projectListingAccent}
+\fi
 \newcommand{\projectmembers}{%
     Matteo Giorgi\\
     Lorenzo Ghiotti\\
-    Nalumansi Anne Frances\\
+    Anne Frances Nalumansi\\
     Alice Pedron%
 }
 \newcommand{\makeprojecttitlepage}{%
@@ -190,7 +205,7 @@
             \vspace{0.10cm}
             {\Huge\bfseries\scshape European Option Pricing\par}
             \vspace{0.45cm}
-            {\Large\bfseries\scshape under Black-Scholes SDE Dynamics\par}
+            {\Large\bfseries\scshape under Black-Scholes SDE dynamics\par}
 
             \vspace{1.0cm}
             {\large\itshape A supervised learning study of neural networks\par}
@@ -201,7 +216,7 @@
             {\large\scshape \projectmembers\par}
 
             \vspace{1.0cm}
-            {\footnotesize\color{projectListingAccent}\href{\projectrepository}{\faGithub\hspace{0.35em}{\small\texttt{\projectrepositorylabel}}}\par}
+            {\footnotesize\color{\projectrepositorycolor}\href{\projectrepository}{\faGithub\hspace{0.35em}{\small\texttt{\projectrepositorylabel}}}\par}
         \end{minipage}
     \end{titlepage}
 }
@@ -212,7 +227,7 @@
     \fbox{%
         \begin{minipage}[c][5cm][c]{0.88\linewidth}
             \centering
-            \small Figure not yet available: #1
+            \small Missing figure: #1
         \end{minipage}
     }%
 }

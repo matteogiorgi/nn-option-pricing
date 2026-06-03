@@ -38,6 +38,7 @@ outputs/
 # OS/editor files
 .DS_Store
 Thumbs.db
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 tags

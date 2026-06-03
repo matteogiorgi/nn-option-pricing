@@ -74,11 +74,34 @@ inference, and Monte Carlo simulation:
    python scripts/benchmark_runtime.py \
      --feature-set with_moneyness \
      --activation silu \
-     --output-dir outputs/runtime_benchmark
+     --output-dir results/experiments/runtime_benchmark
 
 The benchmark also reports the neural network training time separately from
 pricing/inference time. This distinction is important because a neural pricing
 surrogate has an upfront training cost, but can be fast once trained.
+
+Auxiliary Experiment Scripts
+----------------------------
+
+Additional experiment entry points are provided for the reduced-scale classical
+baselines and robustness checks:
+
+.. code-block:: bash
+
+   python scripts/run_svr_benchmark.py
+   python scripts/run_noisy_targets_experiment.py
+   python scripts/run_noisy_svr_benchmark.py
+
+The report-specific comparison figures are generated with:
+
+.. code-block:: bash
+
+   python scripts/generate_report_figures.py
+
+These scripts are separated from the main pipeline so that the core
+neural-network experiment remains focused, while supplementary comparisons can
+be reproduced independently. The most commonly used options for each script
+are summarized in the command reference.
 
 Fast Smoke Test
 ---------------

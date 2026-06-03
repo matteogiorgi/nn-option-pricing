@@ -1,7 +1,7 @@
 Neural Network Option Pricing
 =============================
 
-This documentation describes a Machine Learning for Finance project on neural
+This site documents a Machine Learning for Finance project on neural
 network surrogates for European option pricing under Black-Scholes dynamics.
 
 The project investigates the following question:
@@ -25,5 +25,7 @@ The documentation is organized into two complementary parts:
    methodology
    experiment_pipeline
    experiments
+   reproducibility
+   command_reference
    testing
    api/index

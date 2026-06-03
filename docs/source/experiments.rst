@@ -1,8 +1,8 @@
 Experiments
 ===========
 
-The first experiment is designed to verify that the end-to-end pipeline works
-and that the network can learn the Black-Scholes pricing function.
+The experiments verify that the end-to-end pipeline works and that the neural
+network can learn the Black-Scholes pricing function.
 
 The main neural network metrics are:
 
@@ -60,8 +60,8 @@ The final neural network metrics against analytical Black-Scholes prices are:
    * - MAPE, price > 1
      - 0.4802504182%
 
-Further Experiment Ideas
-------------------------
+Additional Experiments
+----------------------
 
 The codebase already supports two controlled experimental switches:
 
@@ -87,9 +87,26 @@ SVR baseline through ``scripts/run_noisy_svr_benchmark.py``. This provides a
 classical ML robustness reference while keeping SVR experiments computationally
 bounded.
 
-For the final project report, additional useful experiments include:
+The runtime comparison is available through ``scripts/benchmark_runtime.py``.
+It separates neural-network training time from pricing time and compares
+analytical Black-Scholes evaluation, neural-network inference, and Monte Carlo
+simulation.
+
+The figures used in the report are generated with
+``scripts/generate_report_figures.py`` from tracked experiment summaries. This
+keeps the report figures reproducible without committing intermediate plotting
+work.
+
+Future Extensions
+-----------------
+
+Possible future extensions include:
 
 * increasing the synthetic dataset size;
 * comparing different hidden layer widths and depths;
 * measuring how the error changes with moneyness, maturity, and volatility;
-* comparing inference time against Monte Carlo simulation.
+* estimating Greeks through automatic differentiation;
+* extending the pricing setup to stochastic-volatility, path-dependent, or
+  American-style derivatives;
+* using real exchange-traded option data, which would change the research
+  question from approximating Black-Scholes to modeling market prices.

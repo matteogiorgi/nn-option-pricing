@@ -46,21 +46,21 @@ This interpretation is organized in Table~\ref{tab:discussion-claims}.
         >{\raggedright\arraybackslash}p{0.27\linewidth}
         >{\raggedright\arraybackslash}p{0.37\linewidth}
         >{\raggedright\arraybackslash}p{0.26\linewidth}
-    }
+        }
         \toprule
-        Claim & Evidence & Caveat \\
+        Claim & Evidence                                                                               & Caveat \\
         \midrule
         The neural network approximates Black-Scholes accurately
-        & final MAE, RMSE, $R^2$, true-vs-predicted plot, and error diagnostics
-        & valid on the sampled parameter domain, not automatically outside it \\
+              & final MAE, RMSE, $R^2$, true-vs-predicted plot, and error diagnostics
+              & valid on the sampled parameter domain, not automatically outside it                             \\
         \projecttablerowsep
         Neural inference is useful as a surrogate
-        & runtime benchmark shows much faster inference than Monte Carlo
-        & training has an upfront cost and the analytical formula is still faster when available \\
+              & runtime benchmark shows much faster inference than Monte Carlo
+              & training has an upfront cost and the analytical formula is still faster when available          \\
         \projecttablerowsep
         Controlled noise degrades performance predictably
-        & noisy-target experiments show increasing MAE and RMSE with increasing label noise
-        & the noise is synthetic and should not be interpreted as real market microstructure \\
+              & noisy-target experiments show increasing MAE and RMSE with increasing label noise
+              & the noise is synthetic and should not be interpreted as real market microstructure              \\
         \bottomrule
     \end{tabular}
     \caption{Interpretation of the main empirical claims.}
@@ -193,6 +193,69 @@ This experiment should not be confused with real market modeling.
 Real option prices contain bid-ask spreads, liquidity effects, dividend assumptions, early-exercise considerations for some contracts, and implied-volatility structure.
 The controlled noisy-target experiment is therefore a robustness analysis, not a substitute for exchange-traded option data.
 
+\section{Computational Considerations}
+
+The computational question in this project is not whether the pricing quantities are computable in a theoretical sense.
+On the bounded synthetic domain considered in the experiments, the analytical Black-Scholes formula, the Monte Carlo estimator, the neural-network predictor, and the SVR benchmark are all numerically computable.
+The relevant question is instead practical: how much computational work is required to obtain many option prices with acceptable accuracy, and how this work is distributed between training, simulation, and inference.
+
+This distinction matters because the considered methods have different computational profiles.
+Black-Scholes pricing is available in closed form, Monte Carlo pricing trades accuracy for a larger number of simulated paths, neural-network pricing pays an upfront training cost and then provides fast inference, while SVR is useful as a classical baseline but becomes expensive when the number of training samples grows.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{
+        >{\raggedright\arraybackslash}p{0.27\linewidth}
+        >{\raggedright\arraybackslash}p{0.33\linewidth}
+        >{\raggedright\arraybackslash}p{0.30\linewidth}
+        }
+        \toprule
+        Method         & Main computational cost       & Practical implication           \\
+        \midrule
+        Black-Scholes  & closed-form evaluation        & fast ground-truth computation   \\
+        \projecttablerowsep
+        Monte Carlo    & number of simulated paths     & accurate but expensive at scale \\
+        \projecttablerowsep
+        Neural network & training phase                & fast inference after training   \\
+        \projecttablerowsep
+        SVR            & kernel computation on samples & suitable only at reduced scale  \\
+        \bottomrule
+    \end{tabular}
+    \caption{Cost drivers and practical implications of the pricing methods considered in the project.}
+    \label{tab:computational-profile}
+\end{table}
+
+This cost perspective explains the role of the learned surrogate.
+The neural network is not needed to beat the analytical Black-Scholes formula when that formula is available.
+Instead, it illustrates a computational pattern that is common in surrogate modeling: an initial training cost is paid once, and subsequent evaluations are reduced to fast forward passes.
+This is the perspective supported by the runtime benchmark.
+
+\subsection{Implementation-Level Considerations}
+
+The previous comparison also depends on how the algorithms are implemented.
+As in any numerical experiment, all computations are performed with finite-precision floating-point arithmetic.
+This is acceptable for the present study because the objective is not symbolic exactness, but stable numerical approximation on a controlled domain.
+
+Python is used mainly as an orchestration language around optimized numerical libraries.
+This is important for the project because the computationally expensive operations are not implemented as pure Python loops:
+
+\begin{itemize}
+    \item dataset generation and analytical pricing use vectorized NumPy operations;
+    \item Monte Carlo simulation is batched;
+    \item neural-network training and inference are delegated to PyTorch;
+    \item the SVR benchmark relies on scikit-learn.
+\end{itemize}
+Therefore, the performance results reflect the behavior of a realistic scientific Python workflow based on native numerical backends, not the performance of interpreted Python code alone.
+
+For the same reason, the Python Global Interpreter Lock is not a practical bottleneck for the current implementation.
+The project does not rely on CPU-bound pure Python multithreading for its main numerical workload.
+\begin{quote}
+The GIL could become relevant only for future extensions that attempted to parallelize heavy computations with Python threads while keeping the work inside Python-level loops.
+In that case, multiprocessing, vectorization, native extensions, or GPU-based computation would be more appropriate choices.
+\end{quote}
+
+For performance-critical components requiring finer control over memory management and parallel execution, it could also be preferable to move the computational kernel to a language better suited to low-level numerical performance, such as C++, Rust, or Julia.
+
 \section{Limits of the Synthetic Setting}
 
 The use of synthetic data is appropriate for the research question because the target is the Black-Scholes pricing function itself.
@@ -210,19 +273,19 @@ The limitation is that the conclusions remain internal to the Black-Scholes worl
         >{\raggedright\arraybackslash}p{0.32\linewidth}
         >{\raggedright\arraybackslash}p{0.28\linewidth}
         >{\raggedright\arraybackslash}p{0.30\linewidth}
-    }
+        }
         \toprule
-        Aspect & Synthetic setting & Real market setting \\
+        Aspect            & Synthetic setting                    & Real market setting                            \\
         \midrule
-        Target & analytical Black-Scholes price & observed market quote \\
+        Target            & analytical Black-Scholes price       & observed market quote                          \\
         \projecttablerowsep
-        Ground truth & known exactly & not directly known \\
+        Ground truth      & known exactly                        & not directly known                             \\
         \projecttablerowsep
-        Noise & controlled by design & market microstructure and liquidity \\
+        Noise             & controlled by design                 & market microstructure and liquidity            \\
         \projecttablerowsep
-        Evaluation & direct error against $C_{BS}$ & depends on data quality and market assumptions \\
+        Evaluation        & direct error against $C_{BS}$        & depends on data quality and market assumptions \\
         \projecttablerowsep
-        Research question & approximation of a known pricing map & modeling market prices \\
+        Research question & approximation of a known pricing map & modeling market prices                         \\
         \bottomrule
     \end{tabular}
     \caption{Difference between the project setting and a real-market option-pricing setting.}
@@ -246,13 +309,13 @@ It is a role-based comparison:
 
 \begin{align}
     \text{Black-Scholes}
-    &\rightarrow
-    \text{ground truth}, \\
+     & \rightarrow
+    \text{ground truth},                  \\
     \text{Monte Carlo}
-    &\rightarrow
+     & \rightarrow
     \text{classical numerical benchmark}, \\
     \text{NN}
-    &\rightarrow
+     & \rightarrow
     \text{fast learned surrogate}.
 \end{align}
 

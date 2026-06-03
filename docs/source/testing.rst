@@ -1,7 +1,7 @@
 Testing and Validation
 ======================
 
-The project includes automated tests to keep the numerical and machine learning
+The project includes automated tests to keep the numerical and machine-learning
 components reliable as the code evolves.
 
 Run the test suite with:

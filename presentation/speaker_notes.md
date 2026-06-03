@@ -98,7 +98,7 @@ regression problem.
 | Slide | Title | Report reference |
 | --- | --- | --- |
 | 8 | Synthetic Dataset | Chapter 4, Sections 4.1-4.2 |
-| 9 | Why Synthetic Data? | Chapter 4, Section 4.1; Chapter 8, Section 8.7 |
+| 9 | Why Synthetic Data? | Chapter 4, Section 4.1; Chapter 8, Section 8.8 |
 | 10 | Feature Engineering: Moneyness | Chapter 4, Section 4.3; Chapter 8, Section 8.3 |
 | 11 | Supervised Learning Setup | Chapter 3, Section 3.1; Chapter 5, Section 5.1 |
 | 12 | Neural Network Architecture | Chapter 3, Sections 3.2-3.3; Chapter 5, Section 5.3 |
@@ -155,12 +155,12 @@ experimentally controlled.
 
 | Slide | Title | Report reference |
 | --- | --- | --- |
-| 14 | Software Architecture | Chapter 6, Sections 6.1-6.2 |
+| 14 | Software Architecture | Chapter 6, Sections 6.1-6.2; Chapter 8, Section 8.7 |
 | 15 | Experiment Pipeline | Chapter 5, Section 5.1; Chapter 6, Section 6.4 |
 | 16 | Final Experiment Configuration | Chapter 5, Sections 5.3-5.7; Chapter 7, Section 7.1 |
 | 17 | Model Selection Experiments | Chapter 7, Section 7.3 |
-| 18 | Runtime Benchmark | Chapter 5, Section 5.6; Chapter 7, Section 7.4 |
-| 19 | SVR Baseline | Chapter 3, Section 3.4; Chapter 5, Section 5.7; Chapter 7, Section 7.5 |
+| 18 | Runtime Benchmark | Chapter 5, Section 5.6; Chapter 7, Section 7.4; Chapter 8, Section 8.7 |
+| 19 | SVR Baseline | Chapter 3, Section 3.4; Chapter 5, Section 5.7; Chapter 7, Section 7.5; Chapter 8, Section 8.9 |
 
 ### Suggested Speech
 
@@ -169,7 +169,14 @@ Show that the codebase is organized into modules with separate
 responsibilities. This is important for reproducibility and professional
 structure: analytical pricing, dataset generation, model definition, training,
 Monte Carlo benchmarking, and SVR benchmarking are not mixed together in a
-single script.
+single script. Also clarify the computational role of Python: in this project
+Python mainly orchestrates optimized numerical backends. Dataset generation and
+analytical pricing use NumPy, neural-network training and inference use
+PyTorch, and the SVR baseline uses scikit-learn. This means that the main
+runtime results do not reflect pure Python loops, but a realistic scientific
+Python workflow built around native numerical libraries. The GIL is therefore
+not a practical bottleneck for the current implementation; it would matter
+mainly for future CPU-bound extensions based on Python-level multithreading.
 
 **Slide 15 - Experiment Pipeline.**  
 Describe the end-to-end workflow: data generation, analytical price
@@ -220,7 +227,7 @@ being precise about the limits of the conclusion.
 | 21 | Predicted vs Analytical Prices | Chapter 7, Section 7.1 |
 | 22 | Error Diagnostics | Chapter 7, Section 7.7; Chapter 8, Section 8.4 |
 | 23 | Noisy Target Robustness | Chapter 4, Section 4.5; Chapter 7, Section 7.6; Chapter 8, Section 8.5 |
-| 24 | Interpretation and Limits | Chapter 8, Sections 8.1-8.7 |
+| 24 | Interpretation and Limits | Chapter 8, Sections 8.1-8.8 |
 | 25 | Final Takeaway | Chapter 9 |
 
 ### Suggested Speech
